@@ -1,0 +1,425 @@
+//
+//  KSMNetworkRequest.h
+//
+//  Created by ksm on 15/11/10.
+//  Copyright © 2015年 GreatGate. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+@class XLFileConfig;
+
+/**
+ 请求成功block
+ */
+typedef void (^requestSuccessBlock)(id responseObj);
+
+/**
+ 请求失败block
+ */
+typedef void (^requestFailureBlock) (NSError *error);
+
+
+#ifdef DEBUG
+#define KSMLog(...) NSLog(__VA_ARGS__)
+#else
+#define KSMLog(...)
+#endif
+
+@interface KSMNetworkRequest : NSObject
+
++(void)cancelquest;
+
+/**
+ GET请求
+ */
++ (void)getRequest:(NSString *)url params:(NSDictionary *)params success:(requestSuccessBlock)successHandler failure:(requestFailureBlock)failureHandler;
+
+/**
+ POST请求
+ */
++ (void)postRequest:(NSString *)url params:(NSDictionary *)params success:(requestSuccessBlock)successHandler failure:(requestFailureBlock)failureHandler;
+
+
+
+//智慧采购删除商品
++ (void)WisdomShopCartDeleteProduce:(NSString *)url params:(id)params finished:(void(^)(BOOL finish))finished;
+
+//智慧采购淘汰商品
++ (void)WisdomShopCartWeekOutProduce:(NSString *)url params:(id)params finished:(void(^)(BOOL finish))finished;
+
+//展开。折叠
++ (void)WisdomExpandChange:(NSString *)url params:(id)params finished:(void(^)(BOOL finish))finished;
+
++ (void)updateImgRequest:(NSString *)url params:(NSDictionary *)params success:(requestSuccessBlock)successHandler failure:(requestFailureBlock)failureHandler;
+
+/**
+ *商品列表
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getProductListUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,STProductListEntity *entity,NSError *error))finshed;
+
+/**
+  *商品搜索
+  *@param url   地址
+  *@param finshed   请求结果
+  */
++(void)getProductAssociateUrl:(NSString *)url text:(NSString *)text finshed:(void(^)(id dataResult,NSError *error))finshed;
+
+/**
+ *商品搜索
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getShopAssociateUrl:(NSString *)url text:(NSString *)text finshed:(void(^)(id dataResult,NSError *error))finshed;
+
+/**
+ *商铺列表
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getShopListUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,STShopListEntity *entity,NSError *error))finshed;
+
+
+/**
+ *商铺里商品列表
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getStorewideListUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,STStorewideEntity *entity,NSError *error))finshed;
+
+/**
+ *商品分类
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getStoreClassUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,STStoreClassEntity *entity,NSError *error))finshed;
+
+/**
+ *商品搜索
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getStoreClassAssociateUrl:(NSString *)url params:(id)params finshed:(void(^)(id dataResult,NSError *error))finshed;
+
+/**
+ *探索类型
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getSearchListUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,STCateListEntity *entity,NSError *error))finshed;
+
+
+/**
+ *探索列表
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getSearchGetCateProductsUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,STCateListEntity *entity,NSError *error))finshed;
+
+
+/**
+ *商铺首页
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getShopHomeListUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,NSError *error))finshed;
+
+/**
+ *商铺简介
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getShopInfoListUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,NSError *error))finshed;
+
+/**
+ *商铺关注
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getShopAddStoreToFavoriteUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,NSError *error))finshed;
+
+/**
+ *商铺取消关注
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getShopAddStoreDelFavoriteUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,NSError *error))finshed;
+
+
+/**
+  *智慧采购
+  *@param params   所传数据
+  *@param url   地址
+  *@param finshed   请求结果
+  */
++(void)getWisdomProcurementUrl:(NSString *)url params:(id)params type:(NSInteger)type finshed:(void(^)(NSMutableArray *dataResult,NSMutableArray *indexResult,NSError *error,NSMutableDictionary *indexDict,NSString *mobile))finshed;
+
+/**
+ *智慧采购删除
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getDeletePurchaseUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,NSError *error))finshed;
+
+/**
+  *智慧采购改变购买数量
+  *@param params   所传数据
+  *@param url   地址
+  *@param finshed   请求结果
+  */
++(void)getChangePurchaseCountUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,NSError *error))finshed;
+
+
+/**
+ *智慧采购方案
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getPurchaseSchemeUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,NSError *error))finshed;
+
+/**
+ *恢复取消选择的品种
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getCancelDeletePurchaseForIdUrl:(NSString *)url params:(id)params finshed:(void(^)(BOOL isYes,NSError *error))finshed;
+
+
+
+/**
+ *智慧采购人淘汰
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getDeletePurchaseEliminateParamsUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,NSError *error))finshed;
+
+
+/**
+ *恢复淘汰选择的品种
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getCancelDeletePurchaseEliminateForIdUrl:(NSString *)url params:(id)params finshed:(void(^)(BOOL isYes,NSError *error))finshed;
+
+/**
+ *智慧采购凑单列表
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getSearchProductNewUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,STStorewideEntity *entity,NSError *error))finshed;
+
+/**
+ *智慧采购凑单加购物
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getAddPurchaseProductUrl:(NSString *)url params:(id)params  finshed:(void(^)(STStorewideEntity *entity,NSString *mesg,NSString *code,NSError *error))finshed;
+
+
+/**
+ *智慧采购扫码购
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getProductListBarCodeUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,STProductListEntity *entity,NSError *error))finshed;
+
+
+/**
+ *智慧采购扫码购添加
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getAddPurchaseSearchProductUrl:(NSString *)url params:(id)params  finshed:(void(^)(NSString *mesg,NSString *code, NSError *error))finshed;
+
+/**
+ *智慧采购人工采购
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getArtificialPurchasingUrl:(NSString *)url finshed:(void(^)(NSMutableArray *dataResult,NSError *error))finshed;
+
+/**
+ *人工采购分享接口
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getpurchaseHome_TabManualShareUrl:(NSString *)url params:(id)params  finshed:(void(^)(NSDictionary *data, NSError *error))finshed;
+
+/**
+ *智慧采购审计划批量提交购买数量
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getBatchSubmitForPurchaseHomeUrl:(NSString *)url params:(id)params  finshed:(void(^)(NSString *code,NSError *error))finshed;
+
+
+
+/**
+ *店铺首页商品分类
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getStoreCateListUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,STStoreClassEntity *entity,NSError *error))finshed;
+
+/**
+*是否勾选品种
+*@param params   所传数据
+*@param url   地址
+*@param finshed   请求结果
+*/
++(void)setChangeSelectUrl:(NSString *)url params:(NSDictionary *)params finshed:(void(^)(BOOL isYes))finshed;
+
+
+/**
+ *人工采购改变购买数量
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getChangePurchaseCountForPsnUrl:(NSString *)url params:(id)params  finshed:(void(^)(BOOL isYes))finshed;
+
+/**
+ *人工采购分享是否成功
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getShareOfSuccessUrl:(NSString *)url params:(NSDictionary *)params finshed:(void(^)(BOOL isSuccess))finshed;
+
+
+/**
+ *待付款订单详情
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getOrderNoPayDetialUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,id data,STPaymentDetailsEntity *entity,NSError *error))finshed;
+
+
+/**
+ *结算订单详情
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getAppConfirmOrderUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,id data,STPaymentDetailsEntity *entity,NSError *error))finshed;
+
+/**
+ *提交订单
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getAppSubmitOrderUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,id data,STPaymentDetailsEntity *entity,NSError *error))finshed;
+
+/**
+ *微信支付
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getAppwebchatUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,NSError *error))finshed;
+
+/**
+ *支付方式选择页面接口
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getAppPayUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,NSError *error))finshed;
+
+/**
+ *切换店铺
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getSwitchStoreUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,NSError *error))finshed;
+
+
+/**
+ *智慧采-淘汰品种列表
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getEliminateListUrl:(NSString *)url params:(id)params  finshed:(void(^)(id dataResult,NSError *error))finshed;
+
+
+/**
+ *取得未读消息条数api
+ *@param params   所传数据
+ *@param url   地址
+  *@param finshed   请求结果
+ */
++(void)getMessageBoxInfoUrl:(NSString *)url params:(id)params finshed:(void(^)(NSString *massageNum))finshed;
+
+
+/**
+ *取得消息盒子子列表未读消息数据
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getMessageBoxInfoListUrl:(NSString *)url params:(id)params finshed:(void(^)(id dataResult,NSError *error))finshed;
+
+
+/**
+ *取得消息盒子列表明细
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getMessageBoxListUrl:(NSString *)url params:(id)params finshed:(void(^)(id dataResult,STMessageBoxEntity *entity,NSError *error))finshed;
+
+
+/**
+ *取得电子发票列表明细
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getMessageInvoiceListUrl:(NSString *)url params:(id)params finshed:(void(^)(id dataResult,STMessageBoxEntity *entity,NSError *error))finshed;
+
+/**
+ *智慧采购购物车内搜索
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getPurchaseCartSearchUrl:(NSString *)url params:(id)params finshed:(void(^)(id wisdomDataResult,id artificialDataResult,NSError *error))finshed;
+
+/**
+ *智慧采购购物车内搜索添加
+ *@param params   所传数据
+ *@param url   地址
+ *@param finshed   请求结果
+ */
++(void)getPurchaseCartUrl:(NSString *)url params:(id)params  finshed:(void(^)(STShopCartSeachEntity *entity,NSString *mesg,NSString *code, NSError *error))finshed;
+
+@end
+
+

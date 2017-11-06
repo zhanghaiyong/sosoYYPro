@@ -1,0 +1,52 @@
+//
+//  IOUIntroduceController.m
+//  sosoYY
+//
+//  Created by zhy on 2017/8/18.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "IOUIntroduceController.h"
+#import "RegisterIOUStepOne.h"
+
+@interface IOUIntroduceController ()
+@property (weak, nonatomic) IBOutlet UILabel *alertLab;
+
+@end
+
+@implementation IOUIntroduceController
+
+- (void)viewWillAppear:(BOOL)animated {
+
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+    
+    self.alertLab.text = @"";
+}
+
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+}
+
+//返回
+- (IBAction)backClick:(id)sender {
+    
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+//立即开通
+- (IBAction)beginOpenClick:(id)sender {
+
+    self.navigationController.navigationBar.hidden = NO;
+    UIStoryboard *SB = [UIStoryboard storyboardWithName:@"RegisterIOUStepOne" bundle:nil];
+    RegisterIOUStepOne *stepSecond = [SB instantiateViewControllerWithIdentifier:@"RegisterIOUStepOne"];
+    [self.navigationController pushViewController:stepSecond animated:YES];
+}
+
+//什么是白条
+- (IBAction)whatIsIOUClick:(id)sender {
+}
+
+@end

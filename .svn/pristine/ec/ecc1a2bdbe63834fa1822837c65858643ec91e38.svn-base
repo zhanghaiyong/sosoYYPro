@@ -1,0 +1,39 @@
+//
+//  STShopCartSeachViewController.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/8/4.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STShopCartSeachViewController.h"
+
+@interface STShopCartSeachViewController ()
+
+@end
+
+@implementation STShopCartSeachViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+
+@end

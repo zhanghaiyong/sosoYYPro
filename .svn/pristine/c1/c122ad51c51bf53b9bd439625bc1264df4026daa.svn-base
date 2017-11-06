@@ -1,0 +1,317 @@
+//
+//  NSURLs.h
+//  cdcarlife
+//
+//  Created by ksm on 15/11/26.
+//  Copyright © 2015年 ksm. All rights reserved.
+//
+
+#ifndef NSURLs_h
+#define NSURLs_h
+
+//112.74.20.53
+#define  BaseURLString (@"http://112.74.20.53/webapp/")
+
+#endif /* NSURLs_h */
+
+//验证成功 获取用户ID
+#define KGetUserID [BaseURLString stringByAppendingString:@"user/registerUser"]
+
+#define checkHost @"www.baidu.com" //检查网络是否可达
+
+//外网https
+//#define requestHost "https://api.m.sosoyy.com"
+
+//外网http
+//#define requestHost "http://api.m.sosoyy.com"
+
+//测试环境
+#define requestHost "http://192.168.1.7:100"
+
+//https测试环境
+//#define requestHost "https://192.168.1.7"
+
+//外网测试环境 
+//#define requestHost "http://test.sosoyy.com:100"  
+
+//青稞
+//#define requestHost "http://192.168.1.75:8032"
+
+//啊飞
+//#define requestHost "http://192.168.1.74:9880"
+
+//宇哥
+//#define requestHost "http://192.168.1.49:99"
+
+//健哥
+//#define requestHost "http://192.168.1.123:8011"
+
+#define requestIndex @requestHost//首页
+
+
+#pragma mark 启动APP上传经纬度
+#define requestUploadGps @requestHost"/WebApi/UploadGps"
+
+#pragma mark 白条申请
+//白条介绍
+#define requestWhatIsIOU @requestHost"/BlankNote/BlankNote_Introduce"
+
+//是否上传gps
+#define requestIsUploadGps @requestHost"/WebApi/GetIsUploadGps"
+
+
+//白条申请人信息
+#define requestApplyMsg @requestHost"/WebApi/GetuserCredit"
+#define requestApplyImg @requestHost"/WebApi/GetUserQualifications"
+
+//白条预支付接口
+#define requestIOUPrePay @requestHost"/BlankNote/PrePay"
+
+
+//验证身份证号和手机号
+#define requestVerifyIdno_Mobile @requestHost"/WebApi/IsBlankeNoteByidno_mobile"
+
+//白条预支付获取店铺列表
+#define requestIOUPrePayStoreList @requestHost"/BlankNote/GetOrderStoreList"
+
+//获取用户绑卡信息
+#define requestGetBindCardInfo @requestHost"/BlankNote/GetBindCardInfo"
+
+//白条列表
+#define BlankNoteListUrl  @requestHost"/BlankNote/BlankNoteList"
+
+//白条介绍
+#define BlankIOUIntroduce  @requestHost"/BlankNote/BlankNote_Introduce"
+
+//取消-确认白条申请
+#define BlankIOUCancel  @requestHost"/BlankNote/LoanContractConfirm"
+
+//提交申请信息
+#define requestSubmitMsg @requestHost"/WebApi/UploadRegisterUserInfo"
+#define requestSubmitImage @requestHost"/WebApi/UploadRegisterImage"
+
+//钱包和账单 pageindex：页数 type:默认0，0表示全部，1表示支出，2表示收入
+#define requestWallet @requestHost"/webapi/GetBalanceByUid"
+//账单
+#define requestBill @requestHost"/webapi/GetBillList"
+//账单明细
+#define requestBillDetail @requestHost"/webapi/GetBilling_Details"
+//待付款订单列表
+#define requestWaitPay @requestHost"/webapi/GetOrderNoPay"
+
+//订单列表 tab：1待收货,2冲红 3全部 pageIndex：页数
+#define requestGetOrderList @requestHost"/webapi/GetOrdersList"
+
+//取消订单
+#define requestCancelOrder @requestHost"/webapi/CancelOrder_NoPay"
+
+//再次购买
+#define requestBuyAgain @requestHost"/Cart/AddProductsForApp"
+
+//重置app角标
+#define requestUpdatePush @requestHost"/webapi/UpdatePush"
+
+//是否分享成功
+#define requestShareSuccess @requestHost"/WebApi/ShareInviteResultNotify"
+
+//银联获取流水号
+#define requestUPPay_TN @requestHost"/MobileUnionPay/PayForAPP"
+//待验货
+#define requestWaitReceipt @requestHost"/ucenter/OrderWaitReceiptList"
+
+#define requestZFB @requestHost"/MobAlipay/pay"//支付宝
+
+#define requestCheckTop @requestHost"/search/SUI_prod_rank?"//排行榜
+//修改数量
+#define requestChangeGoodsCount @requestHost"/webapi/ChangeProductCount"
+//修改商品选中状态
+#define requestProducChecked @requestHost"/webapi/ChangeProducChecked"
+//删除商品
+#define requestDelProduct @requestHost"/webapi/DelProduct"
+
+//检测购物车商品是否满足购买条件
+#define BacthSubmitCartCheck @requestHost"/webapi/BatchSubmitCartCheck"
+
+#pragma mark-------------智慧采购
+//智慧采购修改数量
+#define requestWisdomChangeGoodsCount @requestHost"/webapi/ChangePurchaseCount"
+//智慧采购删除商品
+#define requestWisdomDeleteGood @requestHost"/webapi/DeletePurchaseForPid"
+//智慧采购确认采购
+#define requestWisdomSubmitGood @requestHost"/webapi/SubmitToConfirmorder"
+//智慧采购选中或取消加价购
+#define requestChangePromotionTypes @requestHost"/webapi/ChangePromotionTypes"
+// 在其它店铺采购列表
+#define requestGetOtherStorePorductList @requestHost"/webapi/GetOtherStorePorductList"
+// 确认在其它店铺采购
+#define requestSelectOtherStorePorduct @requestHost"/webapi/SelectOtherStorePorductId"
+
+//智慧采购购物车店铺是展开收缩修改
+#define requestExpandChange @requestHost"/WebApi/PurchaseCartExpandChange"
+
+//购物车提交验证
+#define requestPurchaseCartCheck @requestHost"/webapi/PurchaseCartCheck"
+
+#pragma mark-------------主页智慧采购
+
+//智慧采购跳转状态
+#define requestWisdomJumpState @requestHost"/webapi/GetPurchaseJumpState"
+
+//开通智慧采购
+#define requestWisdomRegister @requestHost"/Purchase/SimpleRegister"
+
+#define requestDelConfirmorder @requestHost"/order/confirmorder"
+#define requestCheckVersion @requestHost"/webapi/Tool"//检测更新
+#define requestUserCenter @requestHost"/ucenter/userinfo"
+#define requestUploadCertificate @requestHost"/UploadCer/UploadCertificate"//资质文件上传地址
+#define requestScanCode @requestHost"/barcode?barnum=" //条码查询
+#define requestSearch @requestHost"/Search"//热门搜索页
+#define requestCategory @requestHost"/Classification" //探索列表
+#define requestShopCart @requestHost"/webapi/Cart" //购物车
+#define requsetSearchDetail @requestHost"/Search/SearchDetail" //产品搜索结果页
+#define requsetStoreSearchResult @requestHost"/Store/StoreSearchResult" //店铺搜索结果页
+#define requsetProductBuy @requestHost"/product/ProductBuy?pid=" //购物车点击商品跳转至商品详情//页面
+#define requestProductDetail @requestHost"/product/productdetail"//商品详情页面
+
+//智慧采购
+#define requestWisdomCart @requestHost"/webapi/PurchaseCart"
+//商品列表
+#define requestProductListDetail @requestHost"/webapi/searchDetail"
+//店铺列表
+#define requestStoreListResult @requestHost"/webapi/StoreSearchResult"
+//商品搜索
+#define requestProductSearch @requestHost"/webapi/mquery?"
+//店铺搜索
+#define requestStoreSearch @requestHost"/webapi/mqueryForStore?"
+//店铺内商品列表
+#define requestInStoreSearchProduct @requestHost"/webapi/InStoreSearchProduct?"
+//店铺内商品搜索
+#define requestInStoreSearchProductSearch @requestHost"/webapi/mquery?"
+//店铺内商品分类
+#define requestStoreProductAssort @requestHost"/webapi/StoreProductAssort?"
+//商品详情页面
+#define requestProductDetailTow @requestHost"/product/productdetail?"
+//首页商品详情页面
+#define requestProductProductBuy @requestHost"/product/ProductBuy?"
+//s商铺首页
+#define requestShopHome @requestHost"/webapi/StoreIndex?"
+//s商铺简介
+#define requestShopInfo @requestHost"/webapi/StoreIntroduction?"
+//s商铺关注
+#define requestShopAddStoreToFavorite @requestHost"/webapi/AddStoreToFavorite?"
+//s商铺取消关注
+#define requestShopDelFavorite @requestHost"/webapi/DelFavoriteStore?"
+//s探索类型
+#define requestCateList @requestHost"/webapi/CateList"
+//s探索列表
+#define requestCGetCateProducts @requestHost"/webapi/GetCateProducts?"
+//智慧采购首页列表
+#define requestPurchaseHome @requestHost"/webapi/PurchaseHome?"
+//智慧采购首页列表删除
+#define requestDeletePurchase @requestHost"/webapi/DeletePurchase?"
+//智慧采购改变购买数量
+#define requestChangePurchaseCount @requestHost"/webapi/ChangePurchaseCountForGoods_Package_ID?"
+//智慧采购方案
+#define requestPurchaseScheme @requestHost"/webapi/PurchaseScheme"
+//智慧采购撤销删除
+#define requestCancelDeletePurchaseForPsn @requestHost"/webapi/CancelDeletePurchaseForPsn?"
+// 智慧采购恢复取消选择的品种
+#define requestCancelDeletePurchaseForId @requestHost"/webapi/CancelDeletePurchaseForId?"
+// 智慧采购淘汰选择的品种
+#define requestDeletePurchaseEliminate @requestHost"/webapi/DeletePurchaseEliminate?"
+// 智慧采购恢复淘汰选择的品种
+#define requestCancelDeletePurchaseEliminateForId @requestHost"/webapi/CancelDeletePurchaseEliminateForId?"
+// 智慧采购淘汰品种重新加入
+#define requestCancelPurchaseEliminateForPsn @requestHost"/webapi/CancelPurchaseEliminateForPsn?"
+// 智慧采购凑单
+#define requestSearchProductNew @requestHost"/WebApi/SearchProductNew?"
+// 智慧采购凑单加购物车接口
+#define requestAddPurchaseProduct @requestHost"/WebApi/AddPurchaseProduct?"
+// 智慧采购扫码购
+#define requestGetProductListBarCode @requestHost"/WebApi/GetProductListBarCode?"
+// 智慧采购人工采购
+#define requestPurchaseHome_TabManual @requestHost"/webapi/PurchaseHome_TabManual"
+// 扫码购搜索购买 添加购物清单
+#define requestAddPurchaseProductForGoods_Package_ID @requestHost"/WebApi/AddPurchaseProductForGoods_Package_ID?"
+// 人工采购分享接口
+#define requestPurchaseHome_TabManualShare @requestHost"/webapi/PurchaseHome_TabManualShare?"
+// 智慧采购审计划批量提交购买数量
+#define requestBatchSubmitForPurchaseHome @requestHost"/webapi/BatchSubmitForPurchaseHome"
+// 智慧采购帮助页面
+#define requesthelpCenterSrc @requestHost"/helpCenterSrc/helpCenter.htm"
+// 店铺首页分类
+#define requestStoreCateList @requestHost"/webapi/StoreCateList?"
+// 是否勾选品种
+#define requestChangeSelect @requestHost"/webapi/ChangeSelect?"
+//人工采购改变购买数量
+#define requestChangePurchaseCountForPsn @requestHost"/webapi/ChangePurchaseCountForPsn?"
+// 人工采判断分享是否成功接口
+#define requestPurchaseHome_TabManualShareFinsh @requestHost"/webapi/PurchaseHome_TabManualShareFinish"
+// 智慧采购淘汰列表
+#define requestEliminateList @requestHost"/WebApi/EliminateList"
+
+
+#pragma mark-------------订单详情
+// 待付款订单详情
+#define requestGetOrderNoPayDetial @requestHost"/webapi/GetOrderNoPayDetial?"
+// 结算款订单详情
+#define requestAppConfirmOrder @requestHost"/webapi/appConfirmOrder?"
+//订单结算页面点击优惠劵后跳转页面
+#define requestGetValidCouponList @requestHost"/Coupons/GetValidCouponList?"
+//订单结算页面点击修改地址
+#define requestGetAddress @requestHost"/Address/Index?"
+//订单结算页面设置默认收货地址
+#define requestEditAddress @requestHost"/address/EditAddress?"
+//提交订单
+#define requestAppSubmitOrder @requestHost"/webapi/appSubmitOrder?"
+//订单支付成功页面（余额支付够了）
+#define requestSubmitResult @requestHost"/order/SubmitResult?"
+//支付成功页面
+#define requestPayResult @requestHost"/Order/PayResult?"
+//微信支付
+#define requestAppwebchat @requestHost"/appwebchat/pay"
+//支付宝
+#define requestZFBPay        @requestHost"/MobAlipay/AppPay"
+//支付方式选择页面接口
+#define requestAppPay @requestHost"/WebApi/appPay?"
+//删除未提交冲红数据
+#define requestDelHotOrderApply @requestHost"/webapi/DelHotOrderApply?"
+//查询冲红数据
+#define requestGetHotOrderApplyState @requestHost"/webapi/GetHotOrderApplyState?"
+//代支付分享
+#define requestPayForAnother @requestHost"/PayForAnother/index?"
+//冲红查看
+#define requestOrderComfirmViewRed @requestHost"/OrderComfirm/ViewRed?"
+//冲红申请
+#define requestOrderComfirmApplyRed @requestHost"/OrderComfirm/ApplyRed?"
+//物流信息
+#define requestUcenterShipInfo @requestHost"/ucenter/ShipInfo?"
+//取得未读消息条数api
+#define requestGetMessageBoxInfo @requestHost"/WebApi/GetMessageBoxInfo"
+//取得消息盒子子列表未读消息数据
+#define requestGetMessageBoxInfoList @requestHost"/WebApi/GetMessageBoxInfoList"
+//取得消息盒子列表明细
+#define requestGetMessageBoxList @requestHost"/WebApi/GetMessageBoxList"
+//智慧采购购物车内搜索
+#define requestPurchaseCartSearch @requestHost"/WebApi/PurchaseCartSearch"
+
+
+//模拟支付
+#define requestsimulatorPay @requestHost"/order/PaySuccuss1?"
+
+#define requestStore @requestHost"/Store?storeid="//卖家店铺
+
+#define requestOrderRed @requestHost"/OrderComfirm?oid=" //订单冲红
+
+#define requestUploadOrderRed @requestHost"/UploadCer/UploadOrderRed"//冲红图片文件上传
+
+
+#define requestPayReslut @requestHost"/Order/PayResult?masteroidList="
+
+#define shareTitle @"首推APP"
+
+#define UPPay_Code @"UPPay_Code"
+
+#define Notice_GoTab @"Notice_GoTab"
+//itms-apps://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1135345334
+#define trunTabIndexUrl @"trunTabIndexUrl" //跳转到指定TabIndex，并跳转指定URL

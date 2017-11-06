@@ -1,0 +1,119 @@
+//
+//  STHeader.h
+//  my
+//
+//  Created by soso-mac on 2016/11/25.
+//  Copyright © 2016年 soso-mac. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "STProductListEntity.h"
+#import "STWisdomEntity.h"
+
+
+@interface STCommon : NSObject
+
++(STCommon *)sharedSTSTCommon;
+
+/**
+ *相同的label显示不同的字体颜色和大小
+ *@strAry 所传的字符串的颜色，大小，长度
+ *@changeStr 要改变的字符串
+ *@type  类型
+ */
+-(void)setChengeStringColor:(NSArray *)strAry andChengeString:(NSString *)changeStr type:(NSInteger)type andFinished:(void(^)(NSMutableAttributedString *string))finished;
+
+/**
+ *多选判断是否被选中
+ *@param name          选中的
+ *@param ary  总和
+ */
+-(BOOL)setSelectName:(NSString *)name tagArray:(NSMutableArray *)ary;
+
+
+/**
+ *单选判断是否被选中
+ *@param indexPath          选中的
+ *@param oldIndexPath  久的IndexPath
+ */
+-(BOOL)setSelectIndexPath:(NSIndexPath *)indexPath andOldIndexPath:(NSIndexPath *)oldIndexPath;
+
+/**
+ *过滤有特殊字符（_）的字符串
+ *@param str   要过滤的字符串
+ */
+-(NSString *)setchengStr:(NSString *)str;
+
+/**
+ *过滤的字符串中的（）
+ *@param str   要过滤的字符串
+ */
+-(NSString *)setchengStr:(NSString *)str oldStr:(NSString *)oldStr;
+
+/**
+ *截取字符串中的.字符
+ *@param str   要过滤的字符串
+ */
+-(NSString *)setCutStr:(NSString *)str;
+
+
+//判断字符串是否为空
+-(NSString *)setWhetherStringEmpty:(NSString *)str;
+
+//分享
+-(void)setShareProdRank:(id)reSult shareView:(id)currentViewController Finished:(void(^)(BOOL isSuccessful))finished;
+
+//分享QQ和微信
+-(void)setShare:(id)reSult shareView:(id)currentViewController Finished:(void(^)(BOOL isSuccessful))finished;
+
+- (void)shareWebPageToPlatformType:(UMSocialPlatformType)platformType reSult:(id)reSult shaerView:(id)currentViewController Finished:(void(^)(BOOL isSuccessful))finished;
+/**
+ *给view自定义边框
+ *@param view 自定义的view
+ *@param top  left  bottom right 上左下右
+ *@param color  边框颜色
+ *@param width 边框宽度
+ */
+- (void)setBorderWithView:(UIView *)view top:(BOOL)top left:(BOOL)left bottom:(BOOL)bottom right:(BOOL)right borderColor:(UIColor *)color borderWidth:(CGFloat)width;
+
+/*
+ *将一个字符串数组按照拼音首字母规则进行重组排序, 返回重组后的数组.
+ *格式和规则为:
+ *只会出现有对应元素的字母字典, 例如: 如果没有对应 @"C"的字符串出现, 则数组内也不会出现 @"C"的字典.
+ *数组内字典的顺序按照26个字母的顺序排序
+ *@"#"对应的字典永远出现在数组最后一位
+ */
+- (void)setArrayWithPinYinFirstLetterFormat:(NSMutableArray *)ary type:(NSInteger)type finished:(void(^)(NSMutableArray *dataAry,NSMutableArray *indexAry))finished;
+//获取当前日期
+-(NSString *)setDate;
+//15秒后消失
+-(void)setHideToastActivity:(void(^)(BOOL isYes))finished;
+//去掉字符串末尾中的.00或者0
++(NSString *)setHasSuffix:(NSString *)str;
+//获取当前日期比较
+- (BOOL)setIntervalSinceNow: (NSString *) theDate;
+//获取当前日期比较返回时间
+- (NSString *)intervalFromLastDate: (NSString *) dateString1  toTheDate:(NSString *) dateString2;
+//一个时间距现在的时间
+- (NSString *)intervalSinceNow: (NSString *) theDate;
+
+-(void)toScanViewWith:(UIViewController *)ctrl;
+
+//智慧采购扫码购
+-(void)setGetProductListBarCode:(NSMutableDictionary *)prams finshed:(void(^)(id result,STProductListEntity *toEntity,NSError *toError))finshed;
+
+//智慧采购多条数据插入存储
+-(void)setSaveMoreWisdomListDataBase:(id)dataResult type:(NSInteger)type;
+
+
+//智慧采购单条数据插入存储
+-(void)setAingleSaveWisdomListDataBase:(STWisdomEntity *)entity type:(NSInteger)type;
+
+//d1是否能整除d2
++ (BOOL)isRemainderD1:(CGFloat)d1 withD2:(CGFloat)d2 Block:(void(^)(BOOL isRemainder,int multiple))block;
+//判断有无安装QQ或微信吗
+-(BOOL)setWhetherToInstall:(NSString *)str;
+
+//推送消息
++(void)setMassge:(NSDictionary *)userInfo;
+@end

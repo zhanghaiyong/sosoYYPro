@@ -1,0 +1,56 @@
+//
+//  CheckContractViewCtrl.m
+//  sosoYY
+//
+//  Created by zhy on 2017/8/25.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "CheckContractViewCtrl.h"
+
+@interface CheckContractViewCtrl ()<UIWebViewDelegate>
+@property (weak, nonatomic) IBOutlet CustomWebView *customWebView;
+
+@end
+
+@implementation CheckContractViewCtrl
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+-(void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    self.navigationController.navigationBar.hidden = NO;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [[UIApplication sharedApplication].keyWindow showLoadingView:@"loading"];
+    NSURL *debugURL=[NSURL URLWithString:self.urlStr];
+    NSURLRequest *request=[NSURLRequest requestWithURL:debugURL];
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    self.customWebView.delegate = self;
+    [self.customWebView loadRequest:request];
+}
+
+#pragma mark UIwebVIewDelegate
+
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
+    
+    return YES;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
+    [[UIApplication sharedApplication].keyWindow hideToastActivity];
+}
+
+- (IBAction)backClick:(id)sender {
+    
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+@end

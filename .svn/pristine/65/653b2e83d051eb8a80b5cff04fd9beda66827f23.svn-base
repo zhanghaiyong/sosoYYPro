@@ -1,0 +1,16 @@
+//
+//  FilterCollectionView.h
+//  sosoYY
+//
+//  Created by zhy on 2017/8/4.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface FilterCollectionView : UIView
+
+@property (nonatomic,copy)void(^showFilterView)(void);
+@property (nonatomic,copy)void(^hideFilterView)(void);
+
+@end

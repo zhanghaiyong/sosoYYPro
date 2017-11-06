@@ -1,0 +1,21 @@
+//
+//  STOrderDetailsViewController.h
+//  sosoYY
+//
+//  Created by soso-mac on 2017/5/26.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface STOrderDetailsViewController : UIViewController
+@property(strong,nonatomic)NSString *orderId;
+@property(strong,nonatomic)NSString *urlStr;
+@property(assign,nonatomic)NSInteger orderType;//1:订单出库详情,2:订单发货详情,3:订单取消详情,4:订单完成详情,5:订单冲红详情.
+@property (weak, nonatomic) IBOutlet UILabel *titleLab;
+@property (strong, nonatomic)NSString *titleStr;
+@property (nonatomic,assign)BOOL pushFlag;
+@property (nonatomic,assign)BOOL orderListInto;
+@property (strong, nonatomic)NSString *QQ;
+@property(copy,nonatomic)void(^OrderDetailsBackBlock)(void);
+@end

@@ -1,0 +1,78 @@
+//
+//  IOUIntroduceController.m
+//  sosoYY
+//
+//  Created by zhy on 2017/8/18.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "IOUIntroduceController.h"
+#import "RegisterIOUStepOne.h"
+#import "WhatIOUViewController.h"
+@interface IOUIntroduceController ()
+@property (weak, nonatomic) IBOutlet UILabel *alertLab;
+@property (weak, nonatomic) IBOutlet UIButton *openBtn;
+
+@end
+
+@implementation IOUIntroduceController
+
+- (void)viewWillAppear:(BOOL)animated {
+
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+}
+
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    /*
+     1：跳转到申请
+     2：跳转到重新申请
+     3：跳转到正在审核
+     4：跳转到设置
+     */
+    switch (self.IOUType.integerValue) {
+        case 1:
+            self.alertLab.text = @"";
+            self.openBtn.hidden = NO;
+            break;
+        case 2:
+            self.alertLab.text = @"很抱歉，您的帐号未能通过审核，建议您严格按照要求提交信息，再审核！";
+            self.openBtn.hidden = NO;
+            break;
+        case 3:
+            self.alertLab.text = @"您的资质正在审核，请您耐心等待！";
+            self.openBtn.hidden = YES;
+            break;
+
+        default:
+            break;
+    }
+    
+    
+}
+
+//返回
+- (IBAction)backClick:(id)sender {
+    
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+//立即开通
+- (IBAction)beginOpenClick:(id)sender {
+
+    self.navigationController.navigationBar.hidden = NO;
+    UIStoryboard *SB = [UIStoryboard storyboardWithName:@"RegisterIOUStepOne" bundle:nil];
+    RegisterIOUStepOne *stepSecond = [SB instantiateViewControllerWithIdentifier:@"RegisterIOUStepOne"];
+    [self.navigationController pushViewController:stepSecond animated:YES];
+}
+
+//什么是白条
+- (IBAction)whatIsIOUClick:(id)sender {
+    
+    WhatIOUViewController *whatIsIOU = [[WhatIOUViewController alloc]init];
+    [self.navigationController pushViewController:whatIsIOU animated:YES];
+}
+
+@end

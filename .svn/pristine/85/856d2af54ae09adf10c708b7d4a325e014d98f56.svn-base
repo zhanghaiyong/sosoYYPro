@@ -1,0 +1,32 @@
+//
+//  STMessageActivityTableViewCell.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/7/28.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STMessageActivityTableViewCell.h"
+
+@implementation STMessageActivityTableViewCell
+-(void)setMessageActivity:(NSMutableArray *)arr indexPath:(NSIndexPath *)indexPath{
+    if (indexPath.row == 0) {
+        _namelab.text = @"周一制裁日";
+        _describeLab.text = @"小儿撒镜片，接电话就开始点击开始的";
+    }else{
+        _namelab.text = @"感冒药";
+        _describeLab.text = @"感冒咳嗽，接电话就开始点击开始的开始大哭结束的开始看的还是抠脚大汉手机壳健康合适的借口撒谎大家看好";
+    }
+}
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

@@ -1,0 +1,1 @@
+link ../../../ZXingObjC/ZXingObjC/oned/ZXMultiFormatUPCEANReader.h

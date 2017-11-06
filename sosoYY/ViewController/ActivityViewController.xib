@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ActivityViewController">
+            <connections>
+                <outlet property="titleLab" destination="ekv-Er-C5H" id="6H7-Cq-9Kj"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+                <outlet property="webView" destination="Qgs-vy-gMt" id="Sob-lb-Ehw"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XwQ-RO-hXr">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="64"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="辅材顺丰速递哥第四个AS" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ekv-Er-C5H">
+                            <rect key="frame" x="62" y="28" width="250" height="36"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="250" id="7Hh-Uu-NlE"/>
+                                <constraint firstAttribute="height" constant="36" id="aeA-Ss-AOX"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gem-SK-J9Q">
+                            <rect key="frame" x="10" y="24" width="36" height="36"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES"/>
+                            <state key="normal" image="back"/>
+                            <connections>
+                                <action selector="backAction:" destination="-1" eventType="touchUpInside" id="JMv-S7-Se5"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" red="0.91764705879999997" green="0.3294117647" blue="0.074509803920000006" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="64" id="qna-YO-VlZ"/>
+                        <constraint firstItem="ekv-Er-C5H" firstAttribute="centerX" secondItem="XwQ-RO-hXr" secondAttribute="centerX" id="wtQ-lp-lEK"/>
+                        <constraint firstAttribute="bottom" secondItem="ekv-Er-C5H" secondAttribute="bottom" id="xBg-En-Jdc"/>
+                    </constraints>
+                </view>
+                <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Qgs-vy-gMt" customClass="CustomWebView">
+                    <rect key="frame" x="0.0" y="64" width="375" height="603"/>
+                    <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                </webView>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="XwQ-RO-hXr" secondAttribute="trailing" id="5lH-ZT-Qgz"/>
+                <constraint firstItem="XwQ-RO-hXr" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="AqS-e8-ab7"/>
+                <constraint firstItem="XwQ-RO-hXr" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="Hwx-Yr-qeV"/>
+                <constraint firstItem="Qgs-vy-gMt" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="P07-Wu-E82"/>
+                <constraint firstItem="Qgs-vy-gMt" firstAttribute="top" secondItem="XwQ-RO-hXr" secondAttribute="bottom" id="eLq-5P-Tb7"/>
+                <constraint firstAttribute="trailing" secondItem="Qgs-vy-gMt" secondAttribute="trailing" id="kTA-EX-Xot"/>
+                <constraint firstAttribute="bottom" secondItem="Qgs-vy-gMt" secondAttribute="bottom" id="v42-fj-AFA"/>
+            </constraints>
+            <point key="canvasLocation" x="-111" y="55"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="back" width="30" height="30"/>
+    </resources>
+</document>

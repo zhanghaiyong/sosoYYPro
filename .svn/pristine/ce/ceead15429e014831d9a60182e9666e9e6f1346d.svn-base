@@ -1,0 +1,118 @@
+//
+//  FilterCollectionView.m
+//  sosoYY
+//
+//  Created by zhy on 2017/8/4.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "FilterCollectionView.h"
+#import "FilterHeaderView.h"
+@interface FilterCollectionView ()<UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout>
+@property(strong,nonatomic)UICollectionViewFlowLayout *wisdomFlowL;
+@property (strong, nonatomic)UICollectionView *wisdomCollectionView;
+
+@end
+
+@implementation FilterCollectionView
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        
+        self.backgroundColor = [UIColor colorWithWhite:0 alpha:0.5];
+        [self setUp];
+    }
+    return self;
+}
+
+- (void)setUp {
+
+    _wisdomFlowL = [UICollectionViewFlowLayout new];
+    [_wisdomFlowL setScrollDirection:UICollectionViewScrollDirectionVertical];
+    
+    _wisdomCollectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 0, self.width, 200)collectionViewLayout:_wisdomFlowL];
+    _wisdomCollectionView.backgroundColor = [UIColor whiteColor];
+    _wisdomCollectionView.delegate = self;
+    _wisdomCollectionView.dataSource = self;
+
+    
+    [_wisdomCollectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"filterCell"];
+
+    [_wisdomCollectionView registerNib:[UINib nibWithNibName:[FilterHeaderView.class description] bundle:nil] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"filterHeader"];
+    
+    [self addSubview:_wisdomCollectionView];
+    
+    
+    
+    UIButton *clearbtn = [[UIButton alloc]initWithFrame:CGRectMake(0, _wisdomCollectionView.bottom, self.width/3*2, 44)];
+    [clearbtn setTitle:@"清除筛选" forState:UIControlStateNormal];
+    [self addSubview:clearbtn];
+    
+    UIButton *finishbtn = [[UIButton alloc]initWithFrame:CGRectMake(clearbtn.right, _wisdomCollectionView.bottom, self.width/3, 44)];
+    finishbtn.backgroundColor = [UIColor fromHexValue:0xEA5413];
+    [finishbtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [finishbtn setTitle:@"完成" forState:UIControlStateNormal];
+    [self addSubview:finishbtn];
+    
+}
+
+#pragma mark --UICollectionView dataSource
+-(NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView{
+    return 2;
+}
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+
+    return 5;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    UICollectionViewCell *MyCell = [collectionView dequeueReusableCellWithReuseIdentifier:@"filterCell" forIndexPath:indexPath];
+    MyCell.backgroundColor = [UIColor redColor];
+    return MyCell;
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return CGSizeMake((kScreenWidth-40)/3,40);
+}
+
+-(UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
+    return UIEdgeInsetsMake(0, 10, 0, 10);
+}
+
+//设置每个item水平间距
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
+    return 10;
+}
+
+//设置每个item垂直间距
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section{
+    return 10;
+}
+
+-(UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath{
+    
+    if(kind == UICollectionElementKindSectionHeader) {
+        FilterHeaderView *headerView =  [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"filterHeader" forIndexPath:indexPath];
+        return headerView;
+    }
+    return nil;
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section {
+
+    return CGSizeMake(kScreenWidth,30);
+}
+
+
+//-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+//    
+//    STWisdomProcurementCollectionCell *cell = (STWisdomProcurementCollectionCell *)[_wisdomCollectionView cellForItemAtIndexPath:indexPath];
+//    if (_WisdomCollectionViewBlock) {
+//        _WisdomCollectionViewBlock(cell.nameLab.text);
+//    }
+//}
+
+
+@end

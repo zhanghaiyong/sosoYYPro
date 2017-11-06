@@ -1,0 +1,103 @@
+//
+//  NSDate+Tools.m
+//  XFile
+//
+//  Created by 青秀斌 on 12-9-16.
+//  Copyright (c) 2012年 深圳元度科技有限公司. All rights reserved.
+//
+
+#import "NSDate+Tools.h"
+#import "NSDate+XTExtension.h"
+
+@implementation NSDate (Tools)
+
+//计算自然日
+- (long)naturalDaysSinceDate:(NSDate *)date{
+    NSDate *tempNow = [self dateAtStartOfDay];
+    NSDate *tempOld = [date dateAtStartOfDay];
+    
+    return [tempNow timeIntervalSinceDate:tempOld]/(60*60*24)+1;
+}
+
+//转换为 yyyy-MM-dd
+- (NSString *)toYMDString{
+    return [self stringWithFormate:@"yyyy-MM-dd"];
+}
+
+//
+//转换为 yyyy-MM-dd
+- (NSString *)toYMDHMSString{
+    return [self stringWithFormate:@"yyyy-MM-dd HH:mm:ss"];
+}
+
+//转换为 yyyyMMdd
+- (NSString *)toYMD1String{
+    return [self stringWithFormate:@"yyyyMMdd"];
+}
+
+//转换为 yyyy/MM/dd
+- (NSString *)toYMD2String{
+    return [self stringWithFormate:@"yyyy/MM/dd"];
+}
+//转换为 yyyy年MM月dd日
+- (NSString *)toYMD3String{
+    return [self stringWithFormate:@"yyyy年MM月dd日"];
+}
+
+//转换为 yyyy-MM
+- (NSString *)toYMString{
+    return [self stringWithFormate:@"yyyy-MM"];
+}
+
+
+
+//转换为 yyyy/MM
+- (NSString *)toYM2String{
+    return [self stringWithFormate:@"yyyy/MM"];
+}
+//转换为 yyyy年MM月
+- (NSString *)toYM3String{
+    return [self stringWithFormate:@"yyyy年MM月"];
+}
+
+//转换为 MM-dd
+- (NSString *)toMDString{
+    return [self stringWithFormate:@"MM-dd"];
+}
+//转换为 MM/dd
+- (NSString *)toMD2String{
+    return [self stringWithFormate:@"MM/dd"];
+}
+//转换为 MM月dd日
+- (NSString *)toMD3String{
+    return [self stringWithFormate:@"M月dd日"];
+}
+
+
+//转换为 HH:SS
+- (NSString *)toHSString{
+    return [self stringWithFormate:@"HH:SS"];
+}
+
+
+/*距离当前的时间间隔描述*/
+
+- (NSString *)toTimeDescription{
+    NSTimeInterval timeInterval = -[self timeIntervalSinceNow];
+//    if (timeInterval <= 0) {
+//        return [NSString stringWithFormat:@"%@",[self stringWithFormate:@"yyyy-MM-dd HH:mm:ss"]];
+//    } else
+    if (timeInterval < 60) {
+        return @"刚刚发布";
+    } else if (timeInterval < 3600) {
+        return [NSString stringWithFormat:@"%.f 分钟前发布",timeInterval/60];
+    } else if (timeInterval < 86400) {//小时前发布
+        return [NSString stringWithFormat:@"%.f 小时前发布",timeInterval/3600];
+    } else if (timeInterval < 604800) {//3
+        return [NSString stringWithFormat:@"%.f 天前发布",timeInterval/86400];
+    } else {
+        return [NSString stringWithFormat:@"%@",[self stringWithFormate:@"yyyy-MM-dd"]];
+    }
+}
+
+@end

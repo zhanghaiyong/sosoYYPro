@@ -1,0 +1,55 @@
+//
+//  STShopCartSeachTableViewCell.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/8/7.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STShopCartSeachTableViewCell.h"
+
+@implementation STShopCartSeachTableViewCell
+-(void)setShopCartSeach:(STShopCartSeachEntity *)entity indexPath:(NSIndexPath *)indexPath{
+    
+}
+- (IBAction)selectMothed:(UIButton *)sender {
+    
+    STShopCartSeachTableViewCell *cell = (STShopCartSeachTableViewCell *)[[sender superview]superview];
+    if (_delegate && [_delegate respondsToSelector:@selector(g_SelectMothed:)]) {
+        [_delegate g_SelectMothed:cell];
+    }
+}
+- (IBAction)changeNumMothed:(UIButton *)sender {
+    
+    STShopCartSeachTableViewCell *cell = (STShopCartSeachTableViewCell *)[[sender superview]superview];
+    if (_delegate && [_delegate respondsToSelector:@selector(g_ChangeNumMothed:)]) {
+        [_delegate g_ChangeNumMothed:cell];
+    }
+}
+- (IBAction)listMothed:(UIButton *)sender {
+    
+    STShopCartSeachTableViewCell *cell = (STShopCartSeachTableViewCell *)[[sender superview]superview];
+    if (_delegate && [_delegate respondsToSelector:@selector(g_ListMothed:)]) {
+        [_delegate g_ListMothed:cell];
+    }
+}
+- (IBAction)goMothed:(UIButton *)sender {
+    
+    STShopCartSeachTableViewCell *cell = (STShopCartSeachTableViewCell *)[[sender superview]superview];
+    if (_delegate && [_delegate respondsToSelector:@selector(g_GoMothed:)]) {
+        [_delegate g_GoMothed:cell];
+    }
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

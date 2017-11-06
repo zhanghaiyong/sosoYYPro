@@ -1,0 +1,62 @@
+//
+//  AppDelegate+location.m
+//  sosoYY
+//
+//  Created by zhy on 2017/8/17.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "AppDelegate+location.h"
+#import <AMapFoundationKit/AMapFoundationKit.h>
+#import <AMapLocationKit/AMapLocationKit.h>
+
+@interface AppDelegate ()<AMapLocationManagerDelegate>
+
+@end
+
+@implementation AppDelegate (location)
+
+- (void)setLocationKey {
+
+    [AMapServices sharedServices].apiKey = KLocationKey;
+    
+    self.locationManager = [[AMapLocationManager alloc] init];
+    
+    [self.locationManager setDelegate:self];
+    
+    //设置期望定位精度
+    [self.locationManager setDesiredAccuracy:kCLLocationAccuracyBest];
+    
+    //设置不允许系统暂停定位
+    [self.locationManager setPausesLocationUpdatesAutomatically:NO];
+    
+    //设置允许在后台定位
+    [self.locationManager setAllowsBackgroundLocationUpdates:YES];
+    
+    //设置定位超时时间
+    [self.locationManager setLocationTimeout:10];
+    
+    //设置逆地理超时时间
+    [self.locationManager setReGeocodeTimeout:5];
+    
+}
+
+- (void)startLocationFinshed:(void(^)(CLLocationDegrees latitude,CLLocationDegrees longitude,NSError *error))finshed {
+
+    //进行单次定位请求
+    [self.locationManager requestLocationWithReGeocode:NO completionBlock:^(CLLocation *location, AMapLocationReGeocode *regeocode, NSError *error) {
+        if (error != nil)
+        {
+            //定位错误：此时location和regeocode没有返回值，不进行annotation的添加
+            finshed(location.coordinate.latitude,location.coordinate.longitude,error);
+            return;
+        }else {
+            //没有错误：location有返回值，regeocode是否有返回值取决于是否进行逆地理操作，进行annotation的添加
+
+            finshed(location.coordinate.latitude,location.coordinate.longitude,error);
+        }
+
+    }];
+}
+
+@end

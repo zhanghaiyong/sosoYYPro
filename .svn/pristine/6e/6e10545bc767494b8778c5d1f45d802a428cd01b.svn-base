@@ -1,0 +1,148 @@
+//
+//  STSwitchStoreEneity.h
+//  sosoYY
+//
+//  Created by soso-mac on 2017/7/11.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface STSwitchStoreEneity : NSObject
+
+@property(strong,nonatomic)NSString *islous;
+/// <summary>
+/// 店铺编号
+/// </summary>
+@property(strong,nonatomic)NSString *storeid;
+/// <summary>
+/// 店铺名称
+/// </summary>
+@property(strong,nonatomic)NSString *storeName;
+/// <summary>
+/// 单位名称
+/// </summary>
+@property(strong,nonatomic)NSString *enterpriseName;
+
+/// <summary>
+/// 是否选中
+/// </summary>
+@property(strong,nonatomic)NSString *selected;
+
+/// <summary>
+/// 效期
+/// </summary>
+@property(strong,nonatomic)NSString *sxrq;
+
+/// <summary>
+/// 价格
+/// </summary>
+@property(strong,nonatomic)NSString *price;
+
+/// <summary>
+/// 店铺配送金额
+/// </summary>
+@property(strong,nonatomic)NSString *lowestdeliveryAmount;
+
+/// <summary>
+/// 最低免邮金额
+/// </summary>
+@property(strong,nonatomic)NSString *lowestFreeShippingAmount;
+
+/// <summary>
+/// 税票政策  货票同行 = 0,下批货开票 = 1,月底开票=2,电子发票=3
+/// </summary>
+@property(strong,nonatomic)NSString *tax_policy;
+
+/// <summary>
+/// 购买数量
+/// </summary>
+@property(strong,nonatomic)NSString *buyCount;
+/// <summary>
+/// 店铺购买的总金额
+/// </summary>
+@property(strong,nonatomic)NSString *surplusmoney;
+
+/// <summary>
+/// 该店铺已购买xx元，还差50 元达到发货金额
+/// </summary>
+@property(strong,nonatomic)NSString *info;
+
+/// <summary>
+/// 商品编号
+/// </summary>
+@property(strong,nonatomic)NSString *Pid;
+/// <summary>
+/// 产品编号
+/// </summary>
+@property(strong,nonatomic)NSString *Goods_Package_ID;
+
+/// <summary>
+/// 是否近效期品种
+/// </summary>
+@property(strong,nonatomic)NSString *IsJxq;
+
+/// <summary>
+/// 最小购买量
+/// </summary>
+@property(strong,nonatomic)NSString *MinBuyNum;
+
+/// <summary>
+/// 商品库存
+/// </summary>
+@property(strong,nonatomic)NSString *Stock;
+
+/// <summary>
+/// 商品特价
+/// </summary>
+@property(strong,nonatomic)NSString *speprice;
+/// <summary>
+/// 限购数量
+/// </summary>
+@property(strong,nonatomic)NSString *limitnumber;
+
+/// <summary>
+/// 为1则有加价购买 0 无加价购
+/// </summary>
+@property(strong,nonatomic)NSString *PromotionTypes;
+/// <summary>
+/// 特价限制类型：0-不限，1-每人限购，2-每人每天限购
+/// </summary>
+@property(strong,nonatomic)NSString *limittype;
+
+/// <summary>
+/// 中包装
+/// </summary>
+@property(strong,nonatomic)NSString *Product_Pcs_Small;
+
+/// <summary>
+/// 件装
+/// </summary>
+@property(strong,nonatomic)NSString *Product_Pcs;
+
+
+@property(strong,nonatomic)NSString *psn;
+
+
+/// <summary>
+/// 单位
+/// </summary>
+@property(strong,nonatomic)NSString *Goods_Unit;
+
+
+/// <summary>
+/// 规格
+/// </summary>
+@property(strong,nonatomic)NSString *DrugsBase_Specification;
+
+/// <summary>
+/// 通用名
+/// </summary>
+@property(strong,nonatomic)NSString *DrugsBase_DrugName;
+
+/// <summary>
+/// 卖家设置的销售方式 1 不限 2 中包装，3 件装
+/// </summary>
+@property(strong,nonatomic)NSString *sellType;
+
+@end

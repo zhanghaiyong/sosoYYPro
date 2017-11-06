@@ -1,0 +1,279 @@
+//
+//  RegisterIOUStepSecond.m
+//  sosoYY
+//
+//  Created by zhy on 2017/8/17.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "RegisterIOUSecondStep.h"
+#import "ApplyMsgModel.h"
+#import "CheckAndRepeat.h"
+#import "StepTools.h"
+#import <Contacts/Contacts.h>
+#import "TakePhotoViewController.h"
+@interface RegisterIOUSecondStep ()
+{
+
+    NSMutableArray *imageArray;
+    NSIndexPath *currentIndexPath;
+    NSMutableArray *photosArray;
+    NSMutableArray *ContactList;
+    NSMutableDictionary *params;
+}
+@property (weak, nonatomic) IBOutlet UILabel *exporeLabel;
+
+@end
+
+@implementation RegisterIOUSecondStep
+
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setUp];
+}
+
+#pragma mark UI设置
+- (void)setUp {
+    
+    self.title = @"开通白条";
+    
+    ContactList = [NSMutableArray array];
+    params = [NSMutableDictionary dictionary];
+    UIButton *nextBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 10, kScreenWidth, 45)];
+    [nextBtn setTitle:@"提交审核" forState:UIControlStateNormal];
+    [nextBtn addTarget:self action:@selector(submitClick) forControlEvents:UIControlEventTouchUpInside];
+    nextBtn.backgroundColor = [UIColor fromHexValue:0xCCCCCC];
+    self.tableView.tableFooterView = nextBtn;
+    self.exporeLabel.text = @"为了提高审核通过率，请您参考以下标准：\n∙建议使用原件拍照\n∙请确保所拍摄的证件，清晰，完整";
+    
+    imageArray = [[NSMutableArray alloc]initWithCapacity:4];
+    for (int i = 0; i < 4; i++) {
+        
+        ApplyMsgModel *model = [[ApplyMsgModel alloc]init];
+        [imageArray addObject:model];
+    }
+}
+
+- (void)submitClick {
+
+//    int count = 0;
+//    for (int i = 0; i < 4; i++) {
+//        ApplyMsgModel *model = imageArray[i];
+//        if (model.editImage == nil) {
+//            count ++;
+//        }
+//    }
+//    
+//    if (count == 1) {
+//        for (int i = 0; i < 4; i++) {
+//            ApplyMsgModel *model = imageArray[i];
+//            switch (i) {
+//                case 0:
+//                    if (model.editImage == nil) {
+//                        [ZHProgressHUD showInfoWithText:@"请上传营业执照"];
+//                        return;
+//                    }
+//                    break;
+//                case 1:
+//                    if (model.editImage == nil) {
+//                        [ZHProgressHUD showInfoWithText:@"请上传GSP证书"];
+//                        return;
+//                    }
+//                    break;
+//                case 2:
+//                    if (model.editImage == nil) {
+//                        [ZHProgressHUD showInfoWithText:@"请上传身份证原件正面"];
+//                        return;
+//                    }
+//                    break;
+//                case 3:
+//                    if (model.editImage == nil) {
+//                        [ZHProgressHUD showInfoWithText:@"请上传药品经营许可证"];
+//                        return;
+//                    }
+//                    break;
+//                    
+//                default:
+//                    break;
+//            }
+//        }
+//    }else if (count > 1) {
+//    
+//        [ZHProgressHUD showInfoWithText:@"请上传必须的证件照片"];
+//        return;
+//    }else {
+    
+    
+        [[UIApplication sharedApplication].keyWindow showLoadingView:@"loading"];
+    
+    if (ContactList.count == 0) {
+        //判断授权状态
+        //if ([CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts] == CNAuthorizationStatusNotDetermined) {
+        
+        CNContactStore *store = [[CNContactStore alloc] init];
+        [store requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
+            if (granted) {
+                NSLog(@"授权成功");
+                // 2. 获取联系人仓库
+                CNContactStore * store = [[CNContactStore alloc] init];
+                // 3. 创建联系人信息的请求对象
+                NSArray * keys = @[CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey];
+                // 4. 根据请求Key, 创建请求对象
+                CNContactFetchRequest * request = [[CNContactFetchRequest alloc] initWithKeysToFetch:keys];
+                // 5. 发送请求
+                [store enumerateContactsWithFetchRequest:request error:nil usingBlock:^(CNContact * _Nonnull contact, BOOL * _Nonnull stop) {
+                    
+                    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+                    // 6.1 获取姓名
+                    NSString * givenName = contact.givenName;
+                    NSString * familyName = contact.familyName;
+                    NSLog(@"%@%@", familyName,givenName);
+                    [dic setObject:[NSString stringWithFormat:@"%@%@",familyName,givenName] forKey:@"MailName"];
+                    
+                    // 6.2 获取电话
+                    NSArray * phoneArray = contact.phoneNumbers;
+                    for (CNLabeledValue * labelValue in phoneArray) {
+                        
+                        CNPhoneNumber * number = labelValue.value;
+                        NSLog(@"%@--%@", number.stringValue, labelValue.label);
+                        if (number.stringValue) {
+                            [dic setObject:[NSString stringWithFormat:@"%@",number.stringValue] forKey:@"MailMobile"];
+                            continue;
+                        }
+                    }
+                    [ContactList addObject:dic];
+                }];
+                
+                NSLog(@"ContactList = %@",ContactList);
+                [self setParams];
+            } else {
+                NSLog(@"授权失败");
+            }
+        }];
+    }else {
+    
+        [self setParams];
+    }
+    
+//    }
+    
+}
+
+- (void)setParams {
+
+    //设置参数  依次为：店铺名，申请人名字，手机号码，身份证号，经度，纬度，联系人
+    NSDictionary *data = @{@"ename":self.applyMsgModel.storeName,
+                           @"username":self.applyMsgModel.realname,
+                           @"mobile":self.applyMsgModel.mobile,
+                           @"idno":self.applyMsgModel.number,
+                           @"longitude":[NSString stringWithFormat:@"%f",self.applyMsgModel.longitude],
+                           @"latitude":[NSString stringWithFormat:@"%f",self.applyMsgModel.latitude],
+                           @"list":ContactList};
+    
+//    NSMutableArray *ImgList = [NSMutableArray array];
+//    //门店照片
+//    NSData *newImgData = UIImagePNGRepresentation(self.applyMsgModel.editImage); //UIImageJPEGRepresentation
+    
+//    [ImgList addObject:@{@"NewImg":newImgData}];
+//    
+//    //其他四张图片
+//    NSArray *images = @[@"YyzzImg",@"GspImg",@"IdnoImg",@"JyxkImg"];
+//    for (int i = 0; i<imageArray.count; i++) {
+//        ApplyMsgModel *model = imageArray[i];
+//        NSData *data = UIImagePNGRepresentation(model.editImage);
+//        [ImgList addObject:@{images[i]:data}];
+//    }
+    
+    [params setObject:data forKey:@"data"];
+//    [params setObject:ImgList forKey:@"ImgList"];
+    
+    [KSMNetworkRequest postRequest:requestSubmitMsg params:params success:^(id responseObj) {
+        NSLog(@"responseObj = %@",responseObj);
+        [[UIApplication sharedApplication].keyWindow hideToastActivity];
+        
+    } failure:^(NSError *error) {
+        NSLog(@"error = %@",error.description);
+        
+        [[UIApplication sharedApplication].keyWindow hideToastActivity];
+    }];
+}
+
+
+#pragma mark - Table view data source
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    currentIndexPath = indexPath;
+    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+    UIImageView *imageView = [cell.contentView viewWithTag:100];
+    
+    ApplyMsgModel *model = imageArray[indexPath.row];
+    
+    if (model.oriImage != nil) {
+        
+        UIButton *modityBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, kScreenHeight-60, kScreenWidth, 50)];
+        [modityBtn setTitle:@"重新上传" forState:UIControlStateNormal];
+        [modityBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [modityBtn addTarget:self action:@selector(choseStoreImg) forControlEvents:UIControlEventTouchUpInside];
+        [StepTools scanBigImageWithImageView:imageView alpha:1 button:modityBtn];
+        
+    }else {
+    
+         [self choseStoreImg];
+    }
+}
+
+//#pragma mark takePhone
+//- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+//    
+//    NSString *type = [info objectForKey:UIImagePickerControllerMediaType];
+//    
+//    //当选择的类型是图片
+//    if ([type isEqualToString:@"public.image"]) {
+//
+//        
+//    }
+//    [picker dismissViewControllerAnimated:YES completion:nil];
+//}
+//
+//- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+//    [picker dismissViewControllerAnimated:YES completion:nil];
+//}
+
+#pragma mark 点击拍照
+- (void)choseStoreImg {
+    
+    [StepTools hideImageView];
+    
+    TakePhotoViewController *takePhotoVC = [[TakePhotoViewController alloc]init];
+    [takePhotoVC returnImage:^(UIImage *image) {
+        
+        //先把图片转成NSData
+        UIImage *editImage = [StepTools imageyasuo:image fillSize:CGSizeMake(kScreenWidth, kScreenHeight-64*2)];
+        ApplyMsgModel *model = [[ApplyMsgModel alloc]init];
+        model.oriImage = image;
+        model.editImage = editImage;
+        [imageArray replaceObjectAtIndex:currentIndexPath.row withObject:model];
+        
+        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:currentIndexPath];
+        UIImageView *cellImage = [cell.contentView viewWithTag:100];
+        cellImage.image = editImage;
+        
+        //隐藏相机图片
+        UIImageView *cameraLogo = [cell.contentView viewWithTag:101];
+        cameraLogo.hidden = YES;
+        //隐藏label
+        UILabel *label = [cell.contentView viewWithTag:102];
+        label.hidden = YES;
+        
+        //显示"点击查看或者修改"
+        CheckAndRepeat *checkModify = [[[NSBundle mainBundle] loadNibNamed:@"CheckAndRepeat" owner:self options:nil] lastObject];
+        checkModify.frame = CGRectMake(kScreenWidth/2-170/2, 90, 170, 100);
+        checkModify.activity.hidden = YES;
+        [cell.contentView addSubview:checkModify];
+    }];
+    [self presentViewController:takePhotoVC animated:YES completion:nil];
+}
+
+
+@end

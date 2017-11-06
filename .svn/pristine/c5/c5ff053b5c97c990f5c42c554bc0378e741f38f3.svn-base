@@ -1,0 +1,69 @@
+//
+//  IOUSignViewController.m
+//  sosoYY
+//
+//  Created by zhy on 2017/8/24.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "IOUSignViewController.h"
+#import <JavaScriptCore/JavaScriptCore.h>
+
+@interface IOUSignViewController ()<UIWebViewDelegate>
+@property (weak, nonatomic) IBOutlet UIWebView *customWebView;
+@property (nonatomic, strong) JSContext *jsContext;
+@end
+
+@implementation IOUSignViewController
+
+
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+
+//隐藏状态栏
+- (BOOL)prefersStatusBarHidden {
+    return YES;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [[UIApplication sharedApplication].keyWindow showLoadingView:@"loading"];
+    NSURL *debugURL=[NSURL URLWithString:self.url];
+    NSURLRequest *request=[NSURLRequest requestWithURL:debugURL];
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    self.customWebView.delegate = self;
+    [self.customWebView loadRequest:request];
+}
+
+#pragma mark UIWebViewDelegate
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
+    
+    __weak IOUSignViewController *weakSelf = self;
+    //监听返回
+    self.jsContext[@"signContractBack"] = ^() {
+        
+        NSArray *arry = [JSContext currentArguments];
+        FxLog(@"szfsd = %@",arry);
+        
+        if (weakSelf.callBackUrl) {
+            weakSelf.callBackUrl([NSString stringWithFormat:@"%@",arry[1]]);
+        }
+        [weakSelf.navigationController popViewControllerAnimated:YES];
+    };
+    
+    return YES;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
+    
+    [[UIApplication sharedApplication].keyWindow hideToastActivity];
+}
+
+
+
+@end

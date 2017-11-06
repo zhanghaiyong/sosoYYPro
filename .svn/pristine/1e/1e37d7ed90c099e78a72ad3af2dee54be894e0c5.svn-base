@@ -1,0 +1,81 @@
+//
+//  STMessageWebViewController.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/7/28.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STMessageWebViewController.h"
+
+@interface STMessageWebViewController ()<UIWebViewDelegate>
+@property (strong, nonatomic) CustomWebView *webView;
+@property (nonatomic, strong) JSContext *jsContext;
+@end
+
+@implementation STMessageWebViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    _titleLab.text = _titleStr;
+    
+    [[UIApplication sharedApplication].keyWindow showLoadingView:@"loading"];
+    
+    _webView = [[CustomWebView alloc]initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenHeight - 64)];
+    self.webView.backgroundColor = [UIColor whiteColor];
+    self.webView.delegate = self;
+    [self.view addSubview:_webView];
+    
+    NSURL *debugURL = [NSURL URLWithString:_urlStr];
+    NSURLRequest *request = [NSURLRequest requestWithURL:debugURL];
+    [self.webView loadRequest:request];
+
+}
+#pragma mark UIWebViewDelegate
+
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
+    return YES;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
+    [[UIApplication sharedApplication].keyWindow hideToastActivity];
+    [self setJsMothed:webView];
+}
+-(void)setJsMothed:(UIWebView *)webView{
+    
+//    __weak  STMessageWebViewController *weakSelf = self;
+//
+//    
+//    self.jsContext[@"CloseWin"]=^(){//取消订单
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            
+//           
+//        });
+//    };
+}
+
+- (IBAction)back:(id)sender {
+    
+    [self.navigationController popViewControllerAnimated:YES];
+}
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    self.navigationController.navigationBar.hidden = NO;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+    [[UIApplication sharedApplication].keyWindow hideToastActivity];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+@end

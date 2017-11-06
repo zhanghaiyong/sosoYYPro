@@ -1,0 +1,1 @@
+link ../../../ZXingObjC/ZXingObjC/qrcode/decoder/ZXQRCodeBitMatrixParser.h

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clipsSubviews="YES" contentMode="scaleToFill" id="iN0-l3-epB" customClass="BottomToolView">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Py3-Qb-gB6">
+                    <rect key="frame" x="220" y="0.0" width="100" height="44"/>
+                    <color key="backgroundColor" red="0.91764705882352937" green="0.23896503651796286" blue="0.074509803921568626" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="100" id="IH4-pN-47O"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <state key="normal" title="去结算">
+                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                    <connections>
+                        <action selector="balanceAction:" destination="iN0-l3-epB" eventType="touchUpInside" id="agR-bc-6DV"/>
+                    </connections>
+                </button>
+                <label userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="¥0.00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="leX-yA-TgQ">
+                    <rect key="frame" x="167" y="2" width="43" height="22"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="22" id="7k6-Xg-7s1"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <color key="textColor" red="0.87843137250000003" green="0.23529411759999999" blue="0.070588235289999995" alpha="1" colorSpace="calibratedRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="合计：" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Pmj-qy-rZH">
+                    <rect key="frame" x="124" y="5" width="43" height="17"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                    <color key="textColor" red="0.33333333333333331" green="0.33333333333333331" blue="0.33333333333333331" alpha="1" colorSpace="calibratedRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="不含邮费" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kGx-gE-5g0">
+                    <rect key="frame" x="169" y="22" width="41" height="22"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="22" id="Ggh-mM-7dH"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                    <color key="textColor" red="0.3294117647" green="0.3294117647" blue="0.3294117647" alpha="1" colorSpace="calibratedRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gej-cw-4aI">
+                    <rect key="frame" x="0.0" y="2" width="40" height="40"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="40" id="Qfn-xs-bs4"/>
+                        <constraint firstAttribute="width" constant="40" id="VXJ-wg-dzS"/>
+                    </constraints>
+                    <state key="normal" image="未选中"/>
+                    <state key="selected" image="选中"/>
+                    <connections>
+                        <action selector="selectAllAction:" destination="iN0-l3-epB" eventType="touchUpInside" id="r2U-bX-Vbs"/>
+                    </connections>
+                </button>
+                <label userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="全选" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L1v-Gj-XT6">
+                    <rect key="frame" x="40" y="15" width="25" height="15"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                    <color key="textColor" red="0.33333333333333331" green="0.33333333333333331" blue="0.33333333333333331" alpha="1" colorSpace="calibratedRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Hox-JD-i6w">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="0.0"/>
+                    <color key="backgroundColor" red="0.69019607843137254" green="0.69019607843137254" blue="0.69019607843137254" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="0.5" id="Jwt-B9-K6c"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="kGx-gE-5g0" firstAttribute="top" secondItem="Pmj-qy-rZH" secondAttribute="bottom" id="1hp-So-74C"/>
+                <constraint firstItem="L1v-Gj-XT6" firstAttribute="centerY" secondItem="Gej-cw-4aI" secondAttribute="centerY" id="77j-rn-Fw2"/>
+                <constraint firstItem="Py3-Qb-gB6" firstAttribute="leading" secondItem="leX-yA-TgQ" secondAttribute="trailing" constant="10" id="8dF-DX-SBq"/>
+                <constraint firstItem="L1v-Gj-XT6" firstAttribute="leading" secondItem="Gej-cw-4aI" secondAttribute="trailing" id="9Mi-8A-A3t"/>
+                <constraint firstItem="Py3-Qb-gB6" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="IXd-1y-EHL"/>
+                <constraint firstItem="leX-yA-TgQ" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="2" id="JN5-DM-YRv"/>
+                <constraint firstItem="Py3-Qb-gB6" firstAttribute="leading" secondItem="kGx-gE-5g0" secondAttribute="trailing" constant="10" id="KvE-Ac-iN6"/>
+                <constraint firstAttribute="trailing" secondItem="Py3-Qb-gB6" secondAttribute="trailing" id="VmM-vn-0bC"/>
+                <constraint firstAttribute="trailing" secondItem="Hox-JD-i6w" secondAttribute="trailing" id="gUx-0N-l84"/>
+                <constraint firstItem="Gej-cw-4aI" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="gpN-9a-iMZ"/>
+                <constraint firstItem="Pmj-qy-rZH" firstAttribute="centerY" secondItem="leX-yA-TgQ" secondAttribute="centerY" id="gqN-dJ-Ujx"/>
+                <constraint firstItem="Hox-JD-i6w" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="jIQ-cd-4cX"/>
+                <constraint firstItem="Gej-cw-4aI" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="jR0-Sg-oPO"/>
+                <constraint firstAttribute="bottom" secondItem="Py3-Qb-gB6" secondAttribute="bottom" id="lg2-lM-9j8"/>
+                <constraint firstItem="leX-yA-TgQ" firstAttribute="leading" secondItem="Pmj-qy-rZH" secondAttribute="trailing" id="pVN-AJ-JfJ"/>
+                <constraint firstItem="Hox-JD-i6w" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="zlK-VC-J9T"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outlet property="allSelectButton" destination="Gej-cw-4aI" id="K8c-p6-tiZ"/>
+                <outlet property="allSelectLabel" destination="L1v-Gj-XT6" id="P81-1f-PMU"/>
+                <outlet property="goBalanceButton" destination="Py3-Qb-gB6" id="u1k-gm-ecc"/>
+                <outlet property="postageLabel" destination="kGx-gE-5g0" id="NqM-jH-EkV"/>
+                <outlet property="totalCash" destination="leX-yA-TgQ" id="VKG-cx-Una"/>
+            </connections>
+            <point key="canvasLocation" x="24" y="38"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="未选中" width="21" height="21"/>
+        <image name="选中" width="21" height="21"/>
+    </resources>
+</document>

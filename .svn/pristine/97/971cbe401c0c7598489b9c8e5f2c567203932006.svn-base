@@ -1,0 +1,32 @@
+//
+//  RegisterIOUStepOne.m
+//  sosoYY
+//
+//  Created by zhy on 2017/8/16.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "RegisterIOUStepOne.h"
+
+@interface RegisterIOUStepOne ()
+@property (weak, nonatomic) IBOutlet UITextField *storeName;
+@property (weak, nonatomic) IBOutlet UITextField *applyName;
+@property (weak, nonatomic) IBOutlet UITextField *IDCard;
+@property (weak, nonatomic) IBOutlet UIImageView *postImage;
+@property (weak, nonatomic) IBOutlet UIImageView *cameraLogo;
+@property (weak, nonatomic) IBOutlet UILabel *alertLabel;
+
+@end
+
+@implementation RegisterIOUStepOne
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    
+}
+
+- (IBAction)nextStepClick:(id)sender {
+}
+
+@end

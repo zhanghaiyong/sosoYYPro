@@ -1,0 +1,26 @@
+//
+//  StepTools.h
+//  sosoYY
+//
+//  Created by zhy on 2017/8/17.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface StepTools : NSObject
+/**
+ *  浏览大图
+ *
+ *  @param currentImageview 当前图片
+ *  @param alpha            背景透明度
+ */
++(void)scanBigImageWithImageView:(UIImageView *)currentImageview alpha:(CGFloat)alpha button:(UIButton *)modifyBtn;
+
+
+/**
+ *  恢复imageView原始尺寸
+ 
+ */
++(void)hideImageView;
+@end

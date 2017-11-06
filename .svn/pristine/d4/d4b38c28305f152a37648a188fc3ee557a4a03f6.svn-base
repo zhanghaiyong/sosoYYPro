@@ -1,0 +1,93 @@
+//
+//  WisdomHead.m
+//  sosoYY
+//
+//  Created by zhy on 17/1/17.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "WisdomHead.h"
+#import "WisdomModel.h"
+#import "WisdomTool.h"
+@interface WisdomHead ()
+@end
+
+@implementation WisdomHead
+
+-(void)setWisdomModel:(WisdomModel *)wisdomModel {
+
+    _wisdomModel = wisdomModel;
+    
+    self.StoreName.text = wisdomModel.store_Name;
+}
+
+-(void)setHaveSelectGood:(BOOL)haveSelectGood {
+
+    _haveSelectGood = haveSelectGood;
+}
+
+-(void)setSectionCash:(double)sectionCash {
+
+    _sectionCash = sectionCash;
+    
+    CGSize nameSize = [[self.wisdomModel.store_Name stringByReplacingOccurrencesOfString:@" " withString:@""] boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, 44) options:NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14.5]} context:nil].size;
+    self.StoreName.frame = CGRectMake(self.selectbtn.right, 10, nameSize.width, 44);
+    self.alertImg.frame = CGRectMake(self.StoreName.right, 23, 18, 18);
+    self.content.frame = CGRectMake(self.alertImg.right, 10, kScreenWidth-30-53-18-nameSize.width, 44);
+    self.backBtn.frame = CGRectMake(30, 10, self.width-38, 44);
+    
+    if (self.haveSelectGood) {
+
+        //满足发货金额
+        if ([self.wisdomModel.MoneySend doubleValue] > sectionCash && [self.wisdomModel.MoneySend intValue] > 0) {
+            
+            self.alertImg.hidden = NO;
+            self.content.hidden = NO;
+            NSString *alertString = [NSString stringWithFormat:@"还差￥%.2f达到起发金额.",self.wisdomModel.MoneySend.doubleValue - sectionCash];
+            NSString *length = [NSString stringWithFormat:@"%zi",alertString.length-9];
+            [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":[UIColor fromHexValue:0x555555 alpha:1],@"font":@"10",@"num":@"2"},@{@"color":[UIColor fromHexValue:0xea5413 alpha:1],@"font":@"10",@"num":length},@{@"color":[UIColor fromHexValue:0x555555 alpha:1],@"font":@"10",@"num":@"6"}] andChengeString:alertString type:1 andFinished:^(NSMutableAttributedString *string) {
+                self.content.attributedText = string;
+            }];
+            
+            //包邮
+        }else if ([self.wisdomModel.MoneyFreePostage intValue] > 0 && self.wisdomModel.MoneyFreePostage.doubleValue > sectionCash) {
+            
+            self.alertImg.hidden = NO;
+            self.content.hidden = NO;
+            NSString *alertString = [NSString stringWithFormat:@"还差￥%.2f达到包邮金额.",self.wisdomModel.MoneyFreePostage.doubleValue - sectionCash];
+            
+            NSString *length = [NSString stringWithFormat:@"%zi",alertString.length-9];
+            [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":[UIColor fromHexValue:0x555555 alpha:1],@"font":@"10",@"num":@"2"},@{@"color":[UIColor fromHexValue:0xea5413 alpha:1],@"font":@"10",@"num":length},@{@"color":[UIColor fromHexValue:0x555555 alpha:1],@"font":@"10",@"num":@"6"}] andChengeString:alertString type:1 andFinished:^(NSMutableAttributedString *string) {
+                self.content.attributedText = string;
+            }];
+            
+        }else {
+            
+            self.alertImg.hidden = YES;
+            self.content.hidden = YES;
+            [self.backBtn setTitle:@"" forState:UIControlStateNormal];
+        }
+    }else {
+        self.alertImg.hidden = YES;
+        self.content.hidden = YES;
+        [self.backBtn setTitle:@"" forState:UIControlStateNormal];
+    }
+}
+
+- (IBAction)collectOrderAction:(id)sender {
+    
+    if (_toCollectBlock) {
+        _toCollectBlock();
+    }
+}
+
+//选中店铺
+- (IBAction)isSelectAction:(UIButton *)sender {
+
+    NSLog(@"selected = %zi",sender.selected);
+    if (_headSelectBlock) {
+        _headSelectBlock(!sender.selected);
+    }
+}
+
+@end

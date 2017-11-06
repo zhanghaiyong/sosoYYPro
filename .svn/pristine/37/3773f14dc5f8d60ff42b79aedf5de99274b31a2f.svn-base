@@ -1,0 +1,1 @@
+link ../../../ZXingObjC/ZXingObjC/oned/ZXEAN13Writer.h

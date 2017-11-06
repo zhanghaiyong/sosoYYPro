@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clipsSubviews="YES" contentMode="scaleToFill" id="iN0-l3-epB" customClass="CheckAndRepeat">
+            <rect key="frame" x="0.0" y="0.0" width="150" height="98"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="addSearch" translatesAutoresizingMaskIntoConstraints="NO" id="TWU-md-6JL">
+                    <rect key="frame" x="60.5" y="24.5" width="29" height="29"/>
+                </imageView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="点击查看或修改" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JLH-hJ-kwJ">
+                    <rect key="frame" x="21.5" y="53.5" width="107.5" height="18"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                    <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="f37-tT-2Es">
+                    <rect key="frame" x="65" y="29" width="20" height="20"/>
+                </activityIndicatorView>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.3027611301369863" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="JLH-hJ-kwJ" firstAttribute="top" secondItem="TWU-md-6JL" secondAttribute="bottom" id="60G-T0-dNQ"/>
+                <constraint firstItem="f37-tT-2Es" firstAttribute="centerX" secondItem="TWU-md-6JL" secondAttribute="centerX" id="FbT-mL-CH4"/>
+                <constraint firstItem="f37-tT-2Es" firstAttribute="centerY" secondItem="TWU-md-6JL" secondAttribute="centerY" id="PtT-k1-HLg"/>
+                <constraint firstItem="TWU-md-6JL" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" multiplier="0.8" id="Xba-je-0qd"/>
+                <constraint firstItem="JLH-hJ-kwJ" firstAttribute="centerX" secondItem="TWU-md-6JL" secondAttribute="centerX" id="nua-5P-pni"/>
+                <constraint firstItem="TWU-md-6JL" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="oCy-TD-2E0"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <userDefinedRuntimeAttributes>
+                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                    <integer key="value" value="5"/>
+                </userDefinedRuntimeAttribute>
+            </userDefinedRuntimeAttributes>
+            <connections>
+                <outlet property="activity" destination="f37-tT-2Es" id="c9v-Vj-bcL"/>
+                <outlet property="label" destination="JLH-hJ-kwJ" id="sV0-4o-tPj"/>
+                <outlet property="logo" destination="TWU-md-6JL" id="T17-V0-9b7"/>
+            </connections>
+            <point key="canvasLocation" x="51" y="-211"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="addSearch" width="29" height="29"/>
+    </resources>
+</document>

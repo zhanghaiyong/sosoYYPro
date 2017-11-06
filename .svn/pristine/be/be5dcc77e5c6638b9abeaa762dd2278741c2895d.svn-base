@@ -1,0 +1,1 @@
+link ../../../ZXingObjC/ZXingObjC/datamatrix/encoder/ZXDataMatrixEncoder.h

@@ -1,0 +1,64 @@
+//
+//  Defaults.h
+//  有车生活
+//
+//  Created by ksm on 15/11/2.
+//  Copyright © 2015年 ksm. All rights reserved.
+//
+
+#ifndef Defaults_h
+#define Defaults_h
+
+
+#endif /* Defaults_h */
+
+#define kScreenWidth  [UIScreen mainScreen].bounds.size.width
+#define kScreenHeight [UIScreen mainScreen].bounds.size.height
+
+#define RGBA(r,g,b,a)      [UIColor colorWithRed:r/255.0f green:g/255.0f blue:b/255.0f alpha:a]
+
+/*
+#ifdef DEBUG
+#define NSLog(format, ...) printf("\n[%s] %s [第%d行] %s\n", __TIME__, __FUNCTION__, __LINE__, [[NSString stringWithFormat:format, ## __VA_ARGS__] UTF8String]);
+#else
+#define NSLog(format, ...)
+#endif
+*/
+
+#ifdef DEBUG
+#define FxLog(...) NSLog(@"%s 第%d行 %@\n\n",__func__,__LINE__,[NSString stringWithFormat:__VA_ARGS__])
+#else
+#define FxLog(...)
+#endif
+
+#define BackgroundColor HEX_RGB(0xb0b0b0)
+
+#define SharedApp ((AppDelegate*)[[UIApplication sharedApplication] delegate])
+
+#define STMAI_VIEW_CONTROLLER 1
+
+#define kDeviceWidth [UIScreen mainScreen].bounds.size.width
+
+#define KDeviceHeight [UIScreen mainScreen].bounds.size.height
+
+#define KDeviceFrame [UIScreen mainScreen].bounds
+
+#define kNavBarHeight 64
+#define kTabBarHeight 49
+#define kKeyBoardHeight 216
+#define kToobarHeight 44
+
+#define MAX_FONT   [UIFont systemFontOfSize:16]
+#define MEDIUM_FONT   [UIFont systemFontOfSize:14]
+#define SMALL_FONT   [UIFont systemFontOfSize:13]
+
+#define PUSH_Notification @"PUSH_Notification"
+#define refresh_shopCart  @"refresh_shopCart"
+#define SHARE_Notification @"SHARE_Notification"
+#define inviteShareNOtifation @"inviteShareNOtifation"
+#define PUSH_Details @"PUSH_Details"
+#define PUSH_NUM @"PUSH_NUM"
+
+#define Pay_Share_Notification @"Pay_Share_Notification"
+
+//#define <#macro#>

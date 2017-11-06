@@ -1,0 +1,15 @@
+//
+//  STMessageActivityTableViewCell.h
+//  sosoYY
+//
+//  Created by soso-mac on 2017/7/28.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface STMessageActivityTableViewCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet UILabel *namelab;
+@property (weak, nonatomic) IBOutlet UILabel *describeLab;
+-(void)setMessageActivity:(NSMutableArray *)arr indexPath:(NSIndexPath *)indexPath;
+@end

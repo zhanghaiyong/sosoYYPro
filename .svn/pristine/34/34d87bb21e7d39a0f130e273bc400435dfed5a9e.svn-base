@@ -1,0 +1,101 @@
+//
+//  STShopCartSearchAddTableViewCell.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/8/10.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STShopCartSearchAddTableViewCell.h"
+
+@implementation STShopCartSearchAddTableViewCell
+
+-(void)setShopCartSearchAdd:(STShopCartSeachEntity *)entity PurchasetAddPricePromotionsModel:(PurchasetAddPricePromotionsModel *)model{
+    
+    __weak STShopCartSearchAddTableViewCell *weakSelf = self;
+    
+   _nameLab.text  = model.DrugsBase_DrugName;
+    _complyLab.text = model.DrugsBase_Manufacturer;
+    if (model.DrugsBase_Specification.length == 0) {
+        
+        _guigeLab.text = @"规格：---";
+    }else {
+        
+        _guigeLab.text = model.DrugsBase_Specification;
+    }
+    
+    if (![[NSString stringWithFormat:@"%@",model.sxrq] isEqualToString:@""]) {
+        
+        UIColor *timeColor = [Uitils setIntervalSinceNow:model.sxrq] ? [UIColor fromHexValue:0x777777] : RGB(241, 77, 67);
+        _xiaoqiLab.textColor = timeColor;
+        
+        _xiaoqiLab.text = [NSString stringWithFormat:@"效期 %@",model.sxrq];
+    }else {
+        
+        if ([[NSString stringWithFormat:@"%@",model.IsJxq] isEqualToString:@"1"]) {
+            _xiaoqiLab.text = @"近效期";
+            _xiaoqiLab.textColor = RGB(241, 77, 67);
+        }else{
+            _xiaoqiLab.text = @"效期:---";
+            _xiaoqiLab.textColor = [UIColor fromHexValue:0x777777];
+        }
+    }
+    
+    
+    [[STCommon sharedSTSTCommon]setChengeStringColor:@[@{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"4"},
+                                                       @{@"color":RGB(234, 84, 19),@"font":@"12"}] andChengeString:[NSString stringWithFormat:@"换购价:¥%@",[STCommon setHasSuffix:model.addPrice]] type:1 andFinished:^(NSMutableAttributedString *string) {
+        weakSelf.huangouPrice.attributedText = string;
+    }];
+    
+    
+    if (model.addPriceType.integerValue == 0) {
+        
+        
+        _numLab.text = [NSString stringWithFormat:@"X%@",model.secondProudctNum];
+        
+    }else if (model.addPriceType.integerValue == 1){
+        
+        _numLab.text = [NSString stringWithFormat:@"X%d",model.secondProudctNum.intValue*(int)(entity.buyCount.intValue/model.firstProudctPerNum.intValue)];
+    }
+    
+        
+    if ([[NSString stringWithFormat:@"%@",model.pmid] isEqualToString:[NSString stringWithFormat:@"%@",entity.pmid]]) {
+            
+            if ([[NSString stringWithFormat:@"%@",entity.isSelect] isEqualToString:@"1"]) {
+                
+                if ([[NSString stringWithFormat:@"%@",model.isSelect] isEqualToString:@"1"]) {
+                    
+                 [_selectBtn setImage:[UIImage imageNamed:@"选中"] forState:UIControlStateNormal];
+                }else{
+                    [_selectBtn setImage:[UIImage imageNamed:@"未选中"] forState:UIControlStateNormal];
+                }
+            }else {
+            if ([[NSString stringWithFormat:@"%@",model.isSelect] isEqualToString:@"1"]) {
+                    
+                [_selectBtn setImage:[UIImage imageNamed:@"选中"] forState:UIControlStateNormal];
+                }else{
+                    [_selectBtn setImage:[UIImage imageNamed:@"未选中"] forState:UIControlStateNormal];
+            }
+        }
+    }else{
+        if ([[NSString stringWithFormat:@"%@",model.isSelect] isEqualToString:@"1"]) {
+            
+            [_selectBtn setImage:[UIImage imageNamed:@"选中"] forState:UIControlStateNormal];
+        }else{
+            [_selectBtn setImage:[UIImage imageNamed:@"未选中"] forState:UIControlStateNormal];
+        }
+    }
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

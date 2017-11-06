@@ -1,0 +1,29 @@
+//
+//  WisdomModel.m
+//  sosoYY
+//
+//  Created by zhy on 17/1/18.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "WisdomModel.h"
+
+@implementation WisdomModel
+
+//实现这个方法，就会自动吧数组中的字典转化成对应的模型
++ (NSDictionary *)objectClassInArray {
+    
+    return @{@"li":[LiModel class]};
+}
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        
+    }
+    return self;
+}
+
+
+@end

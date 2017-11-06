@@ -1,0 +1,22 @@
+//
+//  STMessageBoxTableViewCell.h
+//  sosoYY
+//
+//  Created by soso-mac on 2017/7/28.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface STMessageBoxTableViewCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UIImageView *imgV;
+@property (weak, nonatomic) IBOutlet UILabel *messageNumLab;
+@property (weak, nonatomic) IBOutlet UILabel *nameLab;
+@property (weak, nonatomic) IBOutlet UILabel *describeLab;
+@property (weak, nonatomic) IBOutlet UILabel *dateLab;
+@property (weak, nonatomic) IBOutlet UILabel *lineLab;
+
+
+-(void)setMessageBox:(NSMutableArray *)arr indexPath:(NSIndexPath *)indexPath;
+@end

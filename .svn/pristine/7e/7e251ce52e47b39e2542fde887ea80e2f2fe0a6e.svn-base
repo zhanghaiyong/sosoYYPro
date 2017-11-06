@@ -1,0 +1,706 @@
+//
+//  STMethodPaymentViewController.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/5/26.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STMethodPaymentViewController.h"
+#import "STMethodPaymentTableViewCell.h"
+#import "STMethodPaymentHeadView.h"
+#import "STOrderDetailsViewController.h"
+#import "STPaymentDetailsViewController.h"
+#import "UPPaymentControl.h"
+#import "UMSocialWechatHandler.h"
+#import "UMSocialQQHandler.h"
+#import "WXApiRequestHandler.h"
+#import "STOrderViewController.h"
+#import "IOUPayViewController.h"
+#import "MixturePayGoodListViewController.h"
+@interface STMethodPaymentViewController ()<UITableViewDelegate,UITableViewDataSource,UIWebViewDelegate>{
+    NSString *myControlStr;
+    __block BOOL isShare;//帮助返回
+    
+    __block BOOL isInviteShare;//帮助返回
+}
+
+@property (strong, nonatomic) CustomWebView *webView;
+@property (nonatomic, strong) JSContext *jsContext;
+@property(strong,nonatomic)UITableView *tableView;
+@property(strong,nonatomic)UILabel *showContinuePayLab;
+@property(strong,nonatomic)NSArray *dataResult;
+@property(strong,nonatomic)NSString *urlStr;
+@property(strong,nonatomic)STMethodPaymentHeadView *methodPaymentHeadView;
+@property(strong,nonatomic)id result;
+
+@end
+
+@implementation STMethodPaymentViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    self.view.backgroundColor = [UIColor whiteColor];
+    
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(UPPayReslut:) name:UPPay_Code object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(payShareAppBack) name:Pay_Share_Notification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shareAppBack) name:inviteShareNOtifation object:nil];
+    
+    _methodPaymentHeadView = [[[NSBundle mainBundle]loadNibNamed:@"STMethodPaymentHeadView" owner:self options:nil]lastObject];
+    [_methodPaymentHeadView setMethodPayment:_result];
+    
+    _showContinuePayLab = [[UILabel alloc]initWithFrame:CGRectMake(0, kNavBarHeight, kScreenWidth, 0)];
+    _showContinuePayLab.backgroundColor = [UIColor redColor];
+    _showContinuePayLab.textColor = [UIColor whiteColor];
+    _showContinuePayLab.numberOfLines = 0;
+    _showContinuePayLab.font = [UIFont systemFontOfSize:12];
+    _showContinuePayLab.text = @" 请完成剩下店铺的支付，如果您选择取消，之前白条支付订单依然有效";
+    [self.view addSubview:_showContinuePayLab];
+    
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, _showContinuePayLab.bottom, kScreenWidth, kScreenHeight - kNavBarHeight-_showContinuePayLab.height)style:UITableViewStyleGrouped];
+    _tableView.delegate = self;
+    _tableView.dataSource = self;
+    _tableView.rowHeight = 60;
+    _tableView.tableHeaderView = _methodPaymentHeadView;
+    _tableView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+    [_tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+    _tableView.separatorColor = [UIColor clearColor];
+    [self.view addSubview:_tableView];
+    
+}
+
+- (void)setMasterOid:(NSString *)masterOid {
+
+    _masterOid = masterOid;
+    [self getAppPayMasterOid:_masterOid];
+}
+
+//支付结果
+- (void) UPPayReslut:(NSNotification*) notification {
+    
+     _urlStr = [NSString stringWithFormat:@"%@masteroid=%@",requestPayResult,_masterOid];
+    
+    NSString *result = [notification.userInfo objectForKey:@"code"];
+    
+    FxLog(@"result = %@",result);
+    
+    //成功或者失败
+    if (![result isEqualToString:@"cancel"]) {
+        
+        [self addSubWebView];
+    }else {
+        
+        [ZHProgressHUD showErrorWithText:@"支付失败"];
+    }
+}
+
+-(void)getAppPayMasterOid:(NSString *)masterOid {
+    
+     _urlStr = [NSString stringWithFormat:@"%@masteroid=%@",requestSubmitResult,_masterOid];
+    
+    [KSMNetworkRequest getAppPayUrl:requestAppPay params:@{@"masterOid":masterOid} finshed:^(id dataResult, NSError *error) {
+        if (!error) {
+            
+            if ([NSString stringWithFormat:@"%@",dataResult[@"WaitPayMoney"]].floatValue > 0) {//是否用余额支付
+                
+                _result = dataResult;
+                
+                [self addSubView];
+                
+            }else{
+                
+                [self addSubWebView];//余额支付
+            }
+        }
+    }];
+}
+
+-(void)addSubWebView {
+    [[UIApplication sharedApplication].keyWindow showLoadingView:@"loading"];
+    
+    _webView = [[CustomWebView alloc]initWithFrame:CGRectMake(0, 20, kScreenWidth, kScreenHeight-20)];
+    self.webView.backgroundColor = [UIColor whiteColor];
+    self.webView.delegate = self;
+    [self.view addSubview:_webView];
+    
+    NSURL *debugURL = [NSURL URLWithString:_urlStr];
+    NSURLRequest *request = [NSURLRequest requestWithURL:debugURL];
+    [self.webView loadRequest:request];
+    
+}
+#pragma mark UIWebViewDelegate
+
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
+    return YES;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
+    [[UIApplication sharedApplication].keyWindow hideToastActivity];
+    [self setJsMothed:webView];
+}
+
+-(void)setJsMothed:(UIWebView *)webView{
+    
+    __weak  STMethodPaymentViewController *weakSelf = self;
+    
+    self.jsContext = [webView valueForKeyPath:@"documentView.webView.mainFrame.javaScriptContext"];
+    
+    self.jsContext[@"CloseWin"]=^(){
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            [weakSelf.navigationController popToRootViewControllerAnimated:NO];
+             [[NSNotificationCenter defaultCenter] postNotificationName:@"pushToOrderList" object:weakSelf userInfo:@{@"flag":@"waitReceive"}];
+        });
+    };
+    
+    
+    //分享-邀请好友
+    self.jsContext[@"shareInvite"] = ^() {
+        
+        [weakSelf setShareTwo];
+        
+        NSArray *array = [JSContext currentArguments];
+        FxLog(@"array = %@",array);
+        
+        if (array.count == 3) {
+            
+            isInviteShare = YES;
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                [[STCommon sharedSTSTCommon] setShare:@{@"title":[NSString stringWithFormat:@"%@",array[0]],@"image":@"hudST_logo",@"url":[NSString stringWithFormat:@"%@",array[2]],@"descr":[NSString stringWithFormat:@"%@",array[1]]} shareView:weakSelf Finished:^(BOOL isSuccessful) {
+                    
+                    if (isSuccessful) {
+                        
+                        isInviteShare = YES;
+                        
+                    }else {
+                        
+                        isInviteShare = NO;
+                    }
+                }];
+            });
+        }
+    };
+}
+
+- (void)shareAppBack {
+    
+    if (isInviteShare) {
+        
+        isInviteShare = NO;
+        [self.webView stringByEvaluatingJavaScriptFromString:@"clickcancel()"];
+        
+        [KSMNetworkRequest postRequest:requestShareSuccess params:@{@"shareResult":@"1"} success:^(id responseObj) {
+            
+            FxLog(@"share result %@",responseObj);
+            
+        } failure:^(NSError *error) {
+            
+        }];
+    }
+}
+
+-(void)addSubView {
+    
+    if ([[NSString stringWithFormat:@"%s",requestHost] isEqualToString:@"https://api.m.sosoyy.com"]) {
+        
+        
+        //显示白条
+        if ([_result[@"ShowCreditLimitPay"] integerValue] == 1) {
+            
+            if ([_result[@"OrderAmount_NoteBlank"] doubleValue] < 500) {
+                //可使用白条支付的订单不足500,无法使用
+                
+                _dataResult = @[@[@{@"img":@"微信支付",@"title":@"微信支付",@"detaile":@"微信安全支付"},@{@"img":@"支付宝",@"title":@"支付宝支付",@"detaile":@"推荐有支付宝账号的用户使用"},@{@"img":@"银联",@"title":@"银行卡支付",@"detaile":@"使用银联存储卡,信用卡支付,无需开通网银"}],@[@{@"img":@"白条LOGO",@"title":@"白条支付",@"detaile":@"可使用白条支付的订单不足500,无法使用"}],@[@{@"img":@"微信好友",@"title":@"微信好友",@"detaile":@"把支付链接发送给微信好友,为你付款"},@{@"img":@"QQ好友",@"title":@"QQ好友",@"detaile":@"把支付链接发送给QQ好友,为你付款"}]];
+                
+            }else {
+            
+                if ([_result[@"OrderAmount_NoteBlank"] doubleValue] > [_result[@"UsableCreditLimit"] doubleValue]) {
+                    //您的白条额度不足,本次订单无法使用
+                    _dataResult = @[@[@{@"img":@"微信支付",@"title":@"微信支付",@"detaile":@"微信安全支付"},@{@"img":@"支付宝",@"title":@"支付宝支付",@"detaile":@"推荐有支付宝账号的用户使用"},@{@"img":@"银联",@"title":@"银行卡支付",@"detaile":@"使用银联存储卡,信用卡支付,无需开通网银"}],@[@{@"img":@"白条LOGO",@"title":@"白条支付",@"detaile":@"您的白条额度不足,本次订单无法使用"}],@[@{@"img":@"微信好友",@"title":@"微信好友",@"detaile":@"把支付链接发送给微信好友,为你付款"},@{@"img":@"QQ好友",@"title":@"QQ好友",@"detaile":@"把支付链接发送给QQ好友,为你付款"}]];
+                }else {
+                
+                    //使用首推白条,享受免利息30天借款
+                    _dataResult = @[@[@{@"img":@"微信支付",@"title":@"微信支付",@"detaile":@"微信安全支付"},@{@"img":@"支付宝",@"title":@"支付宝支付",@"detaile":@"推荐有支付宝账号的用户使用"},@{@"img":@"银联",@"title":@"银行卡支付",@"detaile":@"使用银联存储卡,信用卡支付,无需开通网银"}],@[@{@"img":@"白条LOGO",@"title":@"白条支付",@"detaile":@"使用首推白条,享受免利息30天借款"}],@[@{@"img":@"微信好友",@"title":@"微信好友",@"detaile":@"把支付链接发送给微信好友,为你付款"},@{@"img":@"QQ好友",@"title":@"QQ好友",@"detaile":@"把支付链接发送给QQ好友,为你付款"}]];
+                }
+            }
+        }else {
+        
+            _dataResult = @[@[@{@"img":@"微信支付",@"title":@"微信支付",@"detaile":@"微信安全支付"},@{@"img":@"支付宝",@"title":@"支付宝支付",@"detaile":@"推荐有支付宝账号的用户使用"},@{@"img":@"银联",@"title":@"银行卡支付",@"detaile":@"使用银联存储卡,信用卡支付,无需开通网银"}],@[@{@"img":@"微信好友",@"title":@"微信好友",@"detaile":@"把支付链接发送给微信好友,为你付款"},@{@"img":@"QQ好友",@"title":@"QQ好友",@"detaile":@"把支付链接发送给QQ好友,为你付款"}]];
+        }
+        
+    }else{
+        
+        
+        //显示白条
+        if ([_result[@"ShowCreditLimitPay"] integerValue] == 1) {
+            
+            if ([_result[@"OrderAmount_NoteBlank"] doubleValue] < 500) {
+                //可使用白条支付的订单不足500,无法使用
+                
+                _dataResult = @[@[@{@"img":@"微信支付",@"title":@"微信支付",@"detaile":@"微信安全支付"},@{@"img":@"支付宝",@"title":@"支付宝支付",@"detaile":@"推荐有支付宝账号的用户使用"},@{@"img":@"银联",@"title":@"银行卡支付",@"detaile":@"使用银联存储卡,信用卡支付,无需开通网银"},@{@"img":@"hudST_logo",@"title":@"模拟支付",@"detaile":@"尽情的享受,不差钱"}],@[@{@"img":@"白条LOGO",@"title":@"白条支付",@"detaile":@"可使用白条支付的订单不足500,无法使用"}],@[@{@"img":@"微信好友",@"title":@"微信好友",@"detaile":@"把支付链接发送给微信好友,为你付款"},@{@"img":@"QQ好友",@"title":@"QQ好友",@"detaile":@"把支付链接发送给QQ好友,为你付款"}]];
+                
+            }else {
+                
+                if ([_result[@"OrderAmount_NoteBlank"] doubleValue] > [_result[@"UsableCreditLimit"] doubleValue]) {
+                    //您的白条额度不足,本次订单无法使用
+                    _dataResult = @[@[@{@"img":@"微信支付",@"title":@"微信支付",@"detaile":@"微信安全支付"},@{@"img":@"支付宝",@"title":@"支付宝支付",@"detaile":@"推荐有支付宝账号的用户使用"},@{@"img":@"银联",@"title":@"银行卡支付",@"detaile":@"使用银联存储卡,信用卡支付,无需开通网银"},@{@"img":@"hudST_logo",@"title":@"模拟支付",@"detaile":@"尽情的享受,不差钱"}],@[@{@"img":@"白条LOGO",@"title":@"白条支付",@"detaile":@"您的白条额度不足,本次订单无法使用"}],@[@{@"img":@"微信好友",@"title":@"微信好友",@"detaile":@"把支付链接发送给微信好友,为你付款"},@{@"img":@"QQ好友",@"title":@"QQ好友",@"detaile":@"把支付链接发送给QQ好友,为你付款"}]];
+                }else {
+                    
+                    //使用首推白条,享受免利息30天借款
+                    _dataResult = @[@[@{@"img":@"微信支付",@"title":@"微信支付",@"detaile":@"微信安全支付"},@{@"img":@"支付宝",@"title":@"支付宝支付",@"detaile":@"推荐有支付宝账号的用户使用"},@{@"img":@"银联",@"title":@"银行卡支付",@"detaile":@"使用银联存储卡,信用卡支付,无需开通网银"},@{@"img":@"hudST_logo",@"title":@"模拟支付",@"detaile":@"尽情的享受,不差钱"}],@[@{@"img":@"白条LOGO",@"title":@"白条支付",@"detaile":@"使用首推白条,享受免利息30天借款"}],@[@{@"img":@"微信好友",@"title":@"微信好友",@"detaile":@"把支付链接发送给微信好友,为你付款"},@{@"img":@"QQ好友",@"title":@"QQ好友",@"detaile":@"把支付链接发送给QQ好友,为你付款"}]];
+                }
+            }
+        }else {
+            
+            _dataResult = @[@[@{@"img":@"微信支付",@"title":@"微信支付",@"detaile":@"微信安全支付"},@{@"img":@"支付宝",@"title":@"支付宝支付",@"detaile":@"推荐有支付宝账号的用户使用"},@{@"img":@"银联",@"title":@"银行卡支付",@"detaile":@"使用银联存储卡,信用卡支付,无需开通网银"},@{@"img":@"hudST_logo",@"title":@"模拟支付",@"detaile":@"尽情的享受,不差钱"}],@[@{@"img":@"微信好友",@"title":@"微信好友",@"detaile":@"把支付链接发送给微信好友,为你付款"},@{@"img":@"QQ好友",@"title":@"QQ好友",@"detaile":@"把支付链接发送给QQ好友,为你付款"}]];
+        }
+    }
+    [_tableView reloadData];
+}
+
+#pragma mark --UITableViewDataSource
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return _dataResult.count;
+}
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return [_dataResult[section] count];
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    static NSString *cellNameB = @"cellNameB";
+    STMethodPaymentTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellNameB];
+    if (!cell) {
+        cell = [[[NSBundle mainBundle]loadNibNamed:@"STMethodPaymentTableViewCell" owner:self options:nil]lastObject];
+        [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+    }
+    [cell setMethodPayment:_dataResult indexPath:indexPath]; 
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    switch (indexPath.section) {
+        case 0:
+            switch (indexPath.row) {
+                case 0:{
+                    
+                    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"您确定要用微信支付吗?" preferredStyle:UIAlertControllerStyleAlert];
+                    
+                    [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+                        
+                    }]];
+                    [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+                        if ([[STCommon sharedSTSTCommon] setWhetherToInstall:@"weixin://"]) {
+                            
+                            [KSMNetworkRequest getRequest:requestAppwebchat params:@{@"masteroid":[NSString stringWithFormat:@"%@",_result[@"MasterOidList"]]} success:^(id responseObj) {
+                                
+                                FxLog(@"dataResult = %@",responseObj);
+                                
+                                if ([[responseObj objectForKey:@"success"] integerValue] == 1) {
+                                    NSString *reqParam=[NSString stringWithFormat:@"%@",responseObj[@"data"]];
+                                    NSString *res = [WXApiRequestHandler jumpToBizPay:reqParam];
+                                    FxLog(@"res = %@",res);
+                                }else {
+                                    
+                                    [ZHProgressHUD showErrorWithText:[responseObj objectForKey:@"info"]];
+                                }
+                                
+                            } failure:^(NSError *error) {
+                                
+                            }];
+                            
+                            
+                        }else{
+                            
+                            [ZHProgressHUD showInfoWithText:@"请先安装微信"];
+                        }
+                    }]];
+                    [self presentViewController:alert animated:YES completion:nil];
+                    
+                    break;
+                }
+                case 1:{
+                    
+                    
+                    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"您确定要用支付宝支付吗?" preferredStyle:UIAlertControllerStyleAlert];
+                    
+                    [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+                        
+                    }]];
+                    [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+//                        if ([[STCommon sharedSTSTCommon] setWhetherToInstall:@"alipay://"]) {
+                        
+                        [KSMNetworkRequest getRequest:requestZFBPay params:@{@"masteroid":[NSString stringWithFormat:@"%@",_result[@"MasterOidList"]]} success:^(id responseObj) {
+                            
+                            FxLog(@"dataResult = %@",responseObj);
+                            if ([[responseObj objectForKey:@"success"] integerValue] == 1) {
+                                
+                                NSString *orderString = [responseObj objectForKey:@"data"];
+                                
+                                //没有安装支付宝，直接跳转网页
+                                NSArray *array = [[UIApplication sharedApplication] windows];
+                                UIWindow* win=[array objectAtIndex:0];
+                                [win setHidden:NO];
+                                
+                                [[AlipaySDK defaultService] payOrder:orderString fromScheme:@"sosoYY" callback:^(NSDictionary *resultDic) {
+                                    
+                                    FxLog(@"resultDic = %@",resultDic);
+                                    
+                                    if ([[resultDic objectForKey:@"resultStatus"] integerValue]== 6001) {
+                                        
+                                        [ZHProgressHUD showErrorWithText:@"支付失败"];
+                                        
+                                    }else if ([[resultDic objectForKey:@"resultStatus"] integerValue]== 9000) {
+                                        
+                                        [self addSubWebView];
+                                    }
+                                }];
+                            }else {
+                                
+                                [ZHProgressHUD showErrorWithText:[responseObj objectForKey:@"info"]];
+                            }
+                            
+                        } failure:^(NSError *error) {
+                            
+                        }];
+                            
+//                        }else{
+//                            
+//                            [ZHProgressHUD showInfoWithText:@"请先安装支付宝"];
+//                        }
+                    }]];
+                    [self presentViewController:alert animated:YES completion:nil];
+                    
+                    break;
+                }
+                case 2:{
+                    
+                    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"您确定要用银联支付吗?" preferredStyle:UIAlertControllerStyleAlert];
+                    
+                    [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+                        
+                                           }]];
+                    [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+                        
+                        [KSMNetworkRequest getRequest:requestUPPay_TN params:@{@"masteroid":_result[@"MasterOidList"]} success:^(id responseObj) {
+                            
+                            FxLog(@"responseObj = %@",responseObj);
+                            NSDictionary *dic = (NSDictionary *)responseObj;
+                            if ([[dic objectForKey:@"state"] isEqualToString:@"成功"]) {
+                                //00 正式 01 测试
+                                [[UPPaymentControl defaultControl] startPay:[dic objectForKey:@"content"] fromScheme:@"sosoYY" mode:@"00" viewController:self];
+                            }
+                            
+                        } failure:^(NSError *error) {
+                            
+                        }];
+
+                    }]];
+                    [self presentViewController:alert animated:YES completion:nil];
+                    
+                    break;
+                }
+                case 3:{
+                    
+                    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"您确定要用模拟支付吗?" preferredStyle:UIAlertControllerStyleAlert];
+                    
+                    [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+                        
+                    }]];
+                    [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+                        
+                        _urlStr = [NSString stringWithFormat:@"%@masteroid=%@",requestsimulatorPay,_masterOid];
+                        
+                        [self addSubWebView];
+                        
+                    }]];
+                    [self presentViewController:alert animated:YES completion:nil];
+                    break;
+                }
+                default:
+                    break;
+            }
+            break;
+        case 1:{
+            
+            if (_dataResult.count == 2) {
+                switch (indexPath.row) {//微信
+                    case 0:{
+                        UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"您确定要打开微信吗?" preferredStyle:UIAlertControllerStyleAlert];
+                        
+                        [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+                            
+                        }]];
+                        [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+                            
+                            if ([[STCommon sharedSTSTCommon] setWhetherToInstall:@"weixin://"]) {
+                                
+                                isShare = YES;
+                                
+                                [[STCommon sharedSTSTCommon] shareWebPageToPlatformType:UMSocialPlatformType_WechatSession reSult:@{@"title":@"帮我付款才是真友谊",@"image":@"hudST_logo",@"url":[NSString stringWithFormat:@"%@masteroid=%@",requestPayForAnother,_masterOid],@"descr":@"你的一小笔开支,是我们关系的一大步,为我付款吧～"} shaerView:self Finished:^(BOOL isSuccessful) {
+                                    if (isSuccessful) {
+                                        
+                                        isShare = YES;
+                                        
+                                    }else{
+                                        isShare = NO;
+                                    }
+                                }];
+                                
+                            }else{
+                                
+                                [ZHProgressHUD showInfoWithText:@"请先安装微信"];
+                            }
+                        }]];
+                        [self presentViewController:alert animated:YES completion:nil];
+                        
+                        break;
+                    }
+                    case 1:{//QQ
+                        UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"您确定要打开QQ吗?" preferredStyle:UIAlertControllerStyleAlert];
+                        
+                        [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+                            
+                        }]];
+                        [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+                            
+                            if ([[STCommon sharedSTSTCommon] setWhetherToInstall:@"mqq://"]) {
+                                
+                                isShare = YES;
+                                
+                                [[STCommon sharedSTSTCommon] shareWebPageToPlatformType:UMSocialPlatformType_QQ reSult:@{@"title":@"帮我付款才是真友谊",@"image":@"hudST_logo",@"url":[NSString stringWithFormat:@"%@masteroid=%@",requestPayForAnother,_masterOid],@"descr":@"你的一小笔开支,是我们关系的一大步,为我付款吧～"} shaerView:self Finished:^(BOOL isSuccessful) {
+                                    
+                                    if (isSuccessful) {
+                                        
+                                        isShare = YES;
+                                        
+                                    }else{
+                                        isShare = NO;
+                                    }
+                                }];
+                            }else{
+                                
+                                [ZHProgressHUD showInfoWithText:@"请先安装QQ"];
+                            }
+                        }]];
+                        [self presentViewController:alert animated:YES completion:nil];
+                        
+                        break;
+                    }
+                        
+                    default:
+                        break;
+                }
+            }else {
+            
+            //白条支付
+                
+                if ([_result[@"OrderAmount_NoteBlank"] doubleValue] < 500) {
+                    
+                    [ZHProgressHUD showInfoWithText:@"可使用白条支付的订单不足500,无法使用"];
+                    
+                }else {
+                
+                    if ([_result[@"OrderAmount_NoteBlank"] doubleValue] > [_result[@"UsableCreditLimit"] doubleValue]) {
+                        
+                        [ZHProgressHUD showInfoWithText:@"您的白条额度不足,本次订单无法使用"];
+                        
+                    }else {
+                        //全部支持白条支付
+                        if ([_result[@"WaitPayMoney"] doubleValue] == [_result[@"OrderAmount_NoteBlank"] doubleValue]) {
+                            IOUPayViewController *iouPayVC = [[IOUPayViewController alloc]init];
+                            iouPayVC.result = _result;
+                            [self.navigationController pushViewController:iouPayVC animated:YES];
+                        }else { //混合支付
+                            MixturePayGoodListViewController *MixturePayVC = [[MixturePayGoodListViewController alloc]init];
+                            MixturePayVC.result = _result;
+                            [self.navigationController pushViewController:MixturePayVC animated:YES];
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        case 2:{
+            
+            switch (indexPath.row) {//微信
+                case 0:{
+                    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"您确定要打开微信吗?" preferredStyle:UIAlertControllerStyleAlert];
+                    
+                    [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+                        
+                    }]];
+                    [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+                        
+                        if ([[STCommon sharedSTSTCommon] setWhetherToInstall:@"weixin://"]) {
+                            
+                            isShare = YES;
+                            
+                            [[STCommon sharedSTSTCommon] shareWebPageToPlatformType:UMSocialPlatformType_WechatSession reSult:@{@"title":@"帮我付款才是真友谊",@"image":@"hudST_logo",@"url":[NSString stringWithFormat:@"%@masteroid=%@",requestPayForAnother,_masterOid],@"descr":@"你的一小笔开支,是我们关系的一大步,为我付款吧～"} shaerView:self Finished:^(BOOL isSuccessful) {
+                                if (isSuccessful) {
+                                    
+                                    isShare = YES;
+                                    
+                                }else{
+                                    isShare = NO;
+                                }
+                            }];
+                            
+                        }else{
+                            
+                            [ZHProgressHUD showInfoWithText:@"请先安装微信"];
+                        }
+                    }]];
+                    [self presentViewController:alert animated:YES completion:nil];
+                    
+                    break;
+                }
+                case 1:{//QQ
+                    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"您确定要打开QQ吗?" preferredStyle:UIAlertControllerStyleAlert];
+                    
+                    [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+                        
+                    }]];
+                    [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+                        
+                        if ([[STCommon sharedSTSTCommon] setWhetherToInstall:@"mqq://"]) {
+                            
+                            isShare = YES;
+                            
+                            [[STCommon sharedSTSTCommon] shareWebPageToPlatformType:UMSocialPlatformType_QQ reSult:@{@"title":@"帮我付款才是真友谊",@"image":@"hudST_logo",@"url":[NSString stringWithFormat:@"%@masteroid=%@",requestPayForAnother,_masterOid],@"descr":@"你的一小笔开支,是我们关系的一大步,为我付款吧～"} shaerView:self Finished:^(BOOL isSuccessful) {
+                                
+                                if (isSuccessful) {
+                                    
+                                    isShare = YES;
+                                    
+                                }else{
+                                    isShare = NO;
+                                }
+                            }];
+                        }else{
+                            
+                            [ZHProgressHUD showInfoWithText:@"请先安装QQ"];
+                        }
+                    }]];
+                    [self presentViewController:alert animated:YES completion:nil];
+                    
+                    break;
+                }
+                    
+                default:
+                    break;
+            }
+        }
+            break;
+            
+        default:
+            break;
+    }
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 30;
+}
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    UIView *headView = [UIView new];
+    headView.frame = CGRectMake(0, 0, kScreenWidth, 30);
+    headView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+    
+    UILabel *titel = [UILabel new];
+    titel.font = [UIFont systemFontOfSize:15];
+    titel.frame = CGRectMake(10, 0, kScreenWidth - 20, 30);
+    titel.textColor = RGB(85, 85, 85);
+    switch (section) {
+        case 0:
+            titel.text = @"在线支付";
+            break;
+        case 1:
+            if (_dataResult.count == 2) {
+                titel.text = @"他人代付";
+            }else {
+                titel.text = @"白条支付";
+            }
+            break;
+        case 2:
+            titel.text = @"他人代付";
+            break;
+        default:
+            break;
+    }
+    [headView addSubview:titel];
+    
+    return  headView;
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 1;
+}
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+    
+    UIView *footView = [UIView new];
+    footView.frame = CGRectMake(0, 0, kScreenWidth, 1);
+    footView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+    return footView;
+}
+
+-(void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    if (self.isShowAlert) {
+        _showContinuePayLab.frame = CGRectMake(0, kNavBarHeight, kScreenWidth, 30);
+        _tableView.frame = CGRectMake(0, _showContinuePayLab.bottom, kScreenWidth, kScreenHeight - kNavBarHeight-_showContinuePayLab.height);
+    }else {
+        _showContinuePayLab.frame = CGRectMake(0, kNavBarHeight, kScreenWidth, 0);
+        _tableView.frame = CGRectMake(0, _showContinuePayLab.bottom, kScreenWidth, kScreenHeight - kNavBarHeight-_showContinuePayLab.height);
+    }
+    
+    self.navigationController.navigationBar.hidden = YES;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+
+}
+
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    self.navigationController.navigationBar.hidden = NO;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+
+- (IBAction)backBtn:(UIButton *)sender {
+    
+    if (self.orderListInto) {    
+        [self.navigationController popViewControllerAnimated:YES];
+    }else {
+    
+        [self.navigationController popToRootViewControllerAnimated:NO];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"pushToOrderList" object:@{@"flag":@"waitPay"}];
+    }
+    
+}
+
+-(void)myControl{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"GoToURL" object:[NSString stringWithFormat:@"%s%@",requestHost,myControlStr]];
+}
+-(void)payShareAppBack{
+    
+    if (isShare) {
+        isShare = NO;
+        [ZHProgressHUD showInfoWithText:@"分享成功"];
+    }
+}
+
+-(void)dealloc{
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UPPay_Code object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:Pay_Share_Notification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:inviteShareNOtifation object:nil];
+    
+}
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+@end

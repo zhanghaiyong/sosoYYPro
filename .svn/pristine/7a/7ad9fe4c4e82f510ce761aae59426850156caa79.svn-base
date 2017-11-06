@@ -1,0 +1,18 @@
+//
+//  AppDelegate.h
+//  sosoYY
+//
+//  Created by zhy on 16/11/22.
+//  Copyright © 2016年 felix. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+@interface AppDelegate : UIResponder <UIApplicationDelegate,UIAlertViewDelegate>
+@property (nonatomic,strong)UIAlertView *alert;
+@property (strong, nonatomic) UIWindow *window;
+@property (nonatomic,assign)BOOL showAlert;
+@property (copy,nonatomic)NSString * trackViewUrl;
+@property (assign, nonatomic) BOOL isLaunchedByNotification;
+-(void)setShowViewController;
+@end
+

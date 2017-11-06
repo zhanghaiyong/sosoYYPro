@@ -1,0 +1,46 @@
+PODS:
+  - AFNetworking (3.1.0):
+    - AFNetworking/NSURLSession (= 3.1.0)
+    - AFNetworking/Reachability (= 3.1.0)
+    - AFNetworking/Security (= 3.1.0)
+    - AFNetworking/Serialization (= 3.1.0)
+    - AFNetworking/UIKit (= 3.1.0)
+  - AFNetworking/NSURLSession (3.1.0):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (3.1.0)
+  - AFNetworking/Security (3.1.0)
+  - AFNetworking/Serialization (3.1.0)
+  - AFNetworking/UIKit (3.1.0):
+    - AFNetworking/NSURLSession
+  - IQKeyboardManager (3.3.7)
+  - MJExtension (3.0.10)
+  - MJRefresh (3.1.0)
+  - Reachability (3.2)
+  - SDWebImage (3.7.6):
+    - SDWebImage/Core (= 3.7.6)
+  - SDWebImage/Core (3.7.6)
+  - ZXingObjC (2.2.8)
+
+DEPENDENCIES:
+  - AFNetworking
+  - IQKeyboardManager (= 3.3.7)
+  - MJExtension
+  - MJRefresh
+  - Reachability
+  - SDWebImage
+  - ZXingObjC (~> 2.2.8)
+
+SPEC CHECKSUMS:
+  AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
+  IQKeyboardManager: 249c3946acf61345c18b038eb50863fe2793e3a8
+  MJExtension: d86aacb740c87519d20e3cca55b6fa4be6cc7548
+  MJRefresh: 743e6404967d1c2c688472ea3ecfde247d872db4
+  Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
+  SDWebImage: c325cf02c30337336b95beff20a13df489ec0ec9
+  ZXingObjC: 5e6bc8ee3af8ceef72b56832ea570da0484f4b89
+
+PODFILE CHECKSUM: a28f1d55cc26c2b0f12d8cac52c66e7448133418
+
+COCOAPODS: 1.1.1

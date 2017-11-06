@@ -1,0 +1,29 @@
+//
+//  STMessageListTableViewCell.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/7/28.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STMessageListTableViewCell.h"
+
+@implementation STMessageListTableViewCell
+-(void)setMessageList:(NSMutableArray *)arr indexPath:(NSIndexPath *)indexPath{
+    
+    _namelab.text = [NSString stringWithFormat:@"%@",[[arr[indexPath.section] dataResult][indexPath.row] Title]];
+    _describeLab.text = [NSString stringWithFormat:@"%@",[[arr[indexPath.section] dataResult][indexPath.row] Short_body]];
+
+}
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

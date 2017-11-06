@@ -1,0 +1,80 @@
+//
+//  LiModel.m
+//  sosoYY
+//
+//  Created by zhy on 17/1/18.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "LiModel.h"
+
+@implementation LiModel
+
+//实现这个方法，就会自动吧数组中的字典转化成对应的模型
++ (NSDictionary *)objectClassInArray {
+    
+    return @{@"purchasetAddPricePromotionsList":[PurchasetAddPricePromotionsModel class]};
+}
+
+-(CGFloat)cellHeight {
+
+    CGFloat H = 115;
+    
+    if ([self.isSelect isEqualToString:@"1"]) {
+        //是加价购，并且选择了加价购商品
+        if ([self.PromotionTypes integerValue] == 1 && [self.pmid integerValue] > 0) {
+            
+            for (PurchasetAddPricePromotionsModel *model in self.purchasetAddPricePromotionsList) {
+                
+                if ([model.pmid isEqualToString:self.pmid]) {
+                    
+                    switch ([model.addPriceType integerValue]) {
+                        case 0:
+                            
+                            if ([self.buyCount doubleValue] >= [model.firstProudctStartNum doubleValue]) {
+                                
+                                H +=85;
+                            }
+                            
+                            break;
+                        case 1:
+                            if ([self.buyCount doubleValue] >= [model.firstProudctPerNum doubleValue]) {
+                                
+                                H +=85;
+                            }
+                            break;
+                            
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+    }
+    // 特价 || 加价购
+    if ([self.PricePromotionsTypes integerValue] == 1 || [self.PromotionTypes integerValue] == 1) {
+        H += 30;
+    }
+    
+    __block BOOL Remainder = NO;
+    [STCommon isRemainderD1:self.buyCount.doubleValue withD2:self.Product_Pcs_Small.doubleValue Block:^(BOOL isRemainder, int multiple) {
+        
+        Remainder = isRemainder;
+    }];
+    
+    //购买数低于最低购买数 || 购买数超出库存
+    if ([self.buyCount doubleValue] < [self.minBuy doubleValue] || [self.buyCount doubleValue] > [self.stock doubleValue] || ([self.sellType doubleValue] == 2 && !Remainder)) {
+        
+        self.isBadGood = YES;
+        
+        H += 30;
+    }else {
+    
+        self.isBadGood = NO;
+    }
+    
+    return H;
+    
+}
+
+@end

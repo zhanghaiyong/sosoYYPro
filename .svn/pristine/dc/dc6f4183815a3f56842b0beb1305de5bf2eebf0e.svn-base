@@ -1,0 +1,63 @@
+//
+//  IOUPayViewController.m
+//  sosoYY
+//
+//  Created by zhy on 2017/8/23.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "IOUPayViewController.h"
+#import "IOUDetailViewController.h"
+@interface IOUPayViewController ()
+//可用额度
+@property (weak, nonatomic) IBOutlet UILabel *UsableCreditLimitLab;
+//总额度
+@property (weak, nonatomic) IBOutlet UILabel *CreditLimitLab;
+@property (weak, nonatomic) IBOutlet UILabel *WaitPayMoneyLab;
+
+@end
+
+@implementation IOUPayViewController
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+-(void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    self.navigationController.navigationBar.hidden = NO;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.UsableCreditLimitLab.text = [NSString stringWithFormat:@"可用额度 %.2f",[self.result[@"UsableCreditLimit"] doubleValue]];
+    self.CreditLimitLab.text = [NSString stringWithFormat:@"总额度 %.2f",[self.result[@"CreditLimit"] doubleValue]];
+    self.WaitPayMoneyLab.text = [NSString stringWithFormat:@"申请金额 ￥%.2f",[self.result[@"OrderAmount_NoteBlank"] doubleValue]];
+    
+}
+- (IBAction)backClick:(id)sender {
+    
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)applyIouClick:(id)sender {
+    
+    
+    [KSMNetworkRequest postRequest:requestIOUPrePay params:@{@"masterOid":self.result[@"MasterOidList"]} success:^(id responseObj) {
+        
+        if ([responseObj[@"success"] integerValue] == 1) {
+            IOUDetailViewController *IOUDetailVC = [[IOUDetailViewController alloc]init];
+            [self.navigationController pushViewController:IOUDetailVC animated:YES];
+            
+        }
+        
+    } failure:^(NSError *error) {
+        
+    }];
+}
+
+@end

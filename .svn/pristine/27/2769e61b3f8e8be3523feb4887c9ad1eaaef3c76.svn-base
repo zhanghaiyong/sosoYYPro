@@ -1,0 +1,65 @@
+//
+//  STShopCartSearchArtificialTableViewCell.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/8/7.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STShopCartSearchArtificialTableViewCell.h"
+
+@implementation STShopCartSearchArtificialTableViewCell
+-(void)setShopCartSearchArtificial:(STShopCartSeachEntity *)entity indexPath:(NSIndexPath *)indexPath{
+   
+    __weak STShopCartSearchArtificialTableViewCell *weakSelf = self;
+    
+    _nameLab.text = [NSString stringWithFormat:@"%@",entity.DrugsBase_DrugName];
+    _specificationsLab.text = [NSString stringWithFormat:@"%@",entity.DrugsBase_Specification];
+    _complyLab.text = [NSString stringWithFormat:@"%@",entity.DrugsBase_Manufacturer];
+    
+    
+    [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(102, 102, 102),@"font":@"12",@"num":@"7"},@{@"color":RGB(175, 175, 175),@"font":@"14"}]  andChengeString:[NSString stringWithFormat:@"最近采购日期:%@",entity.LastTime] type:1 andFinished:^(NSMutableAttributedString *string) {
+        weakSelf.dateLab.attributedText = string;
+    }];
+    
+    
+    
+        //历史价格
+    NSString *HistoryPrice = [STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",entity.HistoryPrice.floatValue]];
+    
+    NSString *HistoryPriceLength = [NSString stringWithFormat:@"%zi",HistoryPrice.length];
+    
+    //库存
+    NSString *stock = [NSString stringWithFormat:@"%@",entity.stock];
+    
+    NSString *stockLength = [NSString stringWithFormat:@"%zi",stock.length];
+    
+    //月销量
+    NSString *SalesVolume = [NSString stringWithFormat:@"%@",entity.SalesVolume];
+    
+    NSString *SalesVolumeLength = [NSString stringWithFormat:@"%zi",SalesVolume.length];
+ 
+    [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(102, 102, 102),@"font":@"12",@"num":@"3"},@{@"color":RGB(175, 175, 175),@"font":@"12",@"num":stockLength},@{@"color":RGB(102, 102, 102),@"font":@"12",@"num":@"6"},@{@"color":RGB(175, 175, 175),@"font":@"12",@"num":SalesVolumeLength},@{@"color":RGB(102, 102, 102),@"font":@"12",@"num":@"7"},@{@"color":RGB(175, 175, 175),@"font":HistoryPriceLength}]  andChengeString:[NSString stringWithFormat:@"库存:%@ 半月销量:%@ 历史采购价:%@",stock,SalesVolume,HistoryPrice] type:1 andFinished:^(NSMutableAttributedString *string) {
+        weakSelf.effectiveLab.attributedText = string;
+    }];
+    
+}
+- (IBAction)addMothed:(UIButton *)sender {
+    
+    STShopCartSearchArtificialTableViewCell *cell = (STShopCartSearchArtificialTableViewCell *)[[sender superview]superview];
+    if (_delegate && [_delegate respondsToSelector:@selector(g_AddMothed:)]) {
+        [_delegate g_AddMothed:cell];
+    }
+}
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

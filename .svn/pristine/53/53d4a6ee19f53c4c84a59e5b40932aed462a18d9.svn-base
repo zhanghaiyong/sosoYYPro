@@ -1,0 +1,602 @@
+//
+//  STSwitchStoreView.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/7/10.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STSwitchStoreView.h"
+#import "STSwitchStoreTableViewCell.h"
+#import "STSwitchStoreHeaderView.h"
+#import "STSwitchStoreFooterView.h"
+#import "STSwitchBouncedPromptView.h"
+
+#define kRowHight 110
+#define kViewHight 125
+
+
+#define IS_IPHONE_5 ( fabs( ( double )[ [ UIScreen mainScreen ] bounds ].size.height - ( double )568 ) < DBL_EPSILON )
+
+#define IS_IPHONE_6 ( fabs( ( double )[ [ UIScreen mainScreen ] bounds ].size.height - ( double )667 ) < DBL_EPSILON )
+
+#define IS_IPHONE_6plus ( fabs( ( double )[ [UIScreen mainScreen ] bounds ].size.height - ( double )736 ) < DBL_EPSILON )
+
+@interface STSwitchStoreView ()<UITableViewDelegate,UITableViewDataSource>{
+    __block BOOL isBounced;
+}
+@property(strong,nonatomic)UITableView *tableView;
+@property(strong,nonatomic)STSwitchStoreHeaderView *switchStoreHeaderView;
+@property(strong,nonatomic)STSwitchStoreFooterView *switchStoreFooterView;
+@property(strong,nonatomic)STSwitchBouncedPromptView *switchBouncedPromptView;
+
+@property(strong,nonatomic)NSMutableArray *dataAry;
+@property(strong,nonatomic)NSMutableArray *selectAry;
+@property(strong,nonatomic)NSMutableArray *changeAry;
+@property(assign,nonatomic)NSInteger index;
+@property(strong,nonatomic)NSString *buyCount;
+@property(strong,nonatomic)NSString *minBuyNum;
+@property(strong,nonatomic)NSString *title;
+@property(assign,nonatomic)CGFloat tableViewH;
+
+@property(strong,nonatomic)NSIndexPath *indexPath;
+
+@property(strong,nonatomic)STSwitchStoreEneity *mode;
+@end
+
+@implementation STSwitchStoreView
+
+-(void)setSwitchStoreViewTitle:(NSString *)title{
+    
+    _title = title;
+    
+    _dataAry = [NSMutableArray new];
+    _selectAry = [NSMutableArray new];
+    _changeAry = [NSMutableArray new];
+    _buyCount = @"0";
+    __weak STSwitchStoreView *weakSelf = self;
+    
+    
+    _switchStoreHeaderView = [[[NSBundle mainBundle]loadNibNamed:@"STSwitchStoreHeaderView" owner:self options:nil]lastObject];
+    _switchStoreHeaderView.frame = CGRectMake(0, 0, kScreenWidth - 30, 40);
+    _switchStoreHeaderView.titleLab.text = title;
+    _switchStoreHeaderView.lineLab.frame = CGRectMake(0, 39.5, kScreenWidth, .5);
+    
+    _switchStoreFooterView = [[[NSBundle mainBundle]loadNibNamed:@"STSwitchStoreFooterView" owner:self options:nil]lastObject];
+    _switchStoreFooterView.frame = CGRectMake(0, 0, kScreenWidth - 30, 85);
+    _switchStoreFooterView.SwitchStoreBuyCountBlock = ^(int type, NSDictionary *dict, NSIndexPath *indexpath) {
+        if (weakSelf.SwitchStoreViewBlock) {
+            weakSelf.SwitchStoreViewBlock(type,dict,weakSelf.indexPath);
+        }
+    };
+    
+    _switchStoreFooterView.SwitchNumBlock = ^(NSString *numPrice,NSString *buyCount,NSIndexPath *indexpath,CGFloat price) {
+        
+        _buyCount = buyCount;
+        
+        STSwitchStoreEneity *mode = weakSelf.dataAry[indexpath.row];
+        weakSelf.mode = mode;
+        
+        if ([weakSelf.title isEqualToString:@"选择店铺"]) {
+            
+            if (mode.surplusmoney.floatValue + numPrice.floatValue >= mode.lowestdeliveryAmount.floatValue) {//配送金额
+                
+//                    mode.info = [NSString stringWithFormat:@"该店已购买¥%@元,达到发货金额.",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.surplusmoney.floatValue + numPrice.floatValue]]];
+                mode.info = @"已满起发";
+                
+                if (mode.surplusmoney.floatValue + numPrice.floatValue >= mode.lowestFreeShippingAmount.floatValue) {//满邮金额
+                    
+                    mode.info = [NSString stringWithFormat:@"该店已购买¥%@元,达到包邮金额.",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.surplusmoney.floatValue + numPrice.floatValue]]];
+                    
+                }else{
+                    //已购买mode.surplusmoney.floatValue + numPrice.floatValue
+                    mode.info = [NSString stringWithFormat:@"还差包邮¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.lowestFreeShippingAmount.floatValue - mode.surplusmoney.floatValue - numPrice.floatValue]]];
+                    
+                }
+            }else{
+                //已购买mode.surplusmoney.floatValue + numPrice.floatValue
+                mode.info = [NSString stringWithFormat:@"还差发货¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.lowestdeliveryAmount.floatValue - mode.surplusmoney.floatValue - numPrice.floatValue]]];
+            }
+            
+            [weakSelf.dataAry replaceObjectAtIndex:indexpath.row withObject:mode];
+        }else{
+            
+            if (mode.selected.integerValue == 1) {
+                
+                if (buyCount.floatValue == mode.buyCount.floatValue) {
+                    if (mode.surplusmoney.floatValue >= mode.lowestdeliveryAmount.floatValue) {//配送金额
+                        
+//                        mode.info = [NSString stringWithFormat:@"该店已购买¥%@元,达到发货金额.",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.surplusmoney.floatValue]]];
+                        mode.info = @"已满起发";
+                        
+                        if (mode.surplusmoney.floatValue  >= mode.lowestFreeShippingAmount.floatValue) {//满邮金额
+                            
+                            mode.info = [NSString stringWithFormat:@"该店已购买¥%@元,达到包邮金额.",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.surplusmoney.floatValue]]];
+                            
+                        }else{
+                            //已购买mode.surplusmoney.floatValue
+                            mode.info = [NSString stringWithFormat:@"还差包邮¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.lowestFreeShippingAmount.floatValue - mode.surplusmoney.floatValue]]];
+                            
+                        }
+                    }else{
+                        //已购买mode.surplusmoney.floatValue
+                        mode.info = [NSString stringWithFormat:@"还差发货¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.lowestdeliveryAmount.floatValue - mode.surplusmoney.floatValue]]];
+                    }
+                    
+                    [weakSelf.dataAry replaceObjectAtIndex:indexpath.row withObject:mode];
+                    
+                }else{
+                    
+                    CGFloat oldPrice = numPrice.floatValue/buyCount.floatValue;
+                    
+                    CGFloat yuPrice = numPrice.floatValue - mode.buyCount.floatValue*oldPrice;
+                    
+                    if (mode.surplusmoney.floatValue + yuPrice >= mode.lowestdeliveryAmount.floatValue) {//配送金额
+                        
+//                        mode.info = [NSString stringWithFormat:@"该店已购买¥%@元,达到发货金额.",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.surplusmoney.floatValue + yuPrice]]];
+                        mode.info = @"已满起发";
+                        
+                        if (mode.surplusmoney.floatValue + yuPrice >= mode.lowestFreeShippingAmount.floatValue) {//满邮金额
+                            
+                            mode.info = [NSString stringWithFormat:@"该店已购买¥%@元,达到包邮金额.",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.surplusmoney.floatValue + yuPrice]]];
+                            
+                        }else{
+                            //已购买mode.surplusmoney.floatValue + numPrice.floatValue - oldPrice
+                            mode.info = [NSString stringWithFormat:@"还差包邮¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.lowestFreeShippingAmount.floatValue - (mode.surplusmoney.floatValue + yuPrice)]]];
+                            
+                        }
+                    }else{
+                        //已购买mode.surplusmoney.floatValue + numPrice.floatValue - oldPrice
+                        mode.info = [NSString stringWithFormat:@"还差发货¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.lowestdeliveryAmount.floatValue - (mode.surplusmoney.floatValue + yuPrice)]]];
+                    }
+                    
+                    [weakSelf.dataAry replaceObjectAtIndex:indexpath.row withObject:mode];
+                }
+            }else{
+                
+                if (mode.surplusmoney.floatValue + numPrice.floatValue >= mode.lowestdeliveryAmount.floatValue) {//配送金额
+                    
+//                    mode.info = [NSString stringWithFormat:@"该店已购买¥%@元,达到发货金额.",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.surplusmoney.floatValue + numPrice.floatValue]]];
+                    mode.info = @"已满起发";
+                    if (mode.surplusmoney.floatValue + numPrice.floatValue >= mode.lowestFreeShippingAmount.floatValue) {//满邮金额
+                        
+                        mode.info = [NSString stringWithFormat:@"该店已购买¥%@元,达到包邮金额.",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.surplusmoney.floatValue + numPrice.floatValue]]];
+                        
+                    }else{
+                        //已购买mode.surplusmoney.floatValue + numPrice.floatValue
+                        mode.info = [NSString stringWithFormat:@"还差包邮¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.lowestFreeShippingAmount.floatValue - mode.surplusmoney.floatValue - numPrice.floatValue]]];
+                        
+                    }
+                }else{
+                    //已购买mode.surplusmoney.floatValue + numPrice.floatValue
+                    mode.info = [NSString stringWithFormat:@"还差发货¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.lowestdeliveryAmount.floatValue - mode.surplusmoney.floatValue - numPrice.floatValue]]];
+                }
+                
+                [weakSelf.dataAry replaceObjectAtIndex:indexpath.row withObject:mode];
+            }
+            
+        }
+        
+        weakSelf.buyCount = buyCount;
+    };
+    
+    _switchStoreFooterView.SwitchBouncedPromptBlock = ^(NSString *buyCount,STSwitchStoreEneity *entity,NSIndexPath *indexpath) {
+        
+        if ([weakSelf.title isEqualToString:@"选择店铺"]) {
+            if (!indexpath) {//判断选择店铺
+                
+                weakSelf.switchStoreFooterView.finishedBtn.backgroundColor = [UIColor fromHexValue:0x999999];
+                weakSelf.switchBouncedPromptView.hidden = NO;
+                weakSelf.switchBouncedPromptView.titleLab.text = @"请先选择店铺";
+            }else{
+                
+                [weakSelf setSwitchStoreFooterViewBuyCount:buyCount entity:entity];
+            }
+        }else{
+            
+            [weakSelf setSwitchStoreFooterViewBuyCount:buyCount entity:entity];
+        }
+        
+        [weakSelf setBgViewFrame];
+        
+        [weakSelf.tableView reloadData];
+    };
+    
+    
+    
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(15, 74, kScreenWidth - 30, self.frame.size.height - 155)style:UITableViewStylePlain];
+    _tableView.delegate = self;
+    _tableView.dataSource = self;
+    _tableView.estimatedRowHeight = 300;
+    _tableView.rowHeight = UITableViewAutomaticDimension;
+    [_tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+    _tableView.layer.masksToBounds = YES;
+    _tableView.layer.cornerRadius = 5.0f;
+    _tableView.bounces = NO;
+    [self addSubview:_tableView];
+    
+    _switchBouncedPromptView = [[[NSBundle mainBundle]loadNibNamed:@"STSwitchBouncedPromptView" owner:self options:nil]lastObject];
+    _switchBouncedPromptView.frame = CGRectMake(0, 0, kScreenWidth - 30,0);
+    [_switchStoreFooterView addSubview:_switchBouncedPromptView];
+}
+
+-(void)setSwitchStoreViewResult:(id)resultData indexPath:(NSIndexPath *)indexPath{
+    
+    _indexPath = indexPath;
+    _dataAry = resultData;
+    
+    [_selectAry removeAllObjects];
+    
+    [_changeAry removeAllObjects];
+    
+    int index = 0;
+    
+    for (STSwitchStoreEneity *mode in _dataAry) {
+        
+        if ([_title isEqualToString:@"选择店铺"]) {
+            
+            if (mode.surplusmoney.floatValue  >= mode.lowestdeliveryAmount.floatValue) {//配送金额
+                
+//                mode.info =  [NSString stringWithFormat:@"该店已购买¥%@元,达到发货金额.",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.surplusmoney.floatValue]]];
+                mode.info = @"已满起发";
+                
+                if (mode.surplusmoney.floatValue >= mode.lowestFreeShippingAmount.floatValue) {//满邮金额
+                    
+                    mode.info =  [NSString stringWithFormat:@"该店已购买¥%@元,达到包邮金额.",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.surplusmoney.floatValue]]];
+                    
+                }else{
+                    
+                    mode.info = [NSString stringWithFormat:@"还差包邮¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.lowestFreeShippingAmount.floatValue - mode.surplusmoney.floatValue]]];
+                    
+                }
+            }else{
+                mode.info = [NSString stringWithFormat:@"还差发货¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.lowestdeliveryAmount.floatValue - mode.surplusmoney.floatValue]]];
+            }
+            
+            
+            if (index == 0) {
+                mode.selected = @"1";
+                [_selectAry addObject:mode.selected];
+            }
+        }else{
+            
+            if (mode.surplusmoney.floatValue >= mode.lowestdeliveryAmount.floatValue) {//配送金额
+                
+//                mode.info = [NSString stringWithFormat:@"该店已购买¥%@元,达到发货金额.",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.surplusmoney.floatValue]]];
+                mode.info = @"已满起发";
+                
+                if (mode.surplusmoney.floatValue  >= mode.lowestFreeShippingAmount.floatValue) {//满邮金额
+                    
+                    mode.info = [NSString stringWithFormat:@"该店已购买¥%@元,达到包邮金额.",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.surplusmoney.floatValue]]];
+                    
+                }else{
+                    
+                    mode.info = [NSString stringWithFormat:@"还差包邮¥%@", [STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.lowestFreeShippingAmount.floatValue - mode.surplusmoney.floatValue]]];
+                    
+                }
+            }else{
+                
+                mode.info = [NSString stringWithFormat:@"还差发货¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.lowestdeliveryAmount.floatValue - mode.surplusmoney.floatValue]]];
+            }
+            
+            [_selectAry addObject:mode.selected];
+        }
+        [_changeAry addObject:mode];
+        
+        if (index == 0) {
+            _buyCount = [NSString stringWithFormat:@"%@",mode.buyCount];
+            _minBuyNum = [NSString stringWithFormat:@"%@",mode.MinBuyNum];
+        }
+        index ++;
+    }
+    
+    _dataAry = _changeAry;
+    
+    if ([_title isEqualToString:@"选择店铺"]) {
+        [_switchStoreFooterView setSwitchStoreByCountBuy:_dataAry[0] indexPath:[NSIndexPath indexPathForRow:0 inSection:0] buyCount:_minBuyNum title:_title];
+    }
+    [_switchStoreFooterView setSwitchStoreByCountBuy:_dataAry[0] indexPath:[NSIndexPath indexPathForRow:0 inSection:0] buyCount:_buyCount title:_title];
+    
+    [self setBgViewFrame];
+    
+    [_tableView reloadData];
+    
+    NSIndexPath* indexPat = [NSIndexPath indexPathForRow:0 inSection:0];
+    [self.tableView scrollToRowAtIndexPath:indexPat atScrollPosition:UITableViewScrollPositionTop animated:NO];
+}
+-(void)setBgViewFrame{
+    
+    CGFloat viewH = kViewHight;
+    
+    if (isBounced) {
+        viewH = kViewHight + 30;
+    }
+    if (_dataAry.count == 1) {
+        
+        _tableViewH = kRowHight + viewH;
+        
+        [UIView animateWithDuration:.2 animations:^{
+            _tableView.frame = CGRectMake(15, kScreenHeight/2 - _tableViewH/2, kScreenWidth - 30, _tableViewH);
+            
+        }];
+        
+    }else if (_dataAry.count == 2){
+        
+        _tableViewH = 2*kRowHight + viewH;
+        
+        
+        [UIView animateWithDuration:.2 animations:^{
+            _tableView.frame = CGRectMake(15, kScreenHeight/2 - _tableViewH/2, kScreenWidth - 30, _tableViewH);
+            
+        }];
+        
+    }else if(_dataAry.count == 3){
+        
+        _tableViewH = 3*kRowHight + viewH;
+        
+        
+        
+        [UIView animateWithDuration:.2 animations:^{
+            _tableView.frame = CGRectMake(15, 104, kScreenWidth - 30, _tableViewH);
+            
+        }];
+        
+        if (IS_IPHONE_5) {
+            _tableViewH = _tableViewH > 400 ? 400 : _tableViewH;
+            
+            
+            [UIView animateWithDuration:.2 animations:^{
+                _tableView.frame = CGRectMake(15, 74, kScreenWidth - 30, _tableViewH);
+                
+            }];
+        }
+        
+    }else{
+        
+        [UIView animateWithDuration:.2 animations:^{
+            _tableView.frame = CGRectMake(15, 74, kScreenWidth - 30, self.frame.size.height - 155);
+            
+        }];
+        
+    }
+}
+#pragma mark - UITableViewDataSource
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    
+    return 1;
+    
+}
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    
+    return _dataAry.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    static NSString *cellName = @"cellName";
+    
+    STSwitchStoreTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellName];
+    
+    if (!cell) {
+        cell = [[[NSBundle mainBundle]loadNibNamed:@"STSwitchStoreTableViewCell" owner:self options:nil]lastObject];
+        [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+    }
+    [cell setSwitchStore:_dataAry indexPath:indexPath title:_title selectAry:_selectAry];
+    return cell;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    return kRowHight;
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 40;
+}
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    return _switchStoreHeaderView;
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    
+    if (isBounced) {
+        
+        _switchBouncedPromptView.frame = CGRectMake(0, 0, kScreenWidth - 30,30);
+        
+        _switchStoreFooterView.bgView.frame = CGRectMake(0, 30, kScreenWidth - 30, 85);
+        
+        _switchStoreFooterView.frame = CGRectMake(0, 0, kScreenWidth - 30, 115);
+        
+        
+        return 115;
+    }
+    
+    _switchBouncedPromptView.frame = CGRectMake(0, 0, kScreenWidth - 30,0);
+    
+    _switchStoreFooterView.bgView.frame = CGRectMake(0, 0, kScreenWidth - 30, 85);
+    
+    _switchStoreFooterView.frame = CGRectMake(0, 0, kScreenWidth - 30, 85);
+    
+    return 85;
+}
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    
+    [_switchStoreFooterView setMode:_mode buyCount:_buyCount];
+    
+    return _switchStoreFooterView;
+}
+#pragma mark - UITableViewDelegate
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    [_selectAry removeAllObjects];
+    
+    for (int i = 0; i< _dataAry.count; i++) {
+        
+        [_selectAry addObject:@"0"];
+    }
+    
+    [_selectAry replaceObjectAtIndex:indexPath.row withObject:@"1"];
+    
+    [_tableView reloadData];
+    
+    [_switchStoreFooterView setSwitchStoreByCountBuy:_dataAry[indexPath.row] indexPath:indexPath buyCount:_buyCount title:_title];
+}
+#pragma mark - STSwitchStoreTableViewCellDelegate
+
+- (IBAction)cancelSelect:(id)sender {
+    
+    if (_SwitchStoreViewBlock) {
+        _SwitchStoreViewBlock(0,@{},nil);
+    }
+}
+
+
+-(void)setSwitchStoreColseView{
+    _buyCount = @"0";
+    _mode = nil;
+}
+-(BOOL)centerPackaging:(NSString *)buyCount entity:(STSwitchStoreEneity *)entity {//限购判断
+    
+    if (entity.speprice.intValue != 0) {
+        
+        if (entity.limittype.intValue != 0) {
+            
+            if (entity.limitnumber.intValue != 0) {
+                
+                if (buyCount.integerValue > entity.limitnumber.integerValue){
+                    
+                    return YES;
+                }else{
+                    return NO;
+                }
+            }else{
+                return NO;
+            }
+        }else{
+            
+            return NO;
+            
+        }
+    }else{
+        
+        return NO;
+    }
+    return NO;
+}
+-(void)setSwitchStoreFooterViewBuyCount:(NSString *)buyCount entity:(STSwitchStoreEneity *)entity{
+    
+    self.switchStoreFooterView.finishedBtn.backgroundColor = [UIColor fromHexValue:0xea5413];
+    self.switchStoreFooterView.finishedBtn.enabled = YES;
+    self.switchBouncedPromptView.hidden = YES;
+    
+    self.switchStoreFooterView.subtractBtn.enabled = YES;
+    [self.switchStoreFooterView.subtractBtn setTitleColor:[UIColor fromHexValue:0x555555] forState:UIControlStateNormal];
+    
+    self.switchStoreFooterView.addBtn.enabled = YES;
+    [self.switchStoreFooterView.addBtn setTitleColor:[UIColor fromHexValue:0x555555] forState:UIControlStateNormal];
+    
+    isBounced = NO;
+    if (buyCount.floatValue < entity.MinBuyNum.floatValue) {//判断小于最小购买数
+        
+        self.switchStoreFooterView.finishedBtn.backgroundColor = [UIColor fromHexValue:0x999999];
+        self.switchStoreFooterView.finishedBtn.enabled = NO;
+        self.switchBouncedPromptView.hidden = NO;
+        self.switchBouncedPromptView.titleLab.text = [NSString stringWithFormat:@"购买数量低于最小购买量,最小购买量为%@%@!",entity.MinBuyNum,entity.Goods_Unit];
+        
+        self.switchStoreFooterView.subtractBtn.enabled = NO;
+        [self.switchStoreFooterView.subtractBtn setTitleColor:[UIColor fromHexValue:0x999999] forState:UIControlStateNormal];
+        
+        isBounced = YES;
+        
+    }else{
+        self.switchStoreFooterView.finishedBtn.backgroundColor = [UIColor fromHexValue:0xea5413];
+        self.switchStoreFooterView.finishedBtn.enabled = YES;
+        self.switchBouncedPromptView.hidden = YES;
+        
+        isBounced = NO;
+        
+        if (buyCount.floatValue > entity.Stock.floatValue) {//判断大于库存
+            
+            self.switchStoreFooterView.finishedBtn.backgroundColor = [UIColor fromHexValue:0x999999];
+            self.switchStoreFooterView.finishedBtn.enabled = NO;
+            self.switchBouncedPromptView.hidden = NO;
+            self.switchBouncedPromptView.titleLab.text = [NSString stringWithFormat:@"购买数量超过店铺库存,最大可购买数量为%@%@!",entity.Stock,entity.Goods_Unit];
+            
+            self.switchStoreFooterView.addBtn.enabled = NO;
+            [self.switchStoreFooterView.addBtn setTitleColor:[UIColor fromHexValue:0x999999] forState:UIControlStateNormal];
+            
+            isBounced = YES;
+        }else{
+            self.switchStoreFooterView.finishedBtn.backgroundColor = [UIColor fromHexValue:0xea5413];
+            self.switchStoreFooterView.finishedBtn.enabled = YES;
+            self.switchBouncedPromptView.hidden = YES;
+            
+            isBounced = NO;
+            
+            __block BOOL isYes1 = false;
+            __block BOOL isYes2 = false;
+            __block BOOL isYes3 = false;
+            
+            [STCommon isRemainderD1:buyCount.floatValue withD2:1 Block:^(BOOL isRemainder, int multiple) {
+                
+                isYes1 = isRemainder;
+            }];
+            
+            [STCommon isRemainderD1:buyCount.floatValue withD2:entity.Product_Pcs_Small.doubleValue Block:^(BOOL isRemainder, int multiple) {
+                
+                isYes2 = isRemainder;
+            }];
+            
+            [STCommon isRemainderD1:buyCount.floatValue withD2:entity.Product_Pcs.doubleValue Block:^(BOOL isRemainder, int multiple) {
+                
+                isYes3 = isRemainder;
+            }];
+            
+            if (entity.sellType.floatValue == 2 && entity.Product_Pcs_Small.floatValue > 0 && !isYes2) {//中包装
+                
+                self.switchStoreFooterView.finishedBtn.backgroundColor = [UIColor fromHexValue:0x999999];
+                self.switchStoreFooterView.finishedBtn.enabled = NO;
+                self.switchBouncedPromptView.hidden = NO;
+                self.switchBouncedPromptView.titleLab.text = [NSString stringWithFormat:@"商品按中包装销售,中包装为%@,购买数量必须是%@的整陪数.",[STCommon setHasSuffix:entity.Product_Pcs_Small],[STCommon setHasSuffix:entity.Product_Pcs_Small]];
+                
+                isBounced = YES;
+            }else if(entity.sellType.floatValue == 3 && entity.Product_Pcs.floatValue > 0 && !isYes3){//件装
+                
+                self.switchStoreFooterView.finishedBtn.backgroundColor = [UIColor fromHexValue:0x999999];
+                self.switchStoreFooterView.finishedBtn.enabled = NO;
+                self.switchBouncedPromptView.hidden = NO;
+                self.switchBouncedPromptView.titleLab.text = [NSString stringWithFormat:@"商品按件装销售,件装为%@,购买数量必须是%@的整陪数.",[STCommon setHasSuffix:entity.Product_Pcs],[STCommon setHasSuffix:entity.Product_Pcs]];
+                
+                isBounced = YES;
+            }else if (entity.sellType.floatValue == 1 && !isYes1){//最小购买
+                self.switchStoreFooterView.finishedBtn.backgroundColor = [UIColor fromHexValue:0x999999];
+                self.switchStoreFooterView.finishedBtn.enabled = NO;
+                self.switchBouncedPromptView.hidden = NO;
+                self.switchBouncedPromptView.titleLab.text = @"购买数量必须是最小购买数1的整数倍";
+                
+                isBounced = YES;
+            }else{
+                self.switchStoreFooterView.finishedBtn.backgroundColor = [UIColor fromHexValue:0xea5413];
+                self.switchStoreFooterView.finishedBtn.enabled = YES;
+                self.switchBouncedPromptView.hidden = YES;
+                
+                isBounced = NO;
+                if ([self centerPackaging:buyCount entity:entity]) {//判断限购数量
+                    
+                    self.switchStoreFooterView.finishedBtn.backgroundColor = [UIColor fromHexValue:0x999999];
+                    self.switchStoreFooterView.finishedBtn.enabled = NO;
+                    self.switchBouncedPromptView.hidden = NO;
+                    self.switchBouncedPromptView.titleLab.text = [NSString stringWithFormat:@"超出限购数量%@,将按原价结算.",entity.limitnumber];
+                    
+                    isBounced = YES;
+                }else{
+                    self.switchStoreFooterView.finishedBtn.backgroundColor = [UIColor fromHexValue:0xea5413];
+                    self.switchStoreFooterView.finishedBtn.enabled = YES;
+                    self.switchBouncedPromptView.hidden = YES;
+                    
+                    isBounced = NO;
+                }
+            }
+        }
+    }
+}
+
+@end

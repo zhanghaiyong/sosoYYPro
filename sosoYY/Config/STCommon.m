@@ -1,0 +1,894 @@
+//
+//  STHeader.m
+//  my
+//
+//  Created by soso-mac on 2016/11/25.
+//  Copyright © 2016年 soso-mac. All rights reserved.
+//
+
+#import "STCommon.h"
+#import "SYQRCodeViewController.h"
+#import "ScanViewController.h"
+@implementation STCommon
+
++(STCommon *)sharedSTSTCommon{
+    static  STCommon*_header = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _header = [STCommon new];
+    });
+    return _header;
+}
+
++ (NSString *)addCutDownInStr:(NSString *)str {
+
+    NSRange range = [str rangeOfString:@"."];
+    NSInteger location = 0;
+    if (range.location != NSNotFound) {
+        
+        location = str.length-range.location;   
+    }
+    NSInteger index;
+    if ((str.length-location)%3 == 0) {
+    
+        index = (str.length-location)/3 - 1;
+    }else {
+        index = (str.length-location)/3;
+    }
+    
+    for (int i = 1; i <= index; i++) {
+        NSRange ranges = {str.length-location - (i*3+(i-1)*1),0};
+        str = [str stringByReplacingCharactersInRange:ranges withString:@","];
+    }
+    NSLog(@"fsdf = %@",str);
+    return str;
+}
+
+-(void)setChengeStringColor:(NSArray *)strAry andChengeString:(NSString *)changeStr type:(NSInteger)type andFinished:(void(^)(NSMutableAttributedString *string))finished{
+    
+    if (type == 0) {
+        int index = 0;
+        int index2 = 0;
+        for(int i = 0; i < [changeStr length]; i++){
+            unichar temp = [changeStr characterAtIndex:i];
+            if([changeStr rangeOfString:@":"].location !=NSNotFound){
+                if (temp == ':') {
+                    index = i + 1;
+                }
+            }
+            if([changeStr rangeOfString:@"."].location !=NSNotFound){
+                if (temp == '.') {
+                    index2 = i + 1;
+                }
+            }
+        }
+        
+        NSMutableAttributedString *attributedString  = [[NSMutableAttributedString alloc] initWithString:changeStr];
+        
+        for (int i = 0; i<strAry.count; i++) {
+            
+            if (strAry.count<3) {
+                if (index2 == 0) {
+                    //颜色
+                    [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[0] objectForKey:@"color"] range:NSMakeRange(0,index)];
+                    [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[1] objectForKey:@"color"] range:NSMakeRange(index,changeStr.length - index)];
+                    //大小
+                    [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange(0,index)];
+                    [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[1] objectForKey:@"font"] intValue]] range:NSMakeRange(index,changeStr.length - index)];
+                }else{
+                    //颜色
+                    [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[0] objectForKey:@"color"] range:NSMakeRange(0,index2)];
+                    [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[1] objectForKey:@"color"] range:NSMakeRange(index2,changeStr.length - index2)];
+                    //大小
+                    [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange(0,index2)];
+                    [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[1] objectForKey:@"font"] intValue]] range:NSMakeRange(index2,changeStr.length - index2)];
+                    
+                }
+            }else{
+                if (index2 == 0) {
+                    //颜色
+                    [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[0] objectForKey:@"color"] range:NSMakeRange(0,index)];
+                    [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[1] objectForKey:@"color"] range:NSMakeRange(index,changeStr.length - index)];
+                    //大小
+                    [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange(0,index)];
+                    [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[1] objectForKey:@"font"] intValue]] range:NSMakeRange(index,changeStr.length - index)];
+                }else if(index == 0){
+                    //颜色
+                    [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[0] objectForKey:@"color"] range:NSMakeRange(0,index2)];
+                    [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[1] objectForKey:@"color"] range:NSMakeRange(index2,changeStr.length - index2)];
+                    //大小
+                    [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange(0,index2)];
+                    [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[1] objectForKey:@"font"] intValue]] range:NSMakeRange(index2,changeStr.length - index2)];
+                }else{
+                    //颜色
+                    [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[0] objectForKey:@"color"] range:NSMakeRange(0,index)];
+                    
+                    [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[1] objectForKey:@"color"] range:NSMakeRange(index, index2 - index)];
+                    
+                    [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[2] objectForKey:@"color"] range:NSMakeRange(index2,changeStr.length - index2)];
+                    //大小
+                    [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange(0,index)];
+                    
+                    [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[1] objectForKey:@"font"] intValue]] range:NSMakeRange(index,index2 - index)];
+                    
+                    [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[2] objectForKey:@"font"] intValue]] range:NSMakeRange(index2,changeStr.length - index2)];
+                }
+            }
+        }
+        finished(attributedString);
+        
+    }else if(type == 1){
+        NSMutableAttributedString *attributedString  = [[NSMutableAttributedString alloc] initWithString:changeStr];
+        
+        for (int i = 0; i<strAry.count; i++) {
+            if (strAry.count < 3) {
+                //颜色
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[0] objectForKey:@"color"] range:NSMakeRange(0,[[strAry[0] objectForKey:@"num"] intValue])];
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[1] objectForKey:@"color"] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue],changeStr.length - [[strAry[0] objectForKey:@"num"] intValue])];
+                //大小
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange(0,[[strAry[0] objectForKey:@"num"] intValue])];
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[1] objectForKey:@"font"] intValue]] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue],changeStr.length - [[strAry[0] objectForKey:@"num"] intValue])];
+            }else if(strAry.count == 3){
+                //颜色
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[0] objectForKey:@"color"] range:NSMakeRange(0,[[strAry[0] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[1] objectForKey:@"color"] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue],[[strAry[1] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[2] objectForKey:@"color"] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue],[[strAry[2] objectForKey:@"num"] intValue])];
+                //大小
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange(0,[[strAry[0] objectForKey:@"num"] intValue])];
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[1] objectForKey:@"font"] intValue]] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue],[[strAry[1] objectForKey:@"num"] intValue])];
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[1] objectForKey:@"font"] intValue]] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue],[[strAry[2] objectForKey:@"num"] intValue])];
+            }else if (strAry.count == 4){
+                //颜色
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[0] objectForKey:@"color"] range:NSMakeRange(0,[[strAry[0] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[1] objectForKey:@"color"] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue],[[strAry[1] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[2] objectForKey:@"color"] range:NSMakeRange( [[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue],[[strAry[2] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[3] objectForKey:@"color"] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue],[[strAry[3] objectForKey:@"num"] intValue])];
+                
+                
+                //大小
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange(0,[[strAry[0] objectForKey:@"num"] intValue])];
+                
+                
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue],[[strAry[1] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange( [[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue],[[strAry[2] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue],[[strAry[3] objectForKey:@"num"] intValue])];
+                
+
+            }else if (strAry.count == 6){
+                //颜色
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[0] objectForKey:@"color"] range:NSMakeRange(0,[[strAry[0] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[1] objectForKey:@"color"] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue],[[strAry[1] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[2] objectForKey:@"color"] range:NSMakeRange( [[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue],[[strAry[2] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[3] objectForKey:@"color"] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue],[[strAry[3] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[4] objectForKey:@"color"] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue] + [[strAry[3] objectForKey:@"num"] intValue],[[strAry[4] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[5] objectForKey:@"color"] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue] + [[strAry[3] objectForKey:@"num"] intValue] + [[strAry[4] objectForKey:@"num"] intValue],[[strAry[5] objectForKey:@"num"] intValue])];
+                
+                
+                //大小
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange(0,[[strAry[0] objectForKey:@"num"] intValue])];
+                
+                
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue],[[strAry[1] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange( [[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue],[[strAry[2] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue],[[strAry[3] objectForKey:@"num"] intValue])];
+                
+                
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue] + [[strAry[3] objectForKey:@"num"] intValue],[[strAry[4] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue] + [[strAry[3] objectForKey:@"num"] intValue] + [[strAry[4] objectForKey:@"num"] intValue],[[strAry[5] objectForKey:@"num"] intValue])];
+ 
+            }else if (strAry.count == 8){
+                //颜色
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[0] objectForKey:@"color"] range:NSMakeRange(0,[[strAry[0] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[1] objectForKey:@"color"] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue],[[strAry[1] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[2] objectForKey:@"color"] range:NSMakeRange( [[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue],[[strAry[2] objectForKey:@"num"] intValue])];
+
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[3] objectForKey:@"color"] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue],[[strAry[3] objectForKey:@"num"] intValue])];
+
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[4] objectForKey:@"color"] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue] + [[strAry[3] objectForKey:@"num"] intValue],[[strAry[4] objectForKey:@"num"] intValue])];
+
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[5] objectForKey:@"color"] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue] + [[strAry[3] objectForKey:@"num"] intValue] + [[strAry[4] objectForKey:@"num"] intValue],[[strAry[5] objectForKey:@"num"] intValue])];
+
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[6] objectForKey:@"color"] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue] + [[strAry[3] objectForKey:@"num"] intValue] + [[strAry[4] objectForKey:@"num"] intValue] + [[strAry[5] objectForKey:@"num"] intValue],[[strAry[6] objectForKey:@"num"] intValue])];
+               
+                [attributedString addAttribute:NSForegroundColorAttributeName value:[strAry[7] objectForKey:@"color"] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue] + [[strAry[3] objectForKey:@"num"] intValue] + [[strAry[4] objectForKey:@"num"] intValue] + [[strAry[5] objectForKey:@"num"] intValue] + [[strAry[6] objectForKey:@"num"] intValue],[[strAry[7] objectForKey:@"num"] intValue])];
+
+                
+                //大小
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange(0,[[strAry[0] objectForKey:@"num"] intValue])];
+                
+                
+                 [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue],[[strAry[1] objectForKey:@"num"] intValue])];
+                
+                 [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange( [[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue],[[strAry[2] objectForKey:@"num"] intValue])];
+                
+                  [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue],[[strAry[3] objectForKey:@"num"] intValue])];
+                
+                
+                  [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue] + [[strAry[3] objectForKey:@"num"] intValue],[[strAry[4] objectForKey:@"num"] intValue])];
+                
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue] + [[strAry[3] objectForKey:@"num"] intValue] + [[strAry[4] objectForKey:@"num"] intValue],[[strAry[5] objectForKey:@"num"] intValue])];
+                
+                
+                  [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue] + [[strAry[3] objectForKey:@"num"] intValue] + [[strAry[4] objectForKey:@"num"] intValue] + [[strAry[5] objectForKey:@"num"] intValue],[[strAry[6] objectForKey:@"num"] intValue])];
+     
+                
+                [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:[[strAry[0] objectForKey:@"font"] intValue]] range:NSMakeRange([[strAry[0] objectForKey:@"num"] intValue] + [[strAry[1] objectForKey:@"num"] intValue] + [[strAry[2] objectForKey:@"num"] intValue] + [[strAry[3] objectForKey:@"num"] intValue] + [[strAry[4] objectForKey:@"num"] intValue] + [[strAry[5] objectForKey:@"num"] intValue] + [[strAry[6] objectForKey:@"num"] intValue],[[strAry[7] objectForKey:@"num"] intValue])];
+
+            }
+        }
+        finished(attributedString);
+    }
+}
+-(BOOL)setSelectName:(NSString *)name tagArray:(NSMutableArray *)ary{
+    for (NSString *str in ary) {
+        if ([str isEqualToString:name]){
+            return YES;
+        }
+    }
+    if (ary.count==0) {
+        return NO;
+    }
+    return NO;
+}
+-(BOOL)setSelectIndexPath:(NSIndexPath *)indexPath andOldIndexPath:(NSIndexPath *)oldIndexPath{
+    if (indexPath.section == oldIndexPath.section) {
+        if (indexPath.row != oldIndexPath.row) {
+            return YES;
+        }else{
+            return NO;
+        }
+    }else{
+        if (indexPath.row != oldIndexPath.row) {
+            return NO;
+        }else{
+            return YES;
+        }
+    }
+    return 0;
+}
+-(NSString *)setchengStr:(NSString *)str{
+    if([str rangeOfString:@"-"].location !=NSNotFound){
+        str = [str stringByReplacingOccurrencesOfString:@"-" withString:@"_"];
+        if ([str rangeOfString:@"%"].location !=NSNotFound) {
+            str = [str stringByReplacingOccurrencesOfString:@"%" withString:@""];
+        }
+    }else{
+        str = @"100_100";
+    }
+    return str;
+}
+
+-(NSString *)setchengStr:(NSString *)str oldStr:(NSString *)oldStr{
+    if ([str rangeOfString:@"("].location !=NSNotFound) {
+        NSRange range = [str rangeOfString:@"("];
+        str = [str substringWithRange:range];
+        str = [oldStr substringToIndex:range.location];
+        return str;
+    }
+    return str;
+}
+-(NSString *)setCutStr:(NSString *)str{
+    NSRange range = [str rangeOfString:@"."];//匹配得到的下标
+    str = [str substringWithRange:range];//截取范围内的字符串
+    return str;
+}
+
+-(NSString *)setWhetherStringEmpty:(NSString *)str{
+    if (![str isEqual:[NSNull null]]) {
+        if (![str isEqualToString:@""] && str != nil) {
+            return str;
+        }
+        return str;
+    }else{
+        return @"";
+    }
+}
+-(void)setShareProdRank:(id)reSult shareView:(id)currentViewController Finished:(void(^)(BOOL isSuccessful))finished{
+    
+    [self showBottomCircleView:reSult shareView:currentViewController Finished:^(BOOL isSuccessful) {
+        finished(isSuccessful);
+    }];
+}
+- (void)showBottomCircleView:(id)reSult shareView:(id)currentViewController Finished:(void(^)(BOOL isSuccessful))finished{
+    //    [UMSocialUIManager removeAllCustomPlatformWithoutFilted];//添加复制按钮就注释此行 删除所有的用户自定义的平台
+    [UMSocialShareUIConfig shareInstance].sharePageGroupViewConfig.sharePageGroupViewPostionType = UMSocialSharePageGroupViewPositionType_Bottom;
+    [UMSocialShareUIConfig shareInstance].sharePageScrollViewConfig.shareScrollViewPageItemStyleType = UMSocialPlatformItemViewBackgroudType_IconAndBGRadius;
+    
+    [UMSocialUIManager showShareMenuViewInWindowWithPlatformSelectionBlock:^(UMSocialPlatformType platformType, NSDictionary *userInfo) {
+        if (platformType == UMSocialPlatformType_UserDefine_Begin + 2) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                UIPasteboard *pab = [UIPasteboard generalPasteboard];
+                [pab setString:reSult[@"url"]];
+                if (pab != nil) {
+                    [ZHProgressHUD showInfoWithText:@"复制链接成功"];
+                }else{
+                    [ZHProgressHUD showInfoWithText:@"复制链接失败"];
+                }
+            });
+        }else if(platformType == UMSocialPlatformType_Sms){
+            [self shareTextToPlatformType:platformType reSult:reSult shaerView:currentViewController Finished:^(BOOL isSuccessful) {
+                finished(isSuccessful);
+            }];
+        }else{
+            [self shareWebPageToPlatformType:platformType reSult:reSult shaerView:currentViewController Finished:^(BOOL isSuccessful) {
+                finished(isSuccessful);
+            }];
+        }
+    }];
+}
+
+-(void)setShare:(id)reSult shareView:(id)currentViewController Finished:(void(^)(BOOL isSuccessful))finished{
+    //    [UMSocialUIManager removeAllCustomPlatformWithoutFilted];//添加复制按钮就注释此行 删除所有的用户自定义的平台
+    [UMSocialShareUIConfig shareInstance].sharePageGroupViewConfig.sharePageGroupViewPostionType = UMSocialSharePageGroupViewPositionType_Bottom;
+    [UMSocialShareUIConfig shareInstance].sharePageScrollViewConfig.shareScrollViewPageItemStyleType = UMSocialPlatformItemViewBackgroudType_IconAndBGRadius;
+    
+    [UMSocialUIManager showShareMenuViewInWindowWithPlatformSelectionBlock:^(UMSocialPlatformType platformType, NSDictionary *userInfo) {
+        if (platformType == UMSocialPlatformType_UserDefine_Begin + 2) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                UIPasteboard *pab = [UIPasteboard generalPasteboard];
+                [pab setString:reSult[@"url"]];
+                if (pab != nil) {
+                    [ZHProgressHUD showInfoWithText:@"复制链接成功"];
+                }else{
+                    [ZHProgressHUD showInfoWithText:@"复制链接失败"];
+                }
+            });
+        }else if (platformType == UMSocialPlatformType_Sms) {
+            [self shareTextToPlatformType:platformType reSult:reSult shaerView:currentViewController Finished:^(BOOL isSuccessful) {
+                finished(isSuccessful);
+            }];
+        }else{
+            [self shareWebPageToPlatformType:platformType reSult:reSult shaerView:currentViewController Finished:^(BOOL isSuccessful) {
+                finished(isSuccessful);
+            }];
+        }
+    }];
+}
+//网页分享
+- (void)shareWebPageToPlatformType:(UMSocialPlatformType)platformType reSult:(id)reSult shaerView:(id)currentViewController Finished:(void(^)(BOOL isSuccessful))finished{
+    
+    //创建分享消息对象
+    UMSocialMessageObject *messageObject = [UMSocialMessageObject messageObject];
+    
+    //创建网页内容对象
+    NSString* thumbURL =  reSult[@"image"];
+    UMShareWebpageObject *shareObject = [UMShareWebpageObject shareObjectWithTitle:reSult[@"title"] descr:reSult[@"descr"] thumImage: [UIImage imageNamed:thumbURL]];
+    //设置网页地址
+    shareObject.webpageUrl = reSult[@"url"];
+    
+    //分享消息对象设置分享内容对象
+    messageObject.shareObject = shareObject;
+    
+    //调用分享接口
+    [[UMSocialManager defaultManager] shareToPlatform:platformType messageObject:messageObject currentViewController:currentViewController completion:^(id data, NSError *error) {
+        if (error) {
+            finished(NO);
+//            [ZHProgressHUD showInfoWithText:@"分享失败"];
+        }else{
+            finished(YES);
+//            [ZHProgressHUD showInfoWithText:@"分享成功"];
+            
+            if ([data isKindOfClass:[UMSocialShareResponse class]]) {
+                UMSocialShareResponse *resp = data;
+                //分享结果消息
+                UMSocialLogInfo(@"response message is %@",resp.message);
+                //第三方原始返回的数据
+                UMSocialLogInfo(@"response originalResponse data is %@",resp.originalResponse);
+            }else{
+                UMSocialLogInfo(@"response data is %@",data);
+            }
+        }
+    }];
+}
+//分享文本
+- (void)shareTextToPlatformType:(UMSocialPlatformType)platformType reSult:(id)reSult shaerView:(id)currentViewController Finished:(void(^)(BOOL isSuccessful))finished{
+    //创建分享消息对象
+    UMSocialMessageObject *messageObject = [UMSocialMessageObject messageObject];
+    //设置文本
+    messageObject.text = [NSString stringWithFormat:@"%@%@%@",reSult[@"title"],reSult[@"descr"],reSult[@"url"]];
+    //调用分享接口
+    [[UMSocialManager defaultManager] shareToPlatform:platformType messageObject:messageObject currentViewController:currentViewController completion:^(id data, NSError *error) {
+        
+        if (error) {
+            finished(NO);
+            [ZHProgressHUD showInfoWithText:@"分享失败"];
+        }else{
+            finished(YES);
+            [ZHProgressHUD showInfoWithText:@"分享成功"];
+            if ([data isKindOfClass:[UMSocialShareResponse class]]) {
+                UMSocialShareResponse *resp = data;
+                //分享结果消息
+                UMSocialLogInfo(@"response message is %@",resp.message);
+                //第三方原始返回的数据
+                UMSocialLogInfo(@"response originalResponse data is %@",resp.originalResponse);
+                
+            }else{
+                UMSocialLogInfo(@"response data is %@",data);
+            }
+        }
+    }];
+}
+
+
+- (void)setBorderWithView:(UIView *)view top:(BOOL)top left:(BOOL)left bottom:(BOOL)bottom right:(BOOL)right borderColor:(UIColor *)color borderWidth:(CGFloat)width{
+    CALayer *layer = [CALayer layer];
+    layer.masksToBounds = YES;
+    if (top) {
+        layer.frame = CGRectMake(0, 0, view.frame.size.width, width);
+        layer.backgroundColor = color.CGColor;
+        [view.layer addSublayer:layer];
+    }
+    if (left) {
+        layer.frame = CGRectMake(0, 0, width, view.frame.size.height);
+        layer.backgroundColor = color.CGColor;
+        [view.layer addSublayer:layer];
+    }
+    if (bottom) {
+        layer.frame = CGRectMake(0, view.frame.size.height - width, view.frame.size.width, width);
+        layer.backgroundColor = color.CGColor;
+        [view.layer addSublayer:layer];
+    }
+    if (right) {
+        layer.frame = CGRectMake(view.frame.size.width - width, 0, width, view.frame.size.height);
+        layer.backgroundColor = color.CGColor;
+        [view.layer addSublayer:layer];
+    }
+}
+- (void)setArrayWithPinYinFirstLetterFormat:(NSMutableArray *)ary type:(NSInteger)type finished:(void(^)(NSMutableArray *dataAry,NSMutableArray *indexAry))finished{
+    NSMutableArray *resultArray = [NSMutableArray array];
+    NSMutableArray *indexArray = [NSMutableArray array];
+    
+    
+    //    for (STWisdomEntity *entity in ary) {
+    //        NSLog(@"myStock === %@",entity.myStock);
+    //         NSLog(@"priority === %@",entity.priority);
+    //         NSLog(@"PreChar === %@",entity.PreChar);
+    //    }
+    
+    switch (type) {
+        case 0:{
+            NSArray *charAry = @[@"A",@"B",@"C",@"D",@"E",@"F",@"G",@"H",@"I",@"J",@"K",@"L",@"M",@"N",@"O",@"P",@"Q",@"R",@"S",@"T",@"U",@"V",@"W",@"X",@"Y",@"Z",@"#"];
+            
+            for (int i = 0; i < charAry.count; i++) {
+                NSMutableArray *arr = [NSMutableArray new];
+                NSMutableArray *indexaArr = [NSMutableArray new];
+                for (int j = 0; j < ary.count; j++) {
+                    if ([[ary[j] PreChar] isEqualToString: charAry[i]]) {
+                        [arr addObject:ary[j]];
+                        [indexaArr addObject:[ary[j] buyCount]];
+                    }
+                }
+                if (arr.count != 0) {
+                    [resultArray addObject:arr];
+                    [indexArray addObject:indexaArr];
+                }
+            }
+            break;
+        }
+        case 1:{
+            for (int i = 0; i < ary.count; i++) {
+                NSMutableArray *arr = [NSMutableArray new];
+                NSMutableArray *indexaArr = [NSMutableArray new];
+                [arr addObject:ary[i]];
+                [indexaArr addObject:[ary[i] buyCount]];
+                [resultArray addObject:arr];
+                [indexArray addObject:indexaArr];
+            }
+            break;
+        }
+        case 2:{
+            for (int i = 0; i < ary.count; i++) {
+                NSMutableArray *arr = [NSMutableArray new];
+                NSMutableArray *indexaArr = [NSMutableArray new];
+                [arr addObject:ary[i]];
+                [indexaArr addObject:[ary[i] buyCount]];
+                [resultArray addObject:arr];
+                [indexArray addObject:indexaArr];
+            }
+            break;
+        }
+        case 3:{
+            NSArray *charAry = @[@"A",@"B",@"C",@"D",@"E",@"F",@"G",@"H",@"I",@"J",@"K",@"L",@"M",@"N",@"O",@"P",@"Q",@"R",@"S",@"T",@"U",@"V",@"W",@"X",@"Y",@"Z",@"#"];
+            
+            for (int i = 0; i < charAry.count; i++) {
+                NSMutableArray *arr = [NSMutableArray new];
+                NSMutableArray *indexaArr = [NSMutableArray new];
+                for (int j = 0; j < ary.count; j++) {
+                    if ([[ary[j] PreChar] isEqualToString: charAry[i]]) {
+                        [arr addObject:ary[j]];
+                        [indexaArr addObject:[ary[j] buyCount]];
+                    }
+                }
+                if (arr.count != 0) {
+                    [resultArray addObject:arr];
+                    [indexArray addObject:indexaArr];
+                }
+            }
+            break;
+        }
+        default:
+            break;
+    }
+    finished(resultArray,indexArray);
+}
+-(NSString *)setDate{
+    NSDate *currentDate = [NSDate date];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"YYYY-MM-dd"];
+    NSString *dateString = [dateFormatter stringFromDate:currentDate];
+    return dateString;
+}
+-(void)setHideToastActivity:(void(^)(BOOL isYes))finished{
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        for (int i = 15; i > 0; i--) {
+            // 主线程执行：
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //                NSLog(@"i == %d",i);
+            });
+            sleep(1);
+        }
+        // 主线程执行：
+        dispatch_async(dispatch_get_main_queue(), ^{
+            finished(YES);
+        });
+    });
+}
+
++(NSString *)setHasSuffix:(NSString *)str {
+    
+    str = [NSString stringWithFormat:@"%.2f",[str floatValue]];
+    
+    NSString *str1 = [str substringToIndex:str.length - 1];//前
+    NSString *str2 = [str substringFromIndex:str.length - 1];//后
+    
+    if ([str2 intValue] > 0) {
+        return str;
+    }else{
+        NSString *str3 = [str1 substringToIndex:str1.length - 2];//前
+        NSString *str4 = [str1 substringFromIndex:str1.length - 1];//后
+        
+        if ([str4 intValue] > 0) {
+            return str1;
+        }else{
+            return  str3;
+        }
+    }
+}
+
++ (BOOL)isRemainderD1:(CGFloat)d1 withD2:(CGFloat)d2 Block:(void(^)(BOOL isRemainder,int multiple))block {
+    
+    NSString *d = [NSString stringWithFormat:@"%.2f",[NSString stringWithFormat:@"%.2f",d1].floatValue/[NSString stringWithFormat:@"%.2f",d2].floatValue];
+    
+    NSString *Sd = [NSString stringWithFormat:@"%.2f",d1 - d.intValue*d2];
+    CGFloat  r = [Sd floatValue];
+    block(r==0?YES:NO,d.intValue);
+    return r==0?YES:NO;
+}
+
+- (BOOL)setIntervalSinceNow: (NSString *) theDate{
+    
+    NSDateFormatter *date=[[NSDateFormatter alloc] init];
+    [date setDateFormat:@"yyyy-MM-dd"];
+    NSDate *d = [date dateFromString:theDate];
+    
+    NSTimeInterval late = [d timeIntervalSince1970]*1;
+    NSDate* dat = [NSDate date];
+    NSTimeInterval now = [dat timeIntervalSince1970]*1;
+    
+    NSTimeInterval cha = late - now;
+    if (cha >= 3600*24*365) {
+        return YES;
+    }else{
+        return NO;
+    }
+}
+
+- (NSString *)intervalFromLastDate: (NSString *) dateString1  toTheDate:(NSString *) dateString2{
+    NSArray *timeArray1=[dateString1 componentsSeparatedByString:@"."];
+    dateString1=[timeArray1 objectAtIndex:0];
+    NSArray *timeArray2=[dateString2 componentsSeparatedByString:@"."];
+    dateString2=[timeArray2 objectAtIndex:0];
+    NSLog(@"%@.....%@",dateString1,dateString2);
+    NSDateFormatter *date=[[NSDateFormatter alloc] init];
+    [date setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    NSDate *d1=[date dateFromString:dateString1];
+    
+    NSTimeInterval late1=[d1 timeIntervalSince1970]*1;
+    NSDate *d2=[date dateFromString:dateString2];
+    
+    NSTimeInterval late2=[d2 timeIntervalSince1970]*1;
+    NSTimeInterval cha=late2-late1;
+    NSString *timeString=@"";
+    NSString *house=@"";
+    NSString *min=@"";
+    NSString *sen=@"";
+    
+    sen = [NSString stringWithFormat:@"%d", (int)cha%60];
+    //        min = [min substringToIndex:min.length-7];
+    //    秒
+    sen=[NSString stringWithFormat:@"%@", sen];
+    min = [NSString stringWithFormat:@"%d", (int)cha/60%60];
+    //        min = [min substringToIndex:min.length-7];
+    //    分
+    min=[NSString stringWithFormat:@"%@", min];
+    //    小时
+    house = [NSString stringWithFormat:@"%d", (int)cha/3600];
+    //        house = [house substringToIndex:house.length-7];
+    house=[NSString stringWithFormat:@"%@", house];
+    timeString=[NSString stringWithFormat:@"%@:%@:%@",house,min,sen];
+    return timeString;
+}
+//一个时间距现在的时间
+- (NSString *)intervalSinceNow: (NSString *) theDate{
+    NSArray *timeArray=[theDate componentsSeparatedByString:@"."];
+    theDate=[timeArray objectAtIndex:0];
+    
+    NSDateFormatter *date=[[NSDateFormatter alloc] init];
+    [date setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    NSDate *d=[date dateFromString:theDate];
+    
+    NSTimeInterval late=[d timeIntervalSince1970]*1;
+    
+    NSDate* dat = [NSDate date];
+    NSTimeInterval now=[dat timeIntervalSince1970]*1;
+    NSString *timeString=@"";
+    
+    NSTimeInterval cha=late-now;
+    
+    if (cha/3600<1) {
+        timeString = [NSString stringWithFormat:@"%f", cha/60];
+        timeString = [timeString substringToIndex:timeString.length-7];
+        timeString=[NSString stringWithFormat:@"剩余%@分", timeString];
+        
+    }
+    if (cha/3600>1&&cha/86400<1) {
+        timeString = [NSString stringWithFormat:@"%f", cha/3600];
+        timeString = [timeString substringToIndex:timeString.length-7];
+        timeString=[NSString stringWithFormat:@"剩余%@小时", timeString];
+    }
+    if (cha/86400>1)
+    {
+        timeString = [NSString stringWithFormat:@"%f", cha/86400];
+        timeString = [timeString substringToIndex:timeString.length-7];
+        timeString=[NSString stringWithFormat:@"剩余%@天", timeString];
+        
+    }
+    return timeString;
+}
+
+-(void)toScanViewWith:(UIViewController *)ctrl {
+    
+    ScanViewController *uiViewController= [[ScanViewController alloc]init];
+    uiViewController.backBlock = ^{
+        [ctrl wisdomRefreshing];
+    };
+
+    uiViewController.FailBlock = ^{
+        [ctrl failBlockwisdomRefreshing];
+    };
+    [ctrl.navigationController pushViewController:uiViewController animated:NO];
+}
+
+
+-(void)setGetProductListBarCode:(NSMutableDictionary *)prams finshed:(void(^)(id result,STProductListEntity *toEntity,NSError *toError))finshed{
+    [KSMNetworkRequest getProductListBarCodeUrl:requestGetProductListBarCode params:prams finshed:^(id dataResult, STProductListEntity *entity,NSError *error) {
+        if (!error) {
+            finshed(dataResult,entity,nil);
+        }else{
+            finshed(nil,nil,error);
+        }
+    }];
+}
+
+-(void)setSaveMoreWisdomListDataBase:(id)dataResult type:(NSInteger)type{
+    
+    NSDate *today = [NSDate date];
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateStyle:NSDateFormatterMediumStyle];
+    [formatter setTimeStyle:NSDateFormatterShortStyle];
+    [formatter setDateFormat:@"YYYY-MM-dd HH:mm:ss"];
+    NSDate *confromTimesp = [NSDate dateWithTimeIntervalSince1970:(long)[today timeIntervalSince1970]];
+    
+    for (STWisdomEntity *entity in dataResult) {
+        entity.mTimestamp = confromTimesp;
+        
+        __block BOOL isExist = YES;
+        
+        switch (type) {
+            case 0:
+                [[DCFMDatabaseQueue sharedDatabase]existsDataWithTable:@"WisdomList" withItemName:@"Goods_Package_ID" withValue:entity.Goods_Package_ID andFinished:^(BOOL isYes) {
+                    isExist = isYes;
+                }];
+                
+                if (isExist){
+                    
+                    [[DCFMDatabaseQueue sharedDatabase] updateWisdomList:@"Goods_Package_ID" WithValue:confromTimesp];
+                }
+                else{
+                    [[DCFMDatabaseQueue sharedDatabase]insertItemWithWisdomList:entity];
+                }
+                
+                break;
+            case 1:
+                [[DCFMDatabaseQueue sharedDatabase]existsDataWithTable:@"WisdomNotBuyList" withItemName:@"Goods_Package_ID" withValue:entity.Goods_Package_ID andFinished:^(BOOL isYes) {
+                    isExist = isYes;
+                }];
+                
+                if (isExist){
+                    
+                    [[DCFMDatabaseQueue sharedDatabase] updateNotBuyWisdomList:@"Goods_Package_ID" WithValue:confromTimesp];
+                }
+                else{
+                    [[DCFMDatabaseQueue sharedDatabase]insertItemNotBuyWisdomList:entity];
+                }
+                
+                break;
+            case 2:
+                [[DCFMDatabaseQueue sharedDatabase]existsDataWithTable:@"EliminateWisdomList" withItemName:@"Goods_Package_ID" withValue:entity.Goods_Package_ID andFinished:^(BOOL isYes) {
+                    isExist = isYes;
+                }];
+                
+                if (isExist){
+                    
+                    [[DCFMDatabaseQueue sharedDatabase] updateEliminateWisdomList:@"Goods_Package_ID" WithValue:confromTimesp];
+                }
+                else{
+                    [[DCFMDatabaseQueue sharedDatabase]insertItemEliminateWisdomList:entity];
+                }
+                
+                break;
+                
+            default:
+                break;
+        }
+    }
+}
+-(void)setAingleSaveWisdomListDataBase:(STWisdomEntity *)entity type:(NSInteger)type{
+    NSDate *today = [NSDate date];
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateStyle:NSDateFormatterMediumStyle];
+    [formatter setTimeStyle:NSDateFormatterShortStyle];
+    [formatter setDateFormat:@"YYYY-MM-dd HH:mm:ss"];
+    NSDate *confromTimesp = [NSDate dateWithTimeIntervalSince1970:(long)[today timeIntervalSince1970]];
+    
+    
+    entity.mTimestamp = confromTimesp;
+    
+    __block BOOL isExist = YES;
+    
+    switch (type) {
+        case 0:
+            [[DCFMDatabaseQueue sharedDatabase]existsDataWithTable:@"WisdomList" withItemName:@"Goods_Package_ID" withValue:entity.Goods_Package_ID andFinished:^(BOOL isYes) {
+                isExist = isYes;
+            }];
+            
+            if (isExist){
+                
+                [[DCFMDatabaseQueue sharedDatabase] updateWisdomList:@"Goods_Package_ID" WithValue:confromTimesp];
+            }
+            else{
+                
+                [[DCFMDatabaseQueue sharedDatabase]insertItemWithWisdomList:entity];
+            }
+            break;
+        case 1:
+            [[DCFMDatabaseQueue sharedDatabase]existsDataWithTable:@"WisdomNotBuyList" withItemName:@"Goods_Package_ID" withValue:entity.Goods_Package_ID andFinished:^(BOOL isYes) {
+                isExist = isYes;
+            }];
+            
+            if (isExist){
+                
+                [[DCFMDatabaseQueue sharedDatabase] updateNotBuyWisdomList:@"Goods_Package_ID" WithValue:confromTimesp];
+            }
+            else{
+                
+                [[DCFMDatabaseQueue sharedDatabase]insertItemNotBuyWisdomList:entity];
+            }
+            break;
+        case 2:
+            [[DCFMDatabaseQueue sharedDatabase]existsDataWithTable:@"EliminateWisdomList" withItemName:@"Goods_Package_ID" withValue:entity.Goods_Package_ID andFinished:^(BOOL isYes) {
+                isExist = isYes;
+            }];
+            
+            if (isExist){
+                
+                [[DCFMDatabaseQueue sharedDatabase] updateEliminateWisdomList:@"Goods_Package_ID" WithValue:confromTimesp];
+            }
+            else{
+                
+                [[DCFMDatabaseQueue sharedDatabase]insertItemEliminateWisdomList:entity];
+            }
+            break;
+            
+        default:
+            break;
+    }
+}
+-(BOOL)setWhetherToInstall:(NSString *)str{
+    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:str]]) {
+        return YES;
+    }
+    return NO;
+}
+
++(void)setMassge:(NSDictionary *)userInfo{
+    
+    
+    //    if ([Uitils getUserDefaultsForKey:@"cookie"]) {
+    //
+    //        [KSMNetworkRequest getMessageBoxInfoUrl:requestGetMessageBoxInfo params:nil finshed:^(NSString *massageNum) {
+    //
+    //            if (massageNum) {
+    //
+    //                NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:massageNum,@"pushNum", nil];
+    //
+    //                 [[NSNotificationCenter defaultCenter]postNotificationName:PUSH_NUM object:nil userInfo:dict];
+    //            }
+    //        }];
+    //    }
+    
+    if ([userInfo.allKeys containsObject:@"flag"]) {
+        
+        if ([[userInfo objectForKey:@"flag"] integerValue] == 2) {
+            NSDictionary *dic = @{@"type":@"plan"}; //审计划
+            [[NSNotificationCenter defaultCenter] postNotificationName:PUSH_Notification object:self userInfo:dic];
+        }else if ([[userInfo objectForKey:@"flag"] integerValue] == 4){//订单取消详情
+            
+            NSDictionary *dic = @{@"oid":userInfo[@"value"]};
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:PUSH_Details object:self userInfo:dic];
+            
+        }else if ([[userInfo objectForKey:@"flag"] integerValue] == 5){//出库差异详情
+            
+            NSDictionary *dic = @{@"oid":userInfo[@"value"]};
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:PUSH_Details object:self userInfo:dic];
+            
+        }else if ([[userInfo objectForKey:@"flag"] integerValue] == 6){//发货差异详情
+            
+            NSDictionary *dic = @{@"oid":userInfo[@"value"]};
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:PUSH_Details object:self userInfo:dic];
+            
+        }else if ([[userInfo objectForKey:@"flag"] integerValue] == 7){//发货提醒详情
+            
+            NSDictionary *dic = @{@"oid":userInfo[@"value"]};
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:PUSH_Details object:self userInfo:dic];
+            
+        }else if ([[userInfo objectForKey:@"flag"] integerValue] == 8){//冲红提醒详情
+            
+            NSDictionary *dic = @{@"oid":userInfo[@"value"]};
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:PUSH_Details object:self userInfo:dic];
+            
+        }else {
+            
+            NSDictionary *dic = @{@"type":@"third"}; //个人中心
+            [[NSNotificationCenter defaultCenter] postNotificationName:PUSH_Notification object:self userInfo:dic];
+        }
+        
+    }else {
+        
+        NSDictionary *dic = @{@"type":@"order"};  //订单
+        [[NSNotificationCenter defaultCenter] postNotificationName:PUSH_Notification object:self userInfo:dic];
+    }
+}
+@end

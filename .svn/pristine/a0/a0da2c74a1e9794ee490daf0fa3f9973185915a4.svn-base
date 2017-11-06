@@ -1,0 +1,43 @@
+//
+//  PurchasetAddPricePromotionsModel.h
+//  sosoYY
+//
+//  Created by zhy on 17/3/7.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface PurchasetAddPricePromotionsModel : NSObject<NSMutableCopying,NSCopying>
+
+// 加价购说明
+@property (nonatomic,strong)NSString *name;
+// 加价购规则编号
+@property (nonatomic,strong)NSString *pmid;
+// 加多少钱
+@property (nonatomic,strong)NSString *addPrice;
+// 加价规则类型，0：满X，1：每满X
+@property (nonatomic,strong)NSString *addPriceType;
+// 主商品开始数
+@property (nonatomic,strong)NSString *firstProudctStartNum;
+// 主商品每次数
+@property (nonatomic,strong)NSString *firstProudctPerNum;
+// 次商品数
+@property (nonatomic,strong)NSString *secondProudctNum;
+// 加价购商品编号
+@property (nonatomic,strong)NSString *pid;
+// 通用名
+@property (nonatomic,strong)NSString *DrugsBase_DrugName;
+// 商品名
+@property (nonatomic,strong)NSString *DrugsBase_ProName;
+// 规格
+@property (nonatomic,strong)NSString *DrugsBase_Specification;
+@property (nonatomic,strong)NSString *DrugsBase_Manufacturer;
+@property (nonatomic,strong)NSString *Stock;
+// 效期
+@property (nonatomic,strong)NSString *sxrq;
+@property (nonatomic,strong)NSString *Goods_Unit;
+
+@property (nonatomic,strong)NSString *IsJxq;
+
+@end

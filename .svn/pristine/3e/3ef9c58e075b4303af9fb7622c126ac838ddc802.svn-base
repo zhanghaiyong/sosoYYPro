@@ -1,0 +1,431 @@
+//
+//  STOrderDetailsViewController.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/5/26.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STOrderDetailsViewController.h"
+#import "STMethodPaymentViewController.h"
+#import "STShopHomeViewController.h"
+#import "MyWalletDetailController.h"
+#import "ShareManagerCtrl.h"
+#import "ReceiptViewController.h"
+@interface STOrderDetailsViewController ()<UIWebViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>{
+    __block BOOL isRefresh;
+}
+
+@property (weak, nonatomic) IBOutlet UIButton *QQBtn;
+@property (strong, nonatomic) CustomWebView *webView;
+@property (nonatomic, strong) JSContext *jsContext;
+@property (nonatomic,strong)NSString *oid;
+@property (nonatomic,strong)NSString *pid;
+@end
+
+@implementation STOrderDetailsViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    _titleLab.text = _titleStr;
+    
+    [[UIApplication sharedApplication].keyWindow showLoadingView:@"loading"];
+    
+    _webView = [[CustomWebView alloc]initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenHeight - 64)];
+    self.webView.backgroundColor = [UIColor whiteColor];
+    self.webView.delegate = self;
+    [self.view addSubview:_webView];
+    
+    NSURL *debugURL = [NSURL URLWithString:_urlStr];
+    NSURLRequest *request = [NSURLRequest requestWithURL:debugURL];
+    [self.webView loadRequest:request];
+}
+
+
+#pragma mark UIWebViewDelegate
+
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
+    return YES;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
+    [[UIApplication sharedApplication].keyWindow hideToastActivity];
+    [self setJsMothed:webView];
+}
+-(void)setJsMothed:(UIWebView *)webView{
+    
+    __weak  STOrderDetailsViewController *weakSelf = self;
+    
+    self.jsContext = [webView valueForKeyPath:@"documentView.webView.mainFrame.javaScriptContext"];
+    
+    self.jsContext[@"goIOSPay"] = ^(){//支付
+        
+        NSArray *args = [JSContext currentArguments];
+        
+        STMethodPaymentViewController *methodPaymentVC = [STMethodPaymentViewController new];
+        
+        methodPaymentVC.masterOid = [NSString stringWithFormat:@"%@",args[0]];
+        methodPaymentVC.orderListInto = weakSelf.orderListInto;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf.navigationController pushViewController:methodPaymentVC animated:YES];
+        });
+    };
+    
+    self.jsContext[@"CloseWin"]=^(){//取消订单
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            if (weakSelf.OrderDetailsBackBlock) {
+                weakSelf.OrderDetailsBackBlock();
+            }
+            [weakSelf.navigationController popViewControllerAnimated:YES];
+        });
+    };
+    
+    self.jsContext[@"iOS_refresh"]=^(){//冲红完成返回刷新
+        dispatch_async(dispatch_get_main_queue(), ^{
+           
+            [weakSelf.navigationController popViewControllerAnimated:YES];
+            
+        });
+    };
+    //店铺主页
+    self.jsContext[@"IOS_GoStoreid"]=^(){
+        NSArray *arry=[JSContext currentArguments];
+        NSString *urlStr= [NSString stringWithFormat:@"%@",arry[0]];
+            
+            STShopHomeViewController *shopHomeVC = [STShopHomeViewController new];
+            shopHomeVC.typeDict = @{@"storeid":urlStr};
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                [weakSelf.navigationController pushViewController:shopHomeVC animated:YES];
+            });
+    };
+    
+    //钱包详情
+    self.jsContext[@"IOS_GoMyWalletVC"]=^(){
+        
+        NSArray *arry=[JSContext currentArguments];
+        
+        NSString *idStr= [NSString stringWithFormat:@"%@",arry[0]];
+            
+            MyWalletDetailController *myWalletVC = [MyWalletDetailController new];
+            
+            myWalletVC.paramsDic = @{@"id":idStr};
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                [weakSelf.navigationController pushViewController:myWalletVC animated:YES];
+            });
+    };
+    
+    //账单明细
+    self.jsContext[@"GoToGetBilling_Details"]=^(){
+        
+        NSArray *arry=[JSContext currentArguments];
+        
+        NSString *idStr= [NSString stringWithFormat:@"%@",arry[0]];
+        
+        MyWalletDetailController *myWalletVC = [MyWalletDetailController new];
+        
+        myWalletVC.paramsDic = @{@"id":idStr};
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            [weakSelf.navigationController pushViewController:myWalletVC animated:YES];
+        });
+    };
+    
+    //查看冲红
+    self.jsContext[@"IOS_lookOverGoChongH"]=^(){
+        
+        NSArray *arry=[JSContext currentArguments];
+            
+            STOrderDetailsViewController *myWalletVC = [STOrderDetailsViewController new];
+            myWalletVC.titleStr = @"查看冲红";
+            myWalletVC.urlStr = [NSString stringWithFormat:@"%@oid=%@&pid=%@",requestOrderComfirmViewRed,arry[0],arry[1]];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                [weakSelf.navigationController pushViewController:myWalletVC animated:YES];
+            });
+    };
+
+    //申请冲红
+    self.jsContext[@"IOS_applyforGoChongH"]=^(){
+        
+        NSArray *arry=[JSContext currentArguments];
+            
+            STOrderDetailsViewController *myWalletVC = [STOrderDetailsViewController new];
+            myWalletVC.titleStr = @"申请冲红";
+            myWalletVC.urlStr = [NSString stringWithFormat:@"%@oid=%@&pid=%@",requestOrderComfirmApplyRed,arry[0],arry[1]];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                 isRefresh = YES;
+                [weakSelf.navigationController pushViewController:myWalletVC animated:YES];
+            });
+    };
+    self.jsContext[@"iosUploadFile"]=^(){//上传图片
+        NSArray * array= [JSContext currentArguments];
+        if(array.count==2){
+            weakSelf.oid=array[0];
+            weakSelf.pid=array[1];
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            [weakSelf callCamera];
+        });
+       
+    };
+    
+    //物流信息
+    self.jsContext[@"iOS_GoLogisticsTracking"]=^(){
+        
+        NSArray *arry=[JSContext currentArguments];
+        
+        STOrderDetailsViewController *myWalletVC = [STOrderDetailsViewController new];
+        myWalletVC.titleStr = @"物流信息";
+        myWalletVC.urlStr = [NSString stringWithFormat:@"%@oid=%@",requestUcenterShipInfo,arry[0]];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+
+            [weakSelf.navigationController pushViewController:myWalletVC animated:YES];
+        });
+    };
+    
+    //查看电子发票
+    self.jsContext[@"ios_toElectronicInvoice"]=^(){
+        
+        NSArray *arry=[JSContext currentArguments];
+        
+        ReceiptViewController *receiptVC = [ReceiptViewController new];
+        receiptVC.urlStr = [NSString stringWithFormat:@"%s/%@",requestHost,arry[0]];;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            [weakSelf.navigationController pushViewController:receiptVC animated:YES];
+        });
+    };
+    
+}
+
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+    
+    if (self.QQ.length > 0) {
+        self.QQBtn.hidden = NO;
+    }else {
+        self.QQBtn.hidden = YES;
+    }
+    
+    if (isRefresh) {
+        isRefresh = NO;
+        [self.webView reload];
+    }
+}
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    self.navigationController.navigationBar.hidden = NO;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+    [[UIApplication sharedApplication].keyWindow hideToastActivity];
+}
+
+- (IBAction)ServiceQQClick:(id)sender {
+    
+    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"mqq://"]]) {
+        [[UIApplication sharedApplication]openURL:[NSURL URLWithString:[NSString stringWithFormat:@"mqq://im/chat?chat_type=wpa&uin=%@&version=1&src_type=web",self.QQ]]];
+    }else{
+        [ZHProgressHUD showInfoWithText:@"请先安装QQ"];
+    }
+}
+
+- (IBAction)backBtn:(UIButton *)sender {
+    
+    if (_orderType == 5) {
+        
+        [KSMNetworkRequest getRequest:requestGetHotOrderApplyState params:@{@"oid":_orderId} success:^(id responseObj) {
+            
+            if ([[responseObj objectForKey:@"success"] integerValue] == 1) {
+                
+                if ([responseObj[@"data"][@"state"] integerValue] == -1) {
+                    
+                    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"返回将取消刚才的所有冲红申请，确定取消吗?" preferredStyle:UIAlertControllerStyleAlert];
+                    
+                    [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+                        
+                    }]];
+                    [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+                        
+                        [KSMNetworkRequest getRequest:requestDelHotOrderApply params:@{@"oid":_orderId} success:^(id responseObj) {
+                            
+                            if ([[responseObj objectForKey:@"success"] integerValue] == 1) {
+                                
+                                if (_OrderDetailsBackBlock) {
+                                    
+                                    _OrderDetailsBackBlock();
+                                }
+                            }else {
+                                
+                                [ZHProgressHUD showErrorWithText:[responseObj objectForKey:@"info"]];
+                            }
+                            
+                            [self.navigationController popViewControllerAnimated:YES];
+                            
+                        } failure:^(NSError *error) {
+                            
+                            [ZHProgressHUD showErrorWithText:@"网络异常"];
+                            
+                        }];
+                        
+                    }]];
+                    
+                    [self presentViewController:alert animated:YES completion:nil];
+                }else{
+                    
+                    [self.navigationController popViewControllerAnimated:YES];
+                }
+                
+            }else {
+                
+                [ZHProgressHUD showErrorWithText:[responseObj objectForKey:@"info"]];
+                
+            }
+            
+        } failure:^(NSError *error) {
+            
+            [ZHProgressHUD showErrorWithText:@"网络异常"];
+            
+        }];
+        
+    }else{
+        
+        if (self.pushFlag) {
+            [self.navigationController popToRootViewControllerAnimated:YES];
+        }else {
+            [self.navigationController popViewControllerAnimated:YES];
+        }
+    }
+}
+-(void)callCamera {
+    
+    [self performSelectorOnMainThread:@selector(CallByMainThreadCamera) withObject:nil waitUntilDone:NO];
+}
+
+#pragma mark UIImagePickerControllerDelegate
+//压缩图片
+-(UIImage *) imageyasuo: (UIImage *) image fillSize: (CGSize) viewsize {
+    CGSize size = image.size;
+    
+    CGFloat scalex = viewsize.width / size.width;
+    CGFloat scaley = viewsize.height / size.height;
+    CGFloat scale = MAX(scalex, scaley);
+    
+    UIGraphicsBeginImageContext(viewsize);
+    
+    CGFloat width = size.width * scale;
+    CGFloat height = size.height * scale;
+    
+    float dwidth = ((viewsize.width - width) / 2.0f);
+    float dheight = ((viewsize.height - height) / 2.0f);
+    
+    CGRect rect = CGRectMake(dwidth, dheight, size.width * scale, size.height * scale);
+    [image drawInRect:rect];
+    
+    UIImage *newimg = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return newimg;
+}
+-(void)CallByMainThreadCamera {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
+        if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera])
+        {
+            UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+            picker.delegate = self;
+            //设置拍照后的图片可被编辑
+            //            picker.allowsEditing = YES;
+            picker.sourceType = sourceType;
+            
+            [self presentViewController:picker animated:YES completion:nil];
+        }else
+        {
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"" message:@"请在iphone的“设置－隐私－相机”选项中，允许首推访问你的相机。" preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                
+            }]];
+            
+            [self presentViewController:alert animated:YES completion:nil];
+        }
+        
+    });
+    
+}
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    
+    [[UIApplication sharedApplication].keyWindow showLoadingView:@"loading"];
+    NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
+    if ([mediaType isEqualToString:@"public.image"]){
+        UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+            image=[self imageyasuo:image fillSize:[UIScreen mainScreen].bounds.size];
+            
+        if(image==nil){
+            [[UIApplication sharedApplication].keyWindow hideToastActivity];
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"错误信息" message:@"图片为nil" preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                
+            }]];
+            
+            [self presentViewController:alert animated:YES completion:nil];
+            [picker dismissViewControllerAnimated:YES completion:nil];
+            return;
+        }
+        
+        AFHTTPSessionManager *manager = [ShareManagerCtrl shareManager];
+        
+        manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+        
+        NSString *urlStr=requestUploadOrderRed;
+        
+        __weak STOrderDetailsViewController *uiViewC = self;
+        
+        [manager POST:urlStr parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+            
+            NSData *data = UIImagePNGRepresentation(image);
+            NSString *fileName = [NSString stringWithFormat:@"%@&%@.png", self.oid,self.pid];
+            [formData appendPartWithFileData:data name:@"file" fileName:fileName mimeType:@"image/png"];
+            
+        } progress:^(NSProgress * _Nonnull uploadProgress) {
+            
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            
+            NSDictionary * dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:nil];
+            
+            
+            NSString *fun= [NSString stringWithFormat:@"NativeCallJs('%@');",dic[@"src"]];
+            [uiViewC.webView stringByEvaluatingJavaScriptFromString:fun];
+            
+            [picker dismissViewControllerAnimated:YES completion:nil];
+            
+            
+            [[UIApplication sharedApplication].keyWindow hideToastActivity];
+            
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            
+            [picker dismissViewControllerAnimated:YES completion:nil];
+            [[UIApplication sharedApplication].keyWindow hideToastActivity];
+        }];
+        
+    }
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+    
+    [picker dismissViewControllerAnimated:YES completion:nil];
+}
+@end

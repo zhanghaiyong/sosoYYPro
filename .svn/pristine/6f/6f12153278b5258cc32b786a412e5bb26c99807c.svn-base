@@ -1,0 +1,66 @@
+//
+//  BindCardViewController.m
+//  sosoYY
+//
+//  Created by zhy on 2017/8/24.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "BindCardViewController.h"
+#import <JavaScriptCore/JavaScriptCore.h>
+
+@interface BindCardViewController ()<UIWebViewDelegate>
+@property (weak, nonatomic) IBOutlet CustomWebView *customWebView;
+@property (nonatomic, strong) JSContext *jsContext;
+@end
+
+@implementation BindCardViewController
+
+- (void)viewWillAppear:(BOOL)animated {
+    
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+}
+
+//隐藏状态栏
+- (BOOL)prefersStatusBarHidden {
+    return YES;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [[UIApplication sharedApplication].keyWindow showLoadingView:@"loading"];
+    
+    self.urlStr = [self.urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSURL *url = [NSURL URLWithString:self.urlStr];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    self.customWebView.scrollView.bounces = NO;
+    self.customWebView.delegate = self;
+    [self.customWebView loadRequest:request];
+}
+
+#pragma mark UIWebViewDelegate
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
+    
+    return YES;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
+    
+    [[UIApplication sharedApplication].keyWindow hideToastActivity];
+    __weak BindCardViewController *weakSelf = self;
+    self.jsContext = [webView valueForKeyPath:@"documentView.webView.mainFrame.javaScriptContext"];
+    self.jsContext[@"bindCardBack"] = ^(){
+        NSArray *args=[JSContext currentArguments];
+        NSLog(@"%@",args);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf.navigationController popViewControllerAnimated:YES];
+        });
+    };
+    
+    
+}
+
+@end

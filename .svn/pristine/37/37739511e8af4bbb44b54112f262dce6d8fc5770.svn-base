@@ -1,0 +1,156 @@
+//
+//  STPaymentDetailsEntity.h
+//  sosoYY
+//
+//  Created by soso-mac on 2017/5/27.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+
+@interface STPaymentDetailsEntity : NSObject
+
+@property(strong,nonatomic)NSString *orderamount;//订单总金额
+@property(strong,nonatomic)NSString *shipfee;//邮费
+@property(strong,nonatomic)NSString *paybalancemoney;//余额支付金额
+@property(strong,nonatomic)NSString *couponmoney;//卡券金额
+@property(strong,nonatomic)NSString *buyerremark;//备注
+@property(strong,nonatomic)NSString *paysn;//流水号
+@property(strong,nonatomic)NSString *addtime;//订单时间
+@property(strong,nonatomic)NSString *master_osn;//订单编号
+@property(strong,nonatomic)NSString *consignee;//收货人
+@property(strong,nonatomic)NSString *mobile;//电话
+@property(strong,nonatomic)NSString *address;//地址
+@property(strong,nonatomic)NSString *OSN;
+@property(strong,nonatomic)NSString *storename;
+
+
+@property(strong,nonatomic)NSString *ishight;
+@property(strong,nonatomic)NSString *iskong;
+@property(strong,nonatomic)NSString *ExtCode1;
+@property(strong,nonatomic)NSString *ExtCode2;
+@property(strong,nonatomic)NSString *ExtCode3;
+@property(strong,nonatomic)NSString *ExtCode5;
+@property(strong,nonatomic)NSString *ExtCode4;
+@property(strong,nonatomic)NSString *Helpful;
+@property(strong,nonatomic)NSString *ImageList;
+@property(strong,nonatomic)NSString *Stcommentstate;
+@property(strong,nonatomic)NSString *notHelpful;
+
+
+@property (nonatomic,strong)NSString *RecordId;
+@property (nonatomic,strong)NSString *Oid;
+@property (nonatomic,strong)NSString *DrugsBase_ProName;
+@property (nonatomic,strong)NSString *Uid;
+@property (nonatomic,strong)NSString *Sid;
+@property (nonatomic,strong)NSString *Pid;
+@property (nonatomic,strong)NSString *PSN;
+@property (nonatomic,strong)NSString *CateId;
+@property (nonatomic,strong)NSString *BrandId;
+@property (nonatomic,strong)NSString *StoreId;
+@property (nonatomic,strong)NSString *StoreCid;
+@property (nonatomic,strong)NSString *StoreSTid;
+@property (nonatomic,strong)NSString *Name;
+@property (nonatomic,strong)NSString *ShowImg;
+@property (nonatomic,strong)NSString *DiscountPrice;
+@property (nonatomic,strong)NSString *ShopPrice;
+@property (nonatomic,strong)NSString *CostPrice;
+@property (nonatomic,strong)NSString *MarketPrice;
+@property (nonatomic,strong)NSString *Weight;
+@property (nonatomic,strong)NSString *IsReview;
+@property (nonatomic,strong)NSString *RealCount;
+@property (nonatomic,strong)NSString *BuyCount;
+@property (nonatomic,strong)NSString *BuyCount_s;
+@property (nonatomic,strong)NSString *SendCount;
+@property (nonatomic,strong)NSString *Type;
+@property (nonatomic,strong)NSString *PayCredits;
+@property (nonatomic,strong)NSString *CouponTypeId;
+@property (nonatomic,strong)NSString *channelType;
+@property (nonatomic,strong)NSString *DrugsBase_Specification;
+@property (nonatomic,strong)NSString *DrugsBase_Manufacturer;
+@property (nonatomic,strong)NSString *DrugsBase_ApprovalNumber;
+@property (nonatomic,strong)NSString *Goods_Package_ID;
+@property (nonatomic,strong)NSString *SmallImageUrl;
+@property (nonatomic,strong)NSString *SellType;
+@property (nonatomic,strong)NSString *Goods_Pcs;
+@property (nonatomic,strong)NSString *Goods_Pcs_Small;
+@property (nonatomic,strong)NSString *MinBuyNum;
+@property (nonatomic,strong)NSString *Goods_Unit;
+@property (nonatomic,strong)NSString *orderproductstate;
+@property (nonatomic,strong)NSString *Product_Pcs;
+@property (nonatomic,strong)NSString *Product_Pcs_Small;
+@property (nonatomic,strong)NSString *pmid;
+@property (nonatomic,strong)NSString *addpricebuyid;
+@property (nonatomic,strong)NSString *addpricebuypernum;
+@property (nonatomic,strong)NSString *addpricebuynum;
+@property (nonatomic,strong)NSString *addpricebuycoast;
+@property (nonatomic,strong)NSString *ProductStCommentID;
+@property (nonatomic,strong)NSString *Experience;
+@property (nonatomic,strong)NSString *Created;
+@property (nonatomic,strong)NSString *stock;
+@property (nonatomic,strong)NSDictionary *addpricebuymodel;
+@property (nonatomic,strong)NSString *specialpricemodel;
+@property (nonatomic,strong)NSString *addproduct;
+@property (nonatomic,strong)NSString *IsSelect;
+@property (nonatomic,strong)NSString *BagCount;
+@property (nonatomic,strong)NSString *SpePriceProInfo;
+
+
+@property (nonatomic,strong)NSString *AllFullCut;
+@property (nonatomic,strong)NSString *AllOrderAmount;
+@property (nonatomic,strong)NSString *AllProductAmount;
+@property (nonatomic,strong)NSString *AllShipFee;
+@property (nonatomic,strong)NSString *CanUseCouponCount;
+@property (nonatomic,strong)NSString *CouponMallCount;
+@property (nonatomic,strong)NSString *CouponStoreCount;
+
+
+@property (nonatomic,strong)NSString *CityId;
+@property (nonatomic,strong)NSString *CityName;
+@property (nonatomic,strong)NSString *CountyId;
+@property (nonatomic,strong)NSString *CountyName;
+@property (nonatomic,strong)NSString *DefaultExpress;
+@property (nonatomic,strong)NSString *ProvinceId;
+@property (nonatomic,strong)NSString *ProvinceName;
+@property (nonatomic,strong)NSString *SAId;
+@property (nonatomic,strong)NSString *MaxUseBalance;
+@property (nonatomic,strong)NSString *PayFee;
+@property (nonatomic,strong)NSString *SelectedCartItemKeyList;
+@property (nonatomic,strong)NSString *FullCut;
+@property (nonatomic,strong)NSDictionary *AddPriceProInfo;
+@property (nonatomic,strong)NSString *IsAddPriceBuy;
+@property (nonatomic,strong)NSString *IsSpePrice;
+@property (nonatomic,strong)NSString *PName;
+@property (nonatomic,strong)NSString *ProductAmount;
+@property (nonatomic,strong)NSString *TotalCount;
+@property (nonatomic,strong)NSString *UserBalance;
+@property (nonatomic,strong)NSString *info;
+@property (nonatomic,strong)NSString *success;
+@property (nonatomic,strong)NSString *title;
+@property (nonatomic,strong)NSString *islous;
+
+
+//加价购
+
+@property (nonatomic,strong)NSString *firstpid;
+@property (nonatomic,strong)NSString *secondpid;
+@property (nonatomic,strong)NSString *addPrice;
+@property (nonatomic,strong)NSString *addPriceType;
+@property (nonatomic,strong)NSString *firstProudctStartNum;
+@property (nonatomic,strong)NSString *firstProudctPerNum;
+@property (nonatomic,strong)NSString *secondProudctNum;
+@property (nonatomic,strong)NSString *secondimage;
+@property (nonatomic,strong)NSString *secondDrugsBase_DrugName;
+@property (nonatomic,strong)NSString *secondisHighMargin;
+@property (nonatomic,strong)NSString *secondDrugsBase_Manufacturer;
+@property (nonatomic,strong)NSString *secondDrugsBase_Specification;
+@property (nonatomic,strong)NSString *secondGoods_Unit;
+@property (nonatomic,strong)NSString *secondshopprice;
+@property (nonatomic,strong)NSString *secondsxrq;
+@property (nonatomic,strong)NSString *SecondIsJxq;
+@property (nonatomic,strong)NSString *SecondNum;
+
+//店铺类商品品种
+@property (nonatomic,strong)NSString *ProductCount;
+@end

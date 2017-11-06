@@ -1,0 +1,1 @@
+link ../../../ZXingObjC/ZXingObjC/client/result/ZXURIParsedResult.h

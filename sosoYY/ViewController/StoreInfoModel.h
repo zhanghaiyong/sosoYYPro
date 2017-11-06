@@ -1,0 +1,25 @@
+//
+//  StoreInfoModel.h
+//  sosoYY
+//
+//  Created by zhy on 2017/6/16.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface StoreInfoModel : NSObject
+
+@property (nonatomic,strong)NSString *StoreId;
+@property (nonatomic,strong)NSString *State;
+@property (nonatomic,strong)NSString *Name;
+@property (nonatomic,strong)NSString *StoreIid;
+@property (nonatomic,strong)NSString *Description;
+@property (nonatomic,strong)NSString *Address;
+@property (nonatomic,strong)NSString *LowestdeliveryAmount;
+@property (nonatomic,strong)NSString *LowestFreeShippingAmount;
+@property (nonatomic,strong)NSString *DefaultShipFee;
+@property (nonatomic,strong)NSString *DeliveryType;
+@property (nonatomic,strong)NSString *ProductsCount;
+@property (nonatomic,strong)NSString *islous;
+@end

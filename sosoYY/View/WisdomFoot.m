@@ -1,0 +1,51 @@
+//
+//  WisdomFoot.m
+//  sosoYY
+//
+//  Created by zhy on 17/1/17.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "WisdomFoot.h"
+@implementation WisdomFoot
+
+-(void)setModel:(WisdomModel *)model {
+
+    _model = model;
+    
+    int count = 0;
+    for (LiModel *liModel in model.li) {
+        
+        if ([liModel.isSelect isEqualToString:@"1"]) {
+            count ++;
+        }
+    }
+
+    self.msgContent.text = [NSString stringWithFormat:@"    共%zi个商品,已选%zi个",model.li.count,count];
+
+    
+}
+
+- (IBAction)isFoldClick:(UIButton *)sender {
+    
+    if (_isFoldBlock) {
+        
+        _isFoldBlock(!sender.selected);
+        //展开状态
+        if (sender.selected) {
+            sender.selected = NO;
+            self.foldButton.selected = NO;
+        }else {
+            sender.selected = YES;
+            self.foldButton.selected = YES;
+        }
+    }
+        
+    [KSMNetworkRequest WisdomExpandChange:requestExpandChange params:@{@"storeid":self.model.store_Id,@"Expand":sender.selected ? @"true" : @"false"} finished:^(BOOL finish) {
+       
+        NSLog(@"finish = %zi",finish);
+    }];
+    
+}
+
+@end

@@ -1,0 +1,396 @@
+//
+//  STSwitchStoreFooterView.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/7/10.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STSwitchStoreFooterView.h"
+
+@interface STSwitchStoreFooterView ()<UITextFieldDelegate>
+
+@property(strong,nonatomic)NSString *buyCount;
+@property(strong,nonatomic)NSString *oldCount;
+@property(strong,nonatomic)NSString *stockCount;
+@property(strong,nonatomic)NSString *pid;
+@property(strong,nonatomic)NSString *sellType;
+@property(assign,nonatomic)CGFloat count;
+@property(strong,nonatomic)STSwitchStoreEneity *entity;
+@property(strong,nonatomic)NSIndexPath *indexpath;
+@property(strong,nonatomic)NSString *Product_Pcs_Small;//择包装
+@property(strong,nonatomic)NSString *Product_Pcs;//建装
+@property(strong,nonatomic)NSIndexPath *indexPath;
+@property(assign,nonatomic)CGFloat priceNum;
+@property(strong,nonatomic)NSString *title;
+@end
+
+@implementation STSwitchStoreFooterView
+
+-(void)setSwitchStoreByCountBuy:(STSwitchStoreEneity *)entity indexPath:(NSIndexPath *)indexPath buyCount:(NSString *)buyCount title:(NSString *)title{
+    _title = title;
+    _entity = entity;
+    _indexPath = indexPath;
+    
+    __weak STSwitchStoreFooterView *weakSelf = self;
+    
+    NSString *DrugsBase_DrugName = [NSString stringWithFormat:@"%@", entity.DrugsBase_DrugName];
+    NSString *length = [NSString stringWithFormat:@"%zi",DrugsBase_DrugName.length];
+    
+    [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":[UIColor fromHexValue:0x555555 alpha:1],@"font":@"15",@"num":length},@{@"color":[UIColor fromHexValue:0x777777 alpha:1],@"font":@"10"}]  andChengeString:[NSString stringWithFormat:@"%@%@",entity.DrugsBase_DrugName,entity.DrugsBase_Specification] type:1 andFinished:^(NSMutableAttributedString *string) {
+        weakSelf.nameLab.attributedText = string;
+    }];
+    
+    _bgView.frame = CGRectMake(0, 0, kScreenWidth - 30, 85);
+    
+    _topLine.frame = CGRectMake(0, 0, kScreenWidth, .5);
+    
+    _priceLab.frame = CGRectMake(152, 60, kScreenWidth - 270, 20);
+    
+    _oldLab.frame = CGRectMake(152, 40, kScreenWidth - 270, 20);
+    
+    _line.frame = CGRectMake(152 , 50, kScreenWidth - 270, 0.8);
+    
+    
+    _subtractBtn.layer.masksToBounds = YES;
+    _subtractBtn.layer.borderColor = [UIColor fromHexValue:0xe5e5e5 alpha:1].CGColor;
+    _subtractBtn.layer.borderWidth = .5;
+    
+    _addBtn.layer.masksToBounds = YES;
+    _addBtn.layer.borderColor = [UIColor fromHexValue:0xe5e5e5 alpha:1].CGColor;
+    _addBtn.layer.borderWidth = .5;
+    
+    _textTextField.layer.masksToBounds = YES;
+    _textTextField.layer.borderColor = [UIColor fromHexValue:0xe5e5e5 alpha:1].CGColor;
+    _textTextField.layer.borderWidth = .5;
+    _textTextField.delegate = self;
+    [_textTextField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
+    
+    _textTextField.text = @"1";
+    _count = 1;
+    
+        _pid = [NSString stringWithFormat:@"%@",entity.Pid];
+        _buyCount = [NSString stringWithFormat:@"%@",entity.buyCount];
+        _oldCount = [NSString stringWithFormat:@"%@",entity.buyCount];
+        _stockCount = [NSString stringWithFormat:@"%@",entity.Stock];
+        _sellType = entity.sellType;
+        _count = _oldCount.floatValue;
+        
+        _Product_Pcs_Small = [NSString stringWithFormat:@"%.2f",_entity.Product_Pcs_Small.floatValue];
+        _Product_Pcs = [NSString stringWithFormat:@"%.2f",_entity.Product_Pcs.floatValue];
+        
+        _textTextField.text = _buyCount;
+    
+            
+            _textTextField.text = buyCount;
+            
+            _count = buyCount.floatValue;
+            
+            _priceNum = [self setJudgmentRestricted:_textTextField.text];
+            
+            if (_SwitchNumBlock) {
+                _SwitchNumBlock([NSString stringWithFormat:@"%.2f",_textTextField.text.floatValue * _priceNum],_textTextField.text,_indexPath,_priceNum);
+            }
+        
+        _priceLab.hidden = NO;
+        _oldLab.hidden = NO;
+        _line.hidden = NO;
+        
+        _priceNum = [self setJudgmentRestricted:_textTextField.text];
+        
+        if (_SwitchBouncedPromptBlock) {
+            _SwitchBouncedPromptBlock(_textTextField.text,_entity,_indexPath);
+        }
+}
+- (IBAction)subtractSelect:(id)sender {
+    
+    [_textTextField resignFirstResponder];
+    switch ([self.sellType intValue]) {
+        case 1:
+            
+            if (_count > 0) {
+                _count -= 1;
+            }
+            break;
+        case 2:
+            
+            if (_count > 0) {
+                
+                if (_Product_Pcs_Small.floatValue > 0) {
+                    
+                    _count -= _Product_Pcs_Small.floatValue;
+                }else {
+                    
+                    _count -= 1;
+                }
+                
+                if (_count < _Product_Pcs_Small.floatValue && _count < self.entity.MinBuyNum.floatValue) {
+                    _count = _Product_Pcs_Small.floatValue;
+                }
+                
+            }
+            break;
+            
+        case 3:
+            
+            if (_count > 0) {
+                _count -= _Product_Pcs.floatValue;
+                if (_count < _Product_Pcs.floatValue && _count < self.entity.MinBuyNum.floatValue) {
+                    _count += _Product_Pcs.floatValue;
+                }
+                
+            }
+            break;
+            
+        default:
+            break;
+    }
+    
+    _textTextField.text = [STCommon setHasSuffix:[NSString stringWithFormat:@"%f",_count]];
+    _buyCount = _textTextField.text;
+    
+    _priceNum = [self setJudgmentRestricted:_textTextField.text];
+    
+    
+    if (_SwitchNumBlock) {
+        _SwitchNumBlock([NSString stringWithFormat:@"%.2f",_buyCount.floatValue * _priceNum],_buyCount,_indexPath,_priceNum);
+    }
+    
+    if (_SwitchBouncedPromptBlock) {
+        _SwitchBouncedPromptBlock(_textTextField.text,_entity,_indexPath);
+    }
+    
+    if (_buyCount.floatValue < _entity.MinBuyNum.floatValue) {
+        
+        _buyCount = [NSString stringWithFormat:@"%.0f",_entity.MinBuyNum.floatValue - 1];
+
+        _count = _entity.MinBuyNum.floatValue - 1;
+    }
+}
+- (IBAction)addSelect:(id)sender {
+    [_textTextField resignFirstResponder];
+    switch (_sellType.intValue) {
+        case 1:
+            _count += 1;
+            break;
+        case 2:{
+            __weak STSwitchStoreFooterView *weakSelf = self;
+            
+            if (_Product_Pcs_Small.floatValue > 0) {
+                
+                _count += _Product_Pcs_Small.floatValue;
+                
+                [STCommon isRemainderD1:_count withD2:[NSString stringWithFormat:@"%.2f",_Product_Pcs_Small.floatValue].floatValue Block:^(BOOL isRemainder, int multiple) {
+                    if (!isRemainder) {
+                        weakSelf.count = multiple * weakSelf.Product_Pcs_Small.floatValue;
+                    }
+                }];
+            }else {
+                _count += 1;
+            }
+            
+            break;
+        }
+        case 3:
+            _count += _Product_Pcs.floatValue;
+            break;
+            
+        default:
+            break;
+    }
+    _textTextField.text = [STCommon setHasSuffix:[NSString stringWithFormat:@"%f",_count]];
+    _buyCount = _textTextField.text;
+    
+    
+    _priceNum = [self setJudgmentRestricted:_textTextField.text];
+    
+    
+    if (_SwitchNumBlock) {
+        _SwitchNumBlock([NSString stringWithFormat:@"%.2f",_buyCount.floatValue * _priceNum],_buyCount,_indexPath,_priceNum);
+    }
+    
+    if (_SwitchBouncedPromptBlock) {
+        _SwitchBouncedPromptBlock(_textTextField.text,_entity,_indexPath);
+    }
+    
+    if (_buyCount.floatValue > _entity.Stock.floatValue) {
+        _buyCount = [NSString stringWithFormat:@"%.0f",_entity.Stock.floatValue + 1];
+        _count = _entity.Stock.floatValue + 1;
+    }
+}
+
+
+- (IBAction)finishedSelect:(id)sender {
+    
+    if (_SwitchBouncedPromptBlock) {
+        _SwitchBouncedPromptBlock(_textTextField.text,_entity,_indexPath);
+    }
+    _count = _oldCount.floatValue;
+    _buyCount = _textTextField.text;
+    
+
+    
+        if (_textTextField.text.floatValue >= _entity.MinBuyNum.floatValue && _textTextField.text.floatValue <= _entity.Stock.floatValue) {
+            
+            if (_SwitchStoreBuyCountBlock) {
+                _SwitchStoreBuyCountBlock(1,@{@"buyCount":_buyCount,@"Pid":_entity.Pid,@"Goods_Package_ID":_entity.Goods_Package_ID},_indexpath);
+            }
+        }
+    [_textTextField resignFirstResponder];
+}
+
+#pragma mark -- UITextFieldDelegate
+-(void)textFieldDidBeginEditing:(UITextField *)textField{
+    
+    if (_SwitchBouncedPromptBlock) {
+        _SwitchBouncedPromptBlock(_textTextField.text,_entity,_indexPath);
+    }
+    
+        if (_SwitchBouncedPromptBlock) {
+            _SwitchBouncedPromptBlock(_textTextField.text,_entity,_indexPath);
+        }
+    
+}
+-(void)textFieldDidEndEditing:(UITextField *)textField{
+    
+    if (_SwitchBouncedPromptBlock) {
+        _SwitchBouncedPromptBlock(_textTextField.text,_entity,_indexPath);
+    }
+        if (textField.text.length == 0) {
+            textField.text = [NSString stringWithFormat:@"%@",_entity.MinBuyNum];
+        }
+    
+}
+- (void)textFieldDidChange:(UITextField *)textField{
+    
+    if (_SwitchBouncedPromptBlock) {
+        _SwitchBouncedPromptBlock(_textTextField.text,_entity,_indexPath);
+    }
+        
+        _count = _textTextField.text.floatValue;
+        
+        _priceNum = [self setJudgmentRestricted:_textTextField.text];
+        
+        if (_SwitchNumBlock) {
+            _SwitchNumBlock([NSString stringWithFormat:@"%.2f",_textTextField.text.floatValue * _priceNum],_textTextField.text,_indexPath,_priceNum);
+        }
+    
+}
+
+
+-(CGFloat)setJudgmentRestricted:(NSString *)buyCount{
+    
+    CGFloat priceNumStr;
+    
+    if (_entity.speprice.intValue != 0) {
+        
+        if (_entity.limittype.intValue != 0) {
+            
+            if (_entity.limitnumber.intValue != 0) {
+                
+                priceNumStr = _entity.speprice.floatValue;
+                
+                if (buyCount.integerValue == _entity.limitnumber.integerValue) {
+                    
+                    priceNumStr = _entity.speprice.floatValue;
+                    
+                }else if (buyCount.integerValue > _entity.limitnumber.integerValue){
+                    
+                    priceNumStr = _entity.price.floatValue;
+                }
+            }else{
+                
+                priceNumStr = _entity.price.floatValue;
+            }
+        }else{
+            
+            priceNumStr = _entity.speprice.floatValue;
+            
+        }
+        
+    }else{
+        
+        priceNumStr = _entity.price.floatValue;
+    }
+    return priceNumStr;
+}
+
+-(void)setMode:(STSwitchStoreEneity *)mode buyCount:(NSString *)buyCount{
+    
+    _priceLab.frame = CGRectMake(152, 60, kScreenWidth - 270, 20);
+    
+    if (mode == nil) {
+        
+        _oldLab.hidden = YES;
+        _line.hidden = YES;
+        _priceLab.hidden = YES;
+    }else{
+        if (mode.speprice.intValue != 0) {
+            
+            if (mode.limittype.intValue != 0) {
+                
+                if (mode.limitnumber.intValue != 0) {
+                    
+                    if (buyCount.integerValue > mode.limitnumber.integerValue){
+                        
+                        _oldLab.hidden = YES;
+                        _line.hidden = YES;
+                        _priceLab.hidden = NO;
+                        
+                        _priceLab.frame = CGRectMake(152, 50, kScreenWidth - 270, 20);
+                        
+                        _priceLab.text = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.price.floatValue]]];
+                    }else{
+                        
+                        _oldLab.hidden = NO;
+                        _line.hidden = NO;
+                        _priceLab.hidden = NO;
+                        
+                        _priceLab.text = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.speprice.floatValue]]];
+                        
+                        _oldLab.text = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.price.floatValue]]];
+                        
+                        CGSize oldPriceSize = [_oldLab.text boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, 1) options:NSStringDrawingTruncatesLastVisibleLine|NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size;
+                        
+                        _line.frame = CGRectMake(152 + (_oldLab.width - oldPriceSize.width)/2 , 50, oldPriceSize.width , 0.8);
+                    }
+                }else{
+                    
+                    _oldLab.hidden = YES;
+                    _line.hidden = YES;
+                    _priceLab.hidden = NO;
+                    
+                    _priceLab.frame = CGRectMake(152, 50, kScreenWidth - 270, 20);
+                    
+                    _priceLab.text = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.price.floatValue]]];
+                    
+                }
+            }else{
+                
+                _oldLab.hidden = NO;
+                _line.hidden = NO;
+                _priceLab.hidden = NO;
+                
+                _priceLab.text = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.speprice.floatValue]]];
+                
+                _oldLab.text = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.price.floatValue]]];
+                
+                CGSize oldPriceSize = [_oldLab.text boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, 1) options:NSStringDrawingTruncatesLastVisibleLine|NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12]} context:nil].size;
+                
+                _line.frame = CGRectMake(152 + (_oldLab.width - oldPriceSize.width)/2 , 50, oldPriceSize.width , 0.8);
+                
+            }
+            
+        }else{
+            
+            _oldLab.hidden = YES;
+            _line.hidden = YES;
+            _priceLab.hidden = NO;
+            
+            _priceLab.frame = CGRectMake(152, 50, kScreenWidth - 270, 20);
+            
+            _priceLab.text = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",mode.price.floatValue]]];
+        }
+    }
+}
+@end

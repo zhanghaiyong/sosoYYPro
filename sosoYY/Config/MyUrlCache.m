@@ -1,0 +1,56 @@
+//
+//  MyUrlCache.m
+//  sosoYY
+//
+//  Created by zhy on 17/1/10.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "MyUrlCache.h"
+
+@implementation MyUrlCache
+
+- (void)storeCachedResponse:(NSCachedURLResponse *)cachedResponse forRequest:(NSURLRequest *)request {
+    
+//    FxLog(@"xoxoxo = %@", request.URL);
+    if ([[request.URL absoluteString] rangeOfString:@"/cart/addproduct"].location != NSNotFound) {
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:refresh_shopCart object:self userInfo:nil];
+        });
+    }
+    
+    NSString *searchString = [NSString stringWithFormat:@"/account/login?returnUrl=%s/ucenter/userinfo",requestHost];
+    if ([[request.URL absoluteString] rangeOfString:searchString].location != NSNotFound) {
+        
+        //存储帐号信息
+        NSData *cookiesData = [NSKeyedArchiver archivedDataWithRootObject: [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies]];
+        //存储归档后的cookie
+        [Uitils setUserDefaultsObject:cookiesData ForKey:@"cookie"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:refresh_shopCart object:self userInfo:nil];
+        
+        for (NSHTTPCookie *https in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies]) {
+            
+            if ([https.value rangeOfString:@"uid"].location != NSNotFound) {
+                
+                NSArray *array = [https.value componentsSeparatedByString:@"&"];
+                
+                NSString *uidStr = array[0];
+                uidStr=[uidStr stringByReplacingOccurrencesOfString:@"uid=" withString:@""];
+                if ([uidStr integerValue] > 0) {
+                    //绑定一个别名至设备（含账户，和平台类型）,并解绑这个别名曾今绑定过的设备。
+                    [UMessage addAlias:uidStr type:@"IOS_ALIAS" response:^(id responseObject, NSError *error) {
+                        if(!error) {
+                            FxLog(@"添加成功cookie  %@",responseObject);
+                        }else {
+                            FxLog(@"error = %@",error.localizedDescription);
+                        }
+                    }];
+                }
+            }
+        }
+    }
+}
+
+@end

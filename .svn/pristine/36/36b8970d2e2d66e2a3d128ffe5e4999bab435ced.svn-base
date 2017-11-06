@@ -1,0 +1,64 @@
+//
+//  STMessageBoxTableViewCell.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/7/28.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STMessageBoxTableViewCell.h"
+
+@implementation STMessageBoxTableViewCell
+-(void)setMessageBox:(NSMutableArray *)arr indexPath:(NSIndexPath *)indexPath{
+    switch (indexPath.row) {
+        case 0:
+            _imgV.image = [UIImage imageNamed:@"通知消息"];
+            _nameLab.text = [NSString stringWithFormat:@"%@",[arr[indexPath.row] Title]];
+            _describeLab.text = [NSString stringWithFormat:@"%@",[arr[indexPath.row] FirstMessage]];
+            _dateLab.text = [NSString stringWithFormat:@"%@",[arr[indexPath.row] DataTime]];
+            
+             _messageNumLab.text = [NSString stringWithFormat:@"%@",[arr[indexPath.row] Count]];
+            if ([[arr[indexPath.row] Count] intValue] > 9) {
+              _messageNumLab.text = @"9+";
+            }else if ([[arr[indexPath.row] Count] intValue] == 0){
+                _messageNumLab.hidden = YES;
+            }
+           
+            break;
+        case 2:
+            _imgV.image = [UIImage imageNamed:@"平台消息"];
+            _nameLab.text = @"平台活动";
+            _describeLab.text = @"【首推】周一智采日爆料:可是丹江口市发动机卡是个狠角色客户快速的复活节可视电话";
+            _dateLab.text = @"昨天";
+            _messageNumLab.text = @"5";
+            break;
+        case 1:
+            _imgV.image = [UIImage imageNamed:@"电子发票"];
+            _nameLab.text = [NSString stringWithFormat:@"%@",[arr[indexPath.row] Title]];
+            _describeLab.text = [NSString stringWithFormat:@"%@",[arr[indexPath.row] FirstMessage]];
+            _dateLab.text = [NSString stringWithFormat:@"%@",[arr[indexPath.row] DataTime]];
+            _messageNumLab.text = [NSString stringWithFormat:@"%@",[arr[indexPath.row] Count]];
+            if ([[arr[indexPath.row] Count] intValue] > 9) {
+                _messageNumLab.text = @"9+";
+            }else if ([[arr[indexPath.row] Count] intValue] == 0){
+                _messageNumLab.hidden = YES;
+            }
+            break;
+            
+        default:
+            break;
+    }
+    _lineLab.frame = CGRectMake(0, 64.5, kScreenWidth, .5);
+}
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

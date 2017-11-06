@@ -1,0 +1,96 @@
+//
+//  STMessageBoxEntity.h
+//  sosoYY
+//
+//  Created by soso-mac on 2017/7/31.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface STMessageBoxEntity : NSObject
+
+
+//----------------消息盒子列表
+//未读消息条数
+@property(strong,nonatomic)NSString *Count;
+
+//最近一条消息的时间
+@property(strong,nonatomic)NSString *DataTime;
+
+//最近一条消息
+@property(strong,nonatomic)NSString *FirstMessage;
+
+//消息类目
+@property(strong,nonatomic)NSString *Title;
+
+
+//------------------取得消息盒子列表明细
+
+@property(assign,nonatomic)NSInteger pageIndex;
+//总记录
+@property(assign,nonatomic)NSInteger recordCount;
+//总页数
+@property(assign,nonatomic)NSInteger pageCount;
+
+/// <summary>
+/// 分组名称
+/// </summary>
+@property(strong,nonatomic)NSString *GroupTitle;
+
+/// <summary>;
+/// 消息列表
+/// </summary>
+@property(strong,nonatomic)NSMutableArray *dataResult;
+
+/// <summary>
+/// 消息编号
+/// </summary>
+@property(strong,nonatomic)NSString *massgeId;
+
+/// <summary>
+/// 消息来源 0 系统消息，1 通知消息
+/// </summary>
+@property(strong,nonatomic)NSString *source;
+
+/// <summary>
+/// 消息标题
+/// </summary>
+@property(strong,nonatomic)NSString *titleTwo;
+
+
+/// <summary>
+/// 消息动作
+/// </summary>
+@property(strong,nonatomic)NSString *Action;
+
+/// <summary>
+/// 动作值
+/// </summary>
+@property(strong,nonatomic)NSString *Action_Value;
+
+/// <summary>
+/// 消息内容
+/// </summary>
+@property(strong,nonatomic)NSString *Short_body;
+
+/// <summary>
+/// 分组标题
+/// </summary>
+@property(strong,nonatomic)NSString *GroupTitleTwo;
+
+/// <summary>
+/// 添加时间
+/// </summary>
+@property(strong,nonatomic)NSString *Addtime;
+
+/// <summary>
+/// 电子发票编号
+/// </summary>
+@property(strong,nonatomic)NSString *Eid;
+
+/// <summary>
+/// 订单编号
+/// </summary>
+@property(strong,nonatomic)NSString *Oid;
+@end

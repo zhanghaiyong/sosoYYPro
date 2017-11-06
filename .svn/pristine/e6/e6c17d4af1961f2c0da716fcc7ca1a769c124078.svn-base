@@ -1,0 +1,289 @@
+//
+//  LiModel.m
+//  sosoYY
+//
+//  Created by zhy on 17/1/18.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "LiModel.h"
+
+@implementation LiModel
+
+//实现这个方法，就会自动吧数组中的字典转化成对应的模型
++ (NSDictionary *)objectClassInArray {
+    
+    return @{@"purchasetAddPricePromotionsList":[PurchasetAddPricePromotionsModel class]};
+}
+
+-(CGFloat)cellHeight {
+
+    CGFloat H = 98;
+    
+    if ([self.isSelect isEqualToString:@"1"]) {
+        //是加价购，并且选择了加价购商品
+        if ([self.PromotionTypes integerValue] == 1 && [self.pmid integerValue] > 0) {
+            
+            for (PurchasetAddPricePromotionsModel *model in self.purchasetAddPricePromotionsList) {
+                
+                if ([model.pmid isEqualToString:self.pmid]) {
+                    
+                    switch ([model.addPriceType integerValue]) {
+                        case 0:
+                            
+                            if ([self.buyCount doubleValue] >= [model.firstProudctStartNum doubleValue]) {
+                                
+                                H +=85;
+                            }
+                            
+                            break;
+                        case 1:
+                            if ([self.buyCount doubleValue] >= [model.firstProudctPerNum doubleValue]) {
+                                
+                                H +=85;
+                            }
+                            break;
+                            
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+    }
+    
+    //排除手动添加
+    if ([self.source integerValue] == 0) {
+        
+        H += 30;
+    }
+    
+    
+    // 加价购
+    if ([self.PromotionTypes integerValue] == 1) {
+        
+        H += 30;
+    }
+    
+    //特价
+    if ([self.PricePromotionsTypes integerValue] == 1) {
+        if ([self.purchasetSpecialPricePromotions.limittype integerValue] != 0) {
+            
+            H += 30;
+        }
+    }
+    
+    __block BOOL Remainder = NO;
+    [STCommon isRemainderD1:self.buyCount.doubleValue withD2:self.Product_Pcs_Small.doubleValue Block:^(BOOL isRemainder, int multiple) {
+        
+        Remainder = isRemainder;
+    }];
+    
+    //购买数低于最低购买数 || 购买数超出库存
+    if ([self.buyCount doubleValue] < [self.minBuy doubleValue] || ([self.buyCount doubleValue] > [self.stock doubleValue] && [self.stock doubleValue] > 0) || ([self.sellType doubleValue] == 2 && !Remainder)) {
+        
+        self.isBadGood = YES;
+        
+        H += 30;
+    }else {
+    
+        self.isBadGood = NO;
+    }
+    
+    return H;
+}
+
+- (id)mutableCopyWithZone:(NSZone *)zone
+{
+    LiModel * liModel = [[[self class] allocWithZone:zone] init];
+    
+    liModel.isSelect = self.isSelect;
+    
+    liModel.isBadGood = self.isBadGood;
+    
+    liModel.id = self.id;
+    /// 会员编号
+    liModel.userid = self.userid;
+    /// erp编号
+    liModel.psn = self.psn;
+    /// 平台件装编号
+    liModel.Goods_Package_ID = self.Goods_Package_ID;
+    /// 首字母
+    liModel.PreChar = self.PreChar;
+    /// 生产厂家
+    liModel.DrugsBase_Manufacturer = self.DrugsBase_Manufacturer;
+    /// 商品名
+    liModel.DrugsBase_ProName = self.DrugsBase_ProName;
+    /// 通用名
+    liModel.DrugsBase_DrugName = self.DrugsBase_DrugName;
+    /// 销售单位
+    liModel.Goods_Unit = self.Goods_Unit;
+    /// 剂型
+    liModel.DrugsBase_Specification = self.DrugsBase_Specification;
+    /// 产品库存
+    liModel.stock = self.stock;
+    /// 最近采购日期
+    liModel.LastTime = self.LastTime;
+    /// 字符时间
+    liModel.LastTimeString = self.LastTimeString;
+    /// 历史采购价格
+    liModel.HistoryPrice = self.HistoryPrice;
+    ///月销售量
+    liModel.SalesVolume = self.SalesVolume;
+    /// 能购买到的最低的价格
+    liModel.minPrice = self.minPrice;
+    /// 能买到的最高价格
+    liModel.maxPrice = self.maxPrice;
+    /// 采购优先级
+    liModel.priority = self.priority;
+    /// 商品条码
+    liModel.Barcode = self.Barcode;
+    /// 购买数量
+    liModel.buyCount = self.buyCount;
+    /// 店铺编号
+    liModel.store_Id = self.store_Id;
+    /// 店铺名称
+    liModel.store_Name = self.store_Name;
+    /// 最小购买数量
+    liModel.minBuy = self.minBuy;
+    /// 商品效期
+    liModel.sxrq = self.sxrq;
+    
+    liModel.IsJxq = self.IsJxq;
+    
+    liModel.myStock = self.myStock;
+    
+    // 商品编号
+    liModel.pid = self.pid;
+    liModel.Price = self.Price;
+    //销售方式 1,不限制，2中包装，3件装
+    liModel.sellType = self.sellType;
+    //件装
+    liModel.Product_Pcs = self.Product_Pcs;
+    //中包装
+    liModel.Product_Pcs_Small = self.Product_Pcs_Small;
+    /// 快捷购买数量
+    liModel.buyNumList = self.buyNumList;
+    
+    // 品种来源 0 默认来源客户erp 1 凑单商品 2 搜索添加
+    liModel.source = self.source;
+    
+    //如果选中了加价，则存储加价购的规则id,没有则存零
+    liModel.pmid = self.pmid;
+    
+    //是否是特价商品 0不是，1 是
+    liModel.PricePromotionsTypes = self.PricePromotionsTypes;
+    
+    //是否是加价购 0 否 1 是
+    liModel.PromotionTypes = self.PromotionTypes;
+    
+    //促销信息(加价购)
+    liModel.purchasetAddPricePromotionsList = self.purchasetAddPricePromotionsList;
+    
+    //促销信息(特价)
+    liModel.purchasetSpecialPricePromotions = self.purchasetSpecialPricePromotions;
+    
+    liModel.cellHeight = self.cellHeight;
+
+    
+    return liModel;
+}
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    LiModel * liModel = [[[self class] allocWithZone:zone] init];
+    
+    liModel.isSelect = self.isSelect;
+    
+    liModel.isBadGood = self.isBadGood;
+    
+    liModel.id = self.id;
+    /// 会员编号
+    liModel.userid = self.userid;
+    /// erp编号
+    liModel.psn = self.psn;
+    /// 平台件装编号
+    liModel.Goods_Package_ID = self.Goods_Package_ID;
+    /// 首字母
+    liModel.PreChar = self.PreChar;
+    /// 生产厂家
+    liModel.DrugsBase_Manufacturer = self.DrugsBase_Manufacturer;
+    /// 商品名
+    liModel.DrugsBase_ProName = self.DrugsBase_ProName;
+    /// 通用名
+    liModel.DrugsBase_DrugName = self.DrugsBase_DrugName;
+    /// 销售单位
+    liModel.Goods_Unit = self.Goods_Unit;
+    /// 剂型
+    liModel.DrugsBase_Specification = self.DrugsBase_Specification;
+    /// 产品库存
+    liModel.stock = self.stock;
+    /// 最近采购日期
+    liModel.LastTime = self.LastTime;
+    /// 字符时间
+    liModel.LastTimeString = self.LastTimeString;
+    /// 历史采购价格
+    liModel.HistoryPrice = self.HistoryPrice;
+    ///月销售量
+    liModel.SalesVolume = self.SalesVolume;
+    /// 能购买到的最低的价格
+    liModel.minPrice = self.minPrice;
+    /// 能买到的最高价格
+    liModel.maxPrice = self.maxPrice;
+    /// 采购优先级
+    liModel.priority = self.priority;
+    /// 商品条码
+    liModel.Barcode = self.Barcode;
+    /// 购买数量
+    liModel.buyCount = self.buyCount;
+    /// 店铺编号
+    liModel.store_Id = self.store_Id;
+    /// 店铺名称
+    liModel.store_Name = self.store_Name;
+    /// 最小购买数量
+    liModel.minBuy = self.minBuy;
+    /// 商品效期
+    liModel.sxrq = self.sxrq;
+    
+    liModel.IsJxq = self.IsJxq;
+    
+    liModel.myStock = self.myStock;
+    
+    // 商品编号
+    liModel.pid = self.pid;
+    liModel.Price = self.Price;
+    //销售方式 1,不限制，2中包装，3件装
+    liModel.sellType = self.sellType;
+    //件装
+    liModel.Product_Pcs = self.Product_Pcs;
+    //中包装
+    liModel.Product_Pcs_Small = self.Product_Pcs_Small;
+    /// 快捷购买数量
+    liModel.buyNumList = self.buyNumList;
+    
+    // 品种来源 0 默认来源客户erp 1 凑单商品 2 搜索添加
+    liModel.source = self.source;
+    
+    //如果选中了加价，则存储加价购的规则id,没有则存零
+    liModel.pmid = self.pmid;
+    
+    //是否是特价商品 0不是，1 是
+    liModel.PricePromotionsTypes = self.PricePromotionsTypes;
+    
+    //是否是加价购 0 否 1 是
+    liModel.PromotionTypes = self.PromotionTypes;
+    
+    //促销信息(加价购)
+    liModel.purchasetAddPricePromotionsList = self.purchasetAddPricePromotionsList;
+    
+    //促销信息(特价)
+    liModel.purchasetSpecialPricePromotions = self.purchasetSpecialPricePromotions;
+    
+    liModel.cellHeight = self.cellHeight;
+    
+    
+    return liModel;
+}
+
+
+@end

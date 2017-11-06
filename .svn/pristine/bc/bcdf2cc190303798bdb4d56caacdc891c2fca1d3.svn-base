@@ -1,0 +1,56 @@
+//
+//  FixedStoreController.m
+//  sosoYY
+//
+//  Created by zhy on 17/3/27.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "FixedStoreController.h"
+#import "FixedStoreCell.h"
+@interface FixedStoreController ()<UITableViewDelegate,UITableViewDataSource>
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (weak, nonatomic) IBOutlet UIButton *button1;
+@property (weak, nonatomic) IBOutlet UIButton *button2;
+@property (weak, nonatomic) IBOutlet UIButton *button3;
+
+@end
+
+@implementation FixedStoreController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.tableView.tableFooterView = [UIView new];
+    
+}
+
+#pragma mark UITableViewDelegate&&UITableViewDataSource
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+
+    return 10;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    return 70;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    static NSString *identifier = @"FixedStoreCell";
+    
+    FixedStoreCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+    if (!cell) {
+        
+        cell = [[[NSBundle mainBundle] loadNibNamed:@"FixedStoreCell" owner:self options:nil] lastObject];
+    }
+    return cell;
+    
+}
+
+- (IBAction)backAction:(id)sender {
+    
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+@end

@@ -1,0 +1,13 @@
+//
+//  CouponViewController.h
+//  sosoYY
+//
+//  Created by zhy on 2017/10/23.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+@interface CouponViewController : BaseViewController
+
+@end

@@ -1,0 +1,100 @@
+//
+//  BindCardViewController.m
+//  sosoYY
+//
+//  Created by zhy on 2017/8/24.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "IOUListViewController.h"
+#import "BindCardViewController.h"
+@interface IOUListViewController ()<UIWebViewDelegate>
+{
+
+    NSDictionary *BindCardInfo;
+}
+@property (weak, nonatomic) IBOutlet UIButton *bindORChangCardBtn;
+@property (weak, nonatomic) IBOutlet CustomWebView *customWebView;
+
+@end
+
+@implementation IOUListViewController
+
+- (void)viewWillAppear:(BOOL)animated {
+    
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+    
+    [self getBindCardInfo];
+    
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [[UIApplication sharedApplication].keyWindow showLoadingView:@"loading"];
+    
+    self.customWebView.scrollView.scrollEnabled = NO;
+    
+    NSURL *debugURL=[NSURL URLWithString:BlankNoteListUrl];
+    NSURLRequest *request=[NSURLRequest requestWithURL:debugURL];
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    self.customWebView.delegate = self;
+    [self.customWebView loadRequest:request];
+}
+
+- (void)getBindCardInfo {
+
+    __weak IOUListViewController *weakSelf = self;
+    [KSMNetworkRequest getRequest:requestGetBindCardInfo params:nil success:^(id responseObj) {
+        
+        NSLog(@"responseObj = %@",responseObj);
+        if ([responseObj[@"success"] integerValue] == 1) {
+            
+            BindCardInfo = responseObj[@"data"];
+            //去更换卡
+            if (![BindCardInfo[@"CardNo"] isKindOfClass:[NSNull class]]) {
+            
+                [weakSelf.bindORChangCardBtn setTitle:@"更换卡" forState:UIControlStateNormal];
+            //绑定卡
+            }else {
+                [weakSelf.bindORChangCardBtn setTitle:@"绑定卡" forState:UIControlStateNormal];
+            }
+        }else {
+        
+            [ZHProgressHUD showInfoWithText:responseObj[@"info"]];
+        }
+        
+    } failure:^(NSError *error) {
+        
+        [ZHProgressHUD showErrorWithText:@"网络错误，请重试！"];
+        
+    }];
+}
+
+#pragma mark UIWebViewDelegate
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
+    
+    return YES;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
+    
+    [[UIApplication sharedApplication].keyWindow hideToastActivity];
+    
+}
+
+- (IBAction)backClick:(id)sender {
+    
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)bindOrChangClick:(id)sender {
+
+    BindCardViewController *bindCardVC = [[BindCardViewController alloc]init];
+    bindCardVC.BindCardInfo = BindCardInfo;
+    [self.navigationController pushViewController:bindCardVC animated:YES];
+    
+}
+
+@end

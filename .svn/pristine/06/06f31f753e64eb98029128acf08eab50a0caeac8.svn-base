@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="VersionView">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sJJ-Cn-D7P">
+                    <rect key="frame" x="37.5" y="100" width="300" height="400"/>
+                    <subviews>
+                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="发现新版本" translatesAutoresizingMaskIntoConstraints="NO" id="d6N-iD-PxV">
+                            <rect key="frame" x="0.0" y="0.0" width="300" height="170"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="170" id="H8q-qS-Slj"/>
+                            </constraints>
+                        </imageView>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="V2.10.0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xGS-lq-pfl">
+                            <rect key="frame" x="111" y="105" width="78" height="28"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="23"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="新版本特性：" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HEy-QZ-Scb">
+                            <rect key="frame" x="12" y="180" width="92" height="18"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                            <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1、全新订单列表,简介实用\n 2、全新钱包,收支一目了然\n 3、新增代付功能\n4、智慧采购升级,价格更优,凑单更少" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="atv-7R-kjW">
+                            <rect key="frame" x="12" y="208" width="276" height="54"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                            <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="本次升级涉及重要内容,需更新后使用" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5iM-PY-IWS">
+                            <rect key="frame" x="12" y="282" width="276" height="18"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                            <color key="textColor" red="0.91764705882352937" green="0.32941176470588235" blue="0.074509803921568626" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jgM-ep-5zK">
+                            <rect key="frame" x="44" y="320" width="212" height="52"/>
+                            <state key="normal" image="立即更新"/>
+                            <connections>
+                                <action selector="updateClick:" destination="iN0-l3-epB" eventType="touchUpInside" id="lJU-yu-Uhx"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstItem="5iM-PY-IWS" firstAttribute="top" secondItem="atv-7R-kjW" secondAttribute="bottom" constant="20" id="7tn-9J-vbT"/>
+                        <constraint firstAttribute="width" constant="300" id="8Sn-lV-XE8"/>
+                        <constraint firstItem="HEy-QZ-Scb" firstAttribute="top" secondItem="d6N-iD-PxV" secondAttribute="bottom" constant="10" id="9QL-C5-11p"/>
+                        <constraint firstAttribute="height" constant="400" id="Djb-bl-Sr0"/>
+                        <constraint firstItem="5iM-PY-IWS" firstAttribute="leading" secondItem="sJJ-Cn-D7P" secondAttribute="leading" constant="12" id="EDm-yk-nnR"/>
+                        <constraint firstItem="atv-7R-kjW" firstAttribute="top" secondItem="HEy-QZ-Scb" secondAttribute="bottom" constant="10" id="EJR-Vy-dtl"/>
+                        <constraint firstItem="HEy-QZ-Scb" firstAttribute="leading" secondItem="sJJ-Cn-D7P" secondAttribute="leading" constant="12" id="HxI-Ln-HFC"/>
+                        <constraint firstItem="xGS-lq-pfl" firstAttribute="top" secondItem="sJJ-Cn-D7P" secondAttribute="top" constant="105" id="Mwf-hg-bYI"/>
+                        <constraint firstItem="jgM-ep-5zK" firstAttribute="centerX" secondItem="sJJ-Cn-D7P" secondAttribute="centerX" id="Q3Z-gA-h1B"/>
+                        <constraint firstAttribute="trailing" secondItem="5iM-PY-IWS" secondAttribute="trailing" constant="12" id="RsB-fT-WCw"/>
+                        <constraint firstItem="atv-7R-kjW" firstAttribute="leading" secondItem="HEy-QZ-Scb" secondAttribute="leading" id="cDG-4N-e6P"/>
+                        <constraint firstItem="d6N-iD-PxV" firstAttribute="leading" secondItem="sJJ-Cn-D7P" secondAttribute="leading" id="gRE-pL-qlZ"/>
+                        <constraint firstItem="jgM-ep-5zK" firstAttribute="top" secondItem="5iM-PY-IWS" secondAttribute="bottom" constant="20" id="gig-bA-n2l"/>
+                        <constraint firstAttribute="trailing" secondItem="d6N-iD-PxV" secondAttribute="trailing" id="gy6-mk-APO"/>
+                        <constraint firstAttribute="trailing" secondItem="atv-7R-kjW" secondAttribute="trailing" constant="12" id="hv2-WY-qTG"/>
+                        <constraint firstItem="xGS-lq-pfl" firstAttribute="centerX" secondItem="sJJ-Cn-D7P" secondAttribute="centerX" id="mjN-7m-uvQ"/>
+                        <constraint firstItem="5iM-PY-IWS" firstAttribute="centerX" secondItem="sJJ-Cn-D7P" secondAttribute="centerX" id="uPe-gm-LtO"/>
+                        <constraint firstItem="d6N-iD-PxV" firstAttribute="top" secondItem="sJJ-Cn-D7P" secondAttribute="top" id="z6B-Nx-K5C"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                            <integer key="value" value="10"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </view>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sHH-3R-229">
+                    <rect key="frame" x="170.5" y="520" width="35" height="35"/>
+                    <state key="normal" image="SelectClos"/>
+                    <connections>
+                        <action selector="closeClick:" destination="iN0-l3-epB" eventType="touchUpInside" id="hRn-yX-p6p"/>
+                    </connections>
+                </button>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.59928831335616439" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="sHH-3R-229" firstAttribute="top" secondItem="sJJ-Cn-D7P" secondAttribute="bottom" constant="20" id="ASG-ts-wKr"/>
+                <constraint firstItem="sJJ-Cn-D7P" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="bKf-gC-Lzy"/>
+                <constraint firstItem="sHH-3R-229" firstAttribute="centerX" secondItem="sJJ-Cn-D7P" secondAttribute="centerX" id="cnO-yZ-A5a"/>
+                <constraint firstItem="sJJ-Cn-D7P" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" multiplier="0.9" id="j1x-fS-MGS"/>
+            </constraints>
+            <connections>
+                <outlet property="content" destination="atv-7R-kjW" id="KL6-1g-d00"/>
+                <outlet property="versionLabel" destination="xGS-lq-pfl" id="LYb-VW-5ip"/>
+            </connections>
+            <point key="canvasLocation" x="-245" y="-3"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="SelectClos" width="35" height="35"/>
+        <image name="发现新版本" width="300" height="170"/>
+        <image name="立即更新" width="212" height="52"/>
+    </resources>
+</document>

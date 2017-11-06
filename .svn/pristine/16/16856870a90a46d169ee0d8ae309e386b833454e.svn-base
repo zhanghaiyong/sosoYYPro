@@ -1,0 +1,586 @@
+//
+//  STShopCartSeachViewController.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/8/4.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STShopCartSeachViewController.h"
+#import "STShopCartSearchArtificialTableViewCell.h"
+#import "STShopCartSeachTableViewCell.h"
+#import "STWisdomSearchViewController.h"
+#import "STShopCartSeachBottomView.h"
+#import "STSwitchStoreView.h"
+
+@interface STShopCartSeachViewController ()<UITextFieldDelegate,UITableViewDelegate,UITableViewDataSource,STShopCartSeachTableViewCellDelegate,STShopCartSearchArtificialTableViewCellDelegate>{
+    __block BOOL isOK;
+}
+@property (weak, nonatomic) IBOutlet UIView *seachView;
+@property (weak, nonatomic) IBOutlet UITextField *seachTextField;
+@property(strong,nonatomic)UITableView *tableView;
+@property (weak, nonatomic) IBOutlet UILabel *promptLab;
+@property (weak, nonatomic) IBOutlet UIButton *allSearchBtn;
+@property(strong,nonatomic)STSwitchStoreView *switchStoreView;
+
+
+@property(strong,nonatomic)NSMutableArray *wisdomDataResult;
+@property(strong,nonatomic)NSMutableArray *artificialDataResult;
+
+@property(strong,nonatomic)NSString *psnStr;
+@end
+
+@implementation STShopCartSeachViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
+    _seachView.layer.borderColor = [UIColor groupTableViewBackgroundColor].CGColor;
+    _seachView.layer.borderWidth = 1.0f;
+    _allSearchBtn.layer.masksToBounds = YES;
+    _allSearchBtn.layer.cornerRadius = 5.0f;
+    _seachTextField.delegate = self;
+    
+    _wisdomDataResult = [NSMutableArray new];
+    
+    _artificialDataResult = [NSMutableArray new];
+    
+    
+    isOK = NO;
+    [self addSubView];
+    
+     __weak STShopCartSeachViewController *weakSelf = self;
+    
+    _switchStoreView = [[[NSBundle mainBundle]loadNibNamed:@"STSwitchStoreView" owner:self options:nil]lastObject];
+    _switchStoreView.frame = CGRectMake(0, 0, kScreenWidth, kScreenHeight);
+    _switchStoreView.hidden = YES;
+    [_switchStoreView setSwitchStoreViewTitle:@"选择店铺"];
+    _switchStoreView.SwitchStoreViewBlock = ^(int type, NSDictionary *dict, NSIndexPath *indexPath) {
+        weakSelf.switchStoreView.hidden = YES;
+        
+        [weakSelf.switchStoreView setSwitchStoreColseView];
+        switch (type) {
+            case 0:{
+                
+                return ;
+                break;
+            }
+            case 1:{
+                
+                [weakSelf  addPurchaseCartProduct:@{@"num":dict[@"buyCount"],@"pid":dict[@"Pid"]} finshed:^(STShopCartSeachEntity *entity,NSString *mesg,NSString *code,NSError *error) {
+                    
+                    if (!error) {
+                        if ([code intValue] == 1) {
+                            
+                            [weakSelf.tableView reloadData];
+                            
+                        }else{
+                            [ZHProgressHUD showInfoWithText:mesg];
+                        }
+                    }else{
+                        [ZHProgressHUD showInfoWithText:@"请求失败"];
+                    }
+                }];
+                
+                break;
+            }
+            default:
+                break;
+        }
+    };
+    [self.view addSubview:_switchStoreView];
+    
+}
+-(void)addSubView{
+    
+    __weak STShopCartSeachViewController *weakSelf = self;
+    
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, kNavBarHeight, kScreenWidth, kScreenHeight - kNavBarHeight - kTabBarHeight)style:UITableViewStylePlain];
+    _tableView.userInteractionEnabled = YES;
+    _tableView.delegate = self;
+    _tableView.dataSource = self;
+    _tableView.estimatedRowHeight = 300;
+    _tableView.rowHeight = UITableViewAutomaticDimension;
+    [_tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+    _tableView.hidden = YES;
+    [self.view addSubview:_tableView];
+
+    self.tableView.mj_header.automaticallyChangeAlpha = YES;
+    self.tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        isOK = NO;
+        [weakSelf httpShopCartSeach:_seachTextField.text];
+    }];
+
+    STShopCartSeachBottomView *shopCartSeachBottomView = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachBottomView" owner:self options:nil]lastObject];
+    shopCartSeachBottomView.frame = CGRectMake(0, kScreenHeight - kTabBarHeight, kScreenWidth, kTabBarHeight);
+    shopCartSeachBottomView.ShopCartSeachBottomBlock = ^{
+      
+        STWisdomSearchViewController *searchVC = [STWisdomSearchViewController new];
+        searchVC.codeStr = @"";
+        [self.navigationController pushViewController:searchVC animated:YES];
+    };
+    
+    [self.view addSubview:shopCartSeachBottomView];
+    
+}
+#pragma mark -  智慧采购购物车内搜索
+-(void)httpShopCartSeach:(NSString *)text{
+
+    __weak STShopCartSeachViewController *weakSelf = self;
+    
+    [[UIApplication sharedApplication].keyWindow showLoadingView:@"loading"];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        [KSMNetworkRequest getPurchaseCartSearchUrl:requestPurchaseCartSearch params:@{@"keyWord":text} finshed:^(id wisdomDataResult,id artificialDataResult,NSError *error) {
+            
+            weakSelf.wisdomDataResult = wisdomDataResult;
+            
+            weakSelf.artificialDataResult = artificialDataResult;
+            
+            if (weakSelf.artificialDataResult.count > 0 || weakSelf.wisdomDataResult.count > 0) {
+                weakSelf.tableView.hidden = NO;
+                weakSelf.promptLab.hidden = YES;
+                weakSelf.allSearchBtn.hidden = YES;
+                
+            }else{
+                weakSelf.tableView.hidden = YES;
+                weakSelf.promptLab.hidden = NO;
+                weakSelf.allSearchBtn.hidden = NO;
+            }
+            if (!error) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                [weakSelf.tableView reloadData];
+                    
+                [weakSelf.tableView.mj_header endRefreshing];
+                [weakSelf.tableView.mj_footer endRefreshing];
+                [[UIApplication sharedApplication].keyWindow hideToastActivity];
+                });
+                isOK = YES;
+            }else{
+                [weakSelf.tableView reloadData];
+                [weakSelf.tableView.mj_header endRefreshing];
+
+            }
+        }];
+    });
+    [[STCommon sharedSTSTCommon] setHideToastActivity:^(BOOL isYes) {
+        if (isYes) {
+            if (isOK) {
+                return ;
+            }
+            [[UIApplication sharedApplication].keyWindow hideToastActivity];
+            [weakSelf.tableView.mj_header endRefreshing];
+        }
+    }];
+}
+#pragma mark -  智慧采购凑单加购物车接口
+-(void)addPurchaseCartProduct:(NSDictionary *)params finshed:(void(^)(STShopCartSeachEntity *entity,NSString *mesg,NSString *code,NSError *error))finshed{
+    [KSMNetworkRequest getPurchaseCartUrl:requestAddPurchaseProduct params:params finshed:^(STShopCartSeachEntity *entity,NSString *mesg,NSString *code, NSError *error) {
+        finshed(entity,mesg,code,error);
+    }];
+}
+
+#pragma mark UITableViewDataSource
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    
+    if (_wisdomDataResult.count > 0 && _artificialDataResult.count > 0) {
+        
+        return 2;
+    }else if(_wisdomDataResult.count > 0 || _artificialDataResult.count > 0){
+        return 1;
+    }
+    return 0;
+}
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    
+    if (_wisdomDataResult.count > 0 && _artificialDataResult.count > 0) {
+        if (section == 0) {
+            return _wisdomDataResult.count;
+        }else{
+            return _artificialDataResult.count;
+        }
+        
+    }else{
+        if (_wisdomDataResult.count > 0) {
+            
+            return _wisdomDataResult.count;
+            
+        }else if (_artificialDataResult.count > 0){
+            
+            return _artificialDataResult.count;
+        }
+    }
+    return 0;
+}
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    if (_wisdomDataResult.count > 0 && _artificialDataResult.count > 0) {
+        
+        if (indexPath.section == 0) {
+            STShopCartSeachEntity *entity = _wisdomDataResult[indexPath.row];
+            STShopCartSeachTableViewCell *cell = [self setWisdomCellEntity:entity tableView:tableView];
+              [cell setShopCartSeach:entity indexPath:indexPath];
+             return cell;
+        }else{
+            STShopCartSeachEntity *entity = _artificialDataResult[indexPath.row];
+            STShopCartSearchArtificialTableViewCell *cell = [self setArtificialCellEntity:entity tableView:tableView];
+            [cell setShopCartSearchArtificial:entity indexPath:indexPath];
+            return cell;
+        }
+        
+    }else{
+        if (_wisdomDataResult.count > 0) {
+            STShopCartSeachEntity *entity = _wisdomDataResult[indexPath.row];
+            STShopCartSeachTableViewCell *cell = [self setWisdomCellEntity:entity tableView:tableView];
+            [cell setShopCartSeach:entity indexPath:indexPath];
+             return cell;
+        }else if (_artificialDataResult.count > 0){
+            STShopCartSeachEntity *entity = _artificialDataResult[indexPath.row];
+            STShopCartSearchArtificialTableViewCell *cell = [self setArtificialCellEntity:entity tableView:tableView];
+            [cell setShopCartSearchArtificial:entity indexPath:indexPath];
+            return cell;
+        }
+         return nil;
+    }
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 40;
+}
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    UIView *headView = [UIView new];
+    headView.backgroundColor = [UIColor whiteColor];
+    headView.frame = CGRectMake(0, 0, kScreenWidth, 40);
+    
+    UILabel *titel = [UILabel new];
+    titel.frame = CGRectMake(10, 0, kScreenWidth - 60, 40);
+    titel.textColor = RGB(51, 51, 51);
+    
+    if (_wisdomDataResult.count > 0 && _artificialDataResult.count > 0) {
+        if (section == 0) {
+           titel.text = @"智慧采购";
+        }else{
+            titel.text = @"人工采购";
+        }
+        
+    }else{
+        if (_wisdomDataResult.count > 0) {
+            
+           titel.text = @"智慧采购";
+            
+        }else if (_artificialDataResult.count > 0){
+            
+            titel.text = @"人工采购";
+        }
+    }
+    
+    titel.font = [UIFont systemFontOfSize:16];
+    [headView addSubview:titel];
+    
+    UILabel *line = [UILabel new];
+    line.backgroundColor = [UIColor fromHexValue:0xe5e5e5 alpha:1];
+    line.frame = CGRectMake(0, 39, kScreenWidth, .5);
+    [headView addSubview:line];
+    
+    return headView;
+}
+#pragma mark UITableViewDelegate
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+   
+}
+
+#pragma mark -- STShopCartSeachTableViewCellDelegate
+-(void)g_SelectMothed:(STShopCartSeachTableViewCell *)cell{
+    
+}
+-(void)g_ChangeNumMothed:(STShopCartSeachTableViewCell *)cell{
+    
+}
+-(void)g_ListMothed:(STShopCartSeachTableViewCell *)cell{
+    
+}
+-(void)g_GoMothed:(STShopCartSeachTableViewCell *)cell{
+    
+}
+
+#pragma mark - STShopCartSearchArtificialTableViewCellDelegate
+-(void)g_AddMothed:(STShopCartSearchArtificialTableViewCell *)cell{
+    
+    [[UIApplication sharedApplication].keyWindow showLoadingView:@"loading"];
+    
+    NSIndexPath *indexPath = [_tableView indexPathForCell:cell];
+    
+    STShopCartSeachEntity *entity = _artificialDataResult[indexPath.row];
+        
+        [[UIApplication sharedApplication].keyWindow showLoadingView:@"loading"];
+        
+        NSDictionary *params = @{@"StoreId":@"0",@"Goods_Package_ID":entity.Goods_Package_ID};
+        
+        [KSMNetworkRequest  getSwitchStoreUrl:requestGetOtherStorePorductList params:params finshed:^(id dataResult, NSError *error) {
+            _switchStoreView.hidden = NO;
+            [_switchStoreView setSwitchStoreViewResult:dataResult indexPath:indexPath];
+            [[UIApplication sharedApplication].keyWindow hideToastActivity];
+        }];
+}
+
+//搜索
+#pragma mark UITextFieldDelegate
+-(BOOL)textFieldShouldClear:(UITextField *)textField{
+    _seachTextField.text = @"";
+    return YES;
+}
+-(BOOL)textFieldShouldReturn:(UITextField *)textField{
+    [_seachTextField resignFirstResponder];
+    
+    [self.tableView.mj_header beginRefreshing];
+    return YES;
+}
+
+- (IBAction)seachMothed:(UIButton *)sender {
+    [_seachTextField resignFirstResponder];
+    
+    [self.tableView.mj_header beginRefreshing];
+}
+
+- (IBAction)back:(id)sender {
+    if (_ShopCartBlock) {
+        _ShopCartBlock();
+    }
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)allSearchMothed:(id)sender {
+    
+    STWisdomSearchViewController *searchVC = [STWisdomSearchViewController new];
+    searchVC.codeStr = @"";
+    [self.navigationController pushViewController:searchVC animated:YES];
+}
+
+-(STShopCartSeachTableViewCell *)setWisdomCellEntity:(STShopCartSeachEntity *)entity tableView:(UITableView *)tableView{
+    static NSString *cellName = @"cellName";
+    STShopCartSeachTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellName];
+    
+    //手动添加
+    if (entity.source.integerValue > 0) {
+        cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:1];
+        
+        //手动添加特价
+        if (entity.PricePromotionsTypes.integerValue == 1) {
+            
+            NSDictionary *purchasetSpecialPricePromotions = entity.purchasetSpecialPricePromotions;
+            
+            switch ([purchasetSpecialPricePromotions[@"limittype"] intValue]) {
+                case 0:{//不限购
+                    cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:2];
+                    break;
+                }
+                case 1:{//每人限购
+                    cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:3];
+                }
+                case 2:{//每人每天限购
+                    cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:3];
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+        
+        //手动添加加价购
+        if (entity.PromotionTypes.integerValue == 1) {
+            
+            NSDictionary *addDict = entity.purchasetAddPricePromotionsList[0];
+            
+            switch ([addDict[@"addPriceType"] intValue]) {
+                case 0:{//满多少加多少
+                    
+                    if (entity.pmid.intValue > 0) {
+                        cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:6];
+                    }else{
+                        cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:5];
+                    }
+                    
+                    break;
+                }
+                case 1:{
+                    
+                    if (entity.pmid.intValue > 0) {
+                        cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:6];
+                    }else{
+                        cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:5];
+                    }
+                    break;
+                }
+                    
+                default:
+                    break;
+            }
+        }
+        __block BOOL isRemainder = false;
+        
+        [STCommon isRemainderD1:entity.buyCount.doubleValue withD2:entity.Product_Pcs_Small.doubleValue Block:^(BOOL isRemainder, int multiple) {
+            
+            isRemainder = isRemainder;
+        }];
+        
+        
+        __block BOOL isJZRemainder = false;
+        
+        [STCommon isRemainderD1:entity.buyCount.doubleValue withD2:entity.Product_Pcs.doubleValue Block:^(BOOL isRemainder, int multiple) {
+            
+            isJZRemainder = isRemainder;
+        }];
+        
+        //超出库存
+        if ([entity.buyCount doubleValue] > [entity.stock doubleValue] && entity.stock.doubleValue > 0) {
+            
+            cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:4];
+            
+        }else if ([entity.buyCount doubleValue] < [entity.minBuy doubleValue]) {
+            
+            cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:4];
+            //输入的不是中包装的倍数
+        }else if ([entity.sellType doubleValue] == 2 && !isRemainder) {
+            
+            cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:4];
+            //输入的不是件装的倍数
+        }else if ([entity.sellType doubleValue] == 3 && !isJZRemainder) {
+            
+            cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:4];
+        }
+    }else{//正常
+        cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:0];
+        //特价
+        if (entity.PricePromotionsTypes.integerValue == 1) {
+            
+            NSDictionary *purchasetSpecialPricePromotions = entity.purchasetSpecialPricePromotions;
+            
+            
+            switch ([purchasetSpecialPricePromotions[@"limittype"] intValue]) {
+                case 0:{//不限购
+                    
+                    cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:7];
+                    break;
+                }
+                case 1:{//每人限购
+                    
+                    cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:8];
+                    break;
+                }
+                case 2:{//每人每天限购
+                    
+                    cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:8];
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+        //加价购
+        if (entity.PromotionTypes.integerValue == 1) {
+            
+            NSDictionary *addDict = entity.purchasetAddPricePromotionsList[0];
+            
+            switch ([addDict[@"addPriceType"] intValue]) {
+                case 0:{//满多少加多少
+                    
+                    if (entity.pmid.intValue > 0) {
+                        cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:11];
+                    }else{
+                        cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:10];
+                    }
+                    break;
+                }
+                case 1:{
+                    if (entity.pmid.intValue > 0) {
+                        cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:11];
+                    }else{
+                        cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:10];
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+        
+        __block BOOL isRemainder = false;
+        
+        __block BOOL isJZRemainder = false;
+        
+        [STCommon isRemainderD1:entity.buyCount.doubleValue withD2:entity.Product_Pcs_Small.doubleValue Block:^(BOOL isRemainder, int multiple) {
+            
+            isRemainder = isRemainder;
+        }];
+        
+        [STCommon isRemainderD1:entity.buyCount.doubleValue withD2:entity.Product_Pcs.doubleValue Block:^(BOOL isRemainder, int multiple) {
+            
+            isJZRemainder = isRemainder;
+        }];
+        
+        //超出库存
+        if ([entity.buyCount doubleValue] > [entity.stock doubleValue] && entity.stock.doubleValue > 0) {
+            
+            cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:9];
+            
+        }else if ([entity.buyCount doubleValue] < [entity.minBuy doubleValue]) {
+            
+            cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:9];
+            //输入的不是中包装的倍数
+        }else if ([entity.sellType doubleValue] == 2 && !isRemainder) {
+            
+            cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:9];
+            //输入的不是件装的倍数
+        }else if ([entity.sellType doubleValue] == 3 && !isJZRemainder) {
+            
+            cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSeachTableViewCell" owner:self options:nil]objectAtIndex:9];
+        }
+        
+    }
+    [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+    cell.delegate = self;
+    return cell;
+}
+
+-(STShopCartSearchArtificialTableViewCell *)setArtificialCellEntity:(STShopCartSeachEntity *)entity tableView:(UITableView *)tableView{
+    
+    if (entity.Goods_Package_ID.integerValue == 0) {
+       
+        static NSString *cellNameA = @"cellNameA";
+        STShopCartSearchArtificialTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellNameA];
+        if (!cell) {
+            cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSearchArtificialTableViewCell" owner:self options:nil]objectAtIndex:1];
+            [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+        }
+        return cell;
+    }else{
+     
+        static NSString *cellNameA = @"cellNameA";
+        STShopCartSearchArtificialTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellNameA];
+        if (!cell) {
+            cell = [[[NSBundle mainBundle]loadNibNamed:@"STShopCartSearchArtificialTableViewCell" owner:self options:nil]objectAtIndex:0];
+            [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+            cell.delegate = self;
+        }
+        return cell;
+    }
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+
+@end

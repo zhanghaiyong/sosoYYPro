@@ -1,0 +1,18 @@
+//
+//  ApplyMsgModel.h
+//  sosoYY
+//
+//  Created by zhy on 2017/8/17.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface ApplyMsgModel : NSObject<MJKeyValue>
+
+@property (nonatomic,strong)NSString *mobile;
+@property (nonatomic,strong)NSString *storeName;
+@property (nonatomic,strong)NSString *number;
+@property (nonatomic,strong)NSString *realname;
+@property (nonatomic,strong)UIImage *postImage;
+@end

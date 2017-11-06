@@ -1,0 +1,529 @@
+//
+//  WisdomTool.m
+//  sosoYY
+//
+//  Created by zhy on 17/4/5.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "WisdomTool.h"
+
+@implementation WisdomTool
+
+#pragma mark 通过row判断section是否全部选中
++ (BOOL)sectionSelectAll:(NSInteger)section data:(NSArray *)storeModel {
+
+    WisdomModel *wisModel = storeModel[section];
+    NSArray *array = wisModel.li;
+    
+    for (LiModel *liModel in array) {
+        
+        if ([liModel.isSelect isEqualToString:@"0"]) {
+            
+            return NO;
+        }
+    }
+    return YES;
+}
+
+#pragma mark 判断是否全部选中
++ (BOOL)judgeAllSelectWithData:(NSArray *)storeModel {
+    
+    for (WisdomModel *wisdomModel in storeModel) {
+        
+        for (LiModel *li in wisdomModel.li) {
+            
+            if ([li.isSelect isEqualToString:@"0"]) {
+                return  NO;
+            }
+        }
+    }
+    return YES;
+}
+
+#pragma mark 满足发货条件的店铺数
++ (int)OKStoreCountWithData:(NSArray *)storeModel {
+
+    int count = 0;
+    
+    for (int i = 0; i<storeModel.count; i++) {
+        
+        WisdomModel *model = storeModel[i];
+//        if ([WisdomTool judgeAllGoodOK:i Data:storeModel]) {
+        
+            for (LiModel *li in model.li) {
+                
+                if ([li.isSelect isEqualToString:@"1"]) {
+                    count +=1;
+                    break;
+                }
+            }
+        }
+//    }
+    return count;
+}
+
+//在section中是否有选中商品
++ (BOOL)isSelectInScetion:(NSInteger)section data:(NSArray *)storeModel {
+
+    WisdomModel *wisModel = storeModel[section];
+    NSArray *array = wisModel.li;
+    
+    for (LiModel *liModel in array) {
+        
+        if ([liModel.isSelect isEqualToString:@"1"]) {
+            
+            return YES;
+        }
+    }
+    return NO;
+}
+
+#pragma mark 满足条件的商品数
++ (int)statOKGoodCountWithData:(NSArray *)storeModel {
+    
+    int count = 0;
+    for (int i = 0; i<storeModel.count; i++) {
+        
+        WisdomModel *model = storeModel[i];
+        
+        if ([WisdomTool judgeAllGoodOK:i Data:storeModel]) {
+            
+            for (LiModel *li in model.li) {
+                
+                if ([li.isSelect isEqualToString:@"1"]) {
+                    
+                    count ++;
+                    
+                    if ([li.sellType doubleValue] == 2 && fmod([li.buyCount doubleValue],[li.Product_Pcs_Small  doubleValue]) != 0 && [li.Product_Pcs_Small doubleValue] > 0 && [li.buyCount doubleValue] < [li.stock doubleValue] && [li.buyCount doubleValue] > [li.minBuy doubleValue]) {
+                        count --;
+                    }
+                    
+                    if ([li.buyCount doubleValue] > [li.stock doubleValue]) {
+                        count --;
+                    }
+                
+                    if ([li.buyCount doubleValue] < [li.minBuy doubleValue]) {
+                        count --;
+                    }
+                }
+            }
+        }
+    }
+    
+    return count;
+}
+
+#pragma mark 不满足条件的商品数
++(int)statNOGoodCountWithData:(NSArray *)storeModel {
+    
+    int count = 0;
+    for (int i = 0; i<storeModel.count; i++) {
+        
+        WisdomModel *model = storeModel[i];
+        
+        for (LiModel *liModel in model.li) {
+         
+            if ([liModel.isSelect isEqualToString:@"1"]) {
+              count += 1;
+            }
+        }
+    }
+    
+    return count-[self statOKGoodCountWithData:storeModel];
+}
+
+#pragma mark 是否满足发货
++ (BOOL)judgeAllGoodOK:(NSInteger)section Data:(NSArray *)storeModel {
+    
+    WisdomModel *wisModel = storeModel[section];
+    
+    if (([self computeSectionPrice:section Data:storeModel] >= [wisModel.MoneySend doubleValue] && [wisModel.MoneySend doubleValue] > 0)  || [wisModel.MoneySend doubleValue] == 0) {
+        
+        return YES;
+    }
+    return NO;
+}
+
+
+#pragma mark 计算section中商品的总价
++ (double)computeSectionPrice:(NSInteger)section Data:(NSArray *)storeModel {
+    
+    WisdomModel *wisModel = storeModel[section];
+    NSArray *array = wisModel.li;
+    
+    double subPrice = 0.0;
+    
+    for (LiModel *liModel in array) {
+        
+        if ([liModel.isSelect isEqualToString:@"1"]) {
+            
+            //特价
+            if ([liModel.PricePromotionsTypes integerValue] == 1) {
+                
+                purchasetSpecialPricePromotionsModel *purchasetSpecialPricePromotions = liModel.purchasetSpecialPricePromotions;
+                
+                //不限购
+                if ([purchasetSpecialPricePromotions.limittype integerValue] == 0) {
+                    
+                    //原价
+                    subPrice += [purchasetSpecialPricePromotions.speprice doubleValue] * [liModel.buyCount doubleValue];
+                }else {
+                    
+                    //超过了限购的数量，按照原价出售 按照原价处理
+                    if ([purchasetSpecialPricePromotions.limitnumber integerValue] - [purchasetSpecialPricePromotions.TotalNumber integerValue] < [liModel.buyCount integerValue]) {
+                        
+                        //原价
+                        subPrice += [liModel.Price doubleValue] * [liModel.buyCount doubleValue];
+                        
+                    }else {
+                        //特价
+                        subPrice += [purchasetSpecialPricePromotions.speprice doubleValue] * [liModel.buyCount doubleValue];
+                    }
+                }
+            }else {
+                
+                //原价
+                subPrice += [liModel.Price doubleValue] * [liModel.buyCount doubleValue];
+            }
+            
+            //是加价购，并且选择了加价购商品
+            if ([liModel.PromotionTypes integerValue] == 1 && [liModel.pmid integerValue] > 0) {
+                
+                for (PurchasetAddPricePromotionsModel *model in liModel.purchasetAddPricePromotionsList) {
+                    
+                    switch ([model.addPriceType integerValue]) {
+                        case 0:
+                            
+                            if ([liModel.buyCount doubleValue] >= [model.firstProudctStartNum doubleValue]) {
+                                
+                                subPrice += [model.addPrice doubleValue];
+                            }
+                            
+                            break;
+                        case 1:
+                            if ([liModel.buyCount doubleValue] >= [model.firstProudctPerNum doubleValue]) {
+                                
+                                subPrice += [model.addPrice doubleValue]*(int)([liModel.buyCount doubleValue]/[model.firstProudctPerNum doubleValue]);
+                            }
+                            break;
+                            
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+    }
+    
+    return subPrice;
+}
+
+#pragma mark 邮费统计
++ (double)totalPostageWithData:(NSArray *)storeModel {
+    
+    double totalPostage = 0;
+    for (int i = 0; i < storeModel.count; i++) {
+        //满足发货
+//        if ([WisdomTool judgeAllGoodOK:i Data:storeModel]) {
+        WisdomModel *wisModel = storeModel[i];
+        //不满足包邮
+        if ([WisdomTool computeSectionPrice:i Data:storeModel] < [wisModel.MoneyFreePostage doubleValue]) {
+            
+            for (LiModel *liModel in wisModel.li) {
+                
+                if ([liModel.isSelect isEqualToString:@"1"]) {
+                    
+                    totalPostage += [wisModel.Postage doubleValue];
+                    break;
+                }
+            }
+        }
+    }
+//    }
+    return totalPostage;
+}
+
+#pragma mark 总金额
++ (double)computeTotalPriceWithData:(NSArray *)storeModel {
+    
+    double totalPrice = 0;
+    for (int i = 0; i < storeModel.count; i++) {
+        
+        WisdomModel *wisModel = storeModel[i];
+        NSArray *array = wisModel.li;
+            
+        for (LiModel *liModel in array) {
+            
+            if ([liModel.isSelect isEqualToString:@"1"]) {
+                //特价商品
+                if ([liModel.PricePromotionsTypes integerValue] == 1) {
+                    
+                    purchasetSpecialPricePromotionsModel *purchasetSpecialPricePromotions = liModel.purchasetSpecialPricePromotions;
+                    
+                    //不限购
+                    if ([purchasetSpecialPricePromotions.limittype integerValue] == 0) {
+                            
+                        //原价
+                        totalPrice += [purchasetSpecialPricePromotions.speprice doubleValue] * [liModel.buyCount doubleValue];
+                        
+                    }else {
+                            //超过了限购的数量，按照原价出售 按照原价处理
+                        if ([purchasetSpecialPricePromotions.limitnumber integerValue] - [purchasetSpecialPricePromotions.TotalNumber integerValue] < [liModel.buyCount integerValue]) {
+                                
+                            //原价
+                            totalPrice += [liModel.Price doubleValue] * [liModel.buyCount doubleValue];
+                        }else {
+                                //特价
+                            totalPrice += [purchasetSpecialPricePromotions.speprice doubleValue] * [liModel.buyCount doubleValue];
+                        }
+                    }
+                }else {
+                    //原价
+                    totalPrice += [liModel.Price doubleValue] * [liModel.buyCount doubleValue];
+                }
+                    
+                //是加价购，并且选择了加价购商品
+                if ([liModel.PromotionTypes integerValue] == 1 && [liModel.pmid integerValue] > 0) {
+                    
+                    for (PurchasetAddPricePromotionsModel *model in liModel.purchasetAddPricePromotionsList) {
+                        
+                        switch ([model.addPriceType integerValue]) {
+                            case 0:
+                                
+                                if ([liModel.buyCount doubleValue] >= [model.firstProudctStartNum doubleValue]) {
+                                    
+                                    totalPrice += [model.addPrice doubleValue];
+                                }
+                                
+                                break;
+                            case 1:
+                                if ([liModel.buyCount doubleValue] >= [model.firstProudctPerNum doubleValue]) {
+                                    
+                                    totalPrice += [model.addPrice doubleValue]*(int)([liModel.buyCount doubleValue]/[model.firstProudctPerNum doubleValue]);
+                                }
+                                break;
+                                
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return totalPrice;
+}
+
+#pragma mark - 是否勾选品种
++(void)setChangeSelect:(NSDictionary *)params finshed:(void(^)(BOOL isYes))finshed{
+    [KSMNetworkRequest setChangeSelectUrl:requestChangeSelect params:params finshed:^(BOOL isYes) {
+        finshed(isYes);
+    }];
+}
+
+//筛选不满发货和不满包邮的
++ (NSMutableArray *)classifyData:(NSArray *)storeModel type:(NSInteger)tag {
+    
+    NSMutableArray *lowerCash = [NSMutableArray array];
+    NSMutableArray *lowerPostage = [NSMutableArray array];
+    for (int i = 0; i<storeModel.count; i++) {
+        WisdomModel *wisModel = storeModel[i];
+        
+        if ([self isSelectInScetion:i data:storeModel]) {
+            if (![self judgeAllGoodOK:i Data:storeModel]) {
+                [lowerCash addObject:wisModel];
+                [lowerPostage addObject:wisModel];
+            }
+        }
+        if ([self isSelectInScetion:i data:storeModel]) {
+            if (wisModel.MoneyFreePostage.doubleValue > [self computeSectionPrice:i Data:storeModel] && wisModel.MoneyFreePostage.doubleValue > 0) {
+                if (![lowerPostage containsObject:wisModel]) {
+                    [lowerPostage addObject:wisModel];
+                }
+            }
+        }
+    }
+    //不满发货
+    if (tag == 0) {
+        return lowerCash;
+    }else {
+        return lowerPostage;
+    }
+}
+
+
++ (NSMutableArray *)filterData:(NSMutableArray *)storeModel filters:(NSArray *)filters {
+
+    NSMutableArray *lowerCash    = [NSMutableArray array];
+    NSMutableArray *lowerPostage = [NSMutableArray array];
+    NSMutableArray *retutnArray = [NSMutableArray array];
+    
+    if ([filters containsObject:@"500"] || [filters containsObject:@"600"]) {
+        
+        for (int i = 0; i<storeModel.count; i++) {
+            WisdomModel *wisModel = storeModel[i];
+            //不满起发
+            if ([self isSelectInScetion:i data:storeModel]) {
+                if (![self judgeAllGoodOK:i Data:storeModel]) {
+                    [lowerCash addObject:wisModel];
+                    [lowerPostage addObject:wisModel];
+                }
+            }
+            //不满包邮
+            if ([self isSelectInScetion:i data:storeModel]) {
+                if (wisModel.MoneyFreePostage.doubleValue > [self computeSectionPrice:i Data:storeModel] && wisModel.MoneyFreePostage.doubleValue > 0) {
+                    if (![lowerPostage containsObject:wisModel]) {
+                        [lowerPostage addObject:wisModel];
+                    }
+                }
+            }
+        }
+    }
+    //不满起发
+    if ([filters containsObject:@"500"] && ![filters containsObject:@"600"]) {
+   
+        if (lowerCash.count == 0) {
+            return lowerCash;
+        }
+        retutnArray = [self choseFliter:filters data:lowerCash];
+        
+    //不满包邮
+    }else if ((![filters containsObject:@"500"] && [filters containsObject:@"600"]) || ([filters containsObject:@"500"] && [filters containsObject:@"600"])) {
+    
+        if (lowerPostage.count == 0) {
+            return lowerPostage;
+        }
+        retutnArray = [self choseFliter:filters data:lowerPostage];
+        
+    }else {
+        retutnArray = [self choseFliter:filters data:storeModel];
+    }
+    
+    NSMutableArray *finallArray = [NSMutableArray arrayWithArray:retutnArray];
+    for (WisdomModel *model in retutnArray) {
+        if (model.li.count == 0) {
+            [finallArray removeObject:model];
+        }
+    }
+    return finallArray;
+}
+
+//是否勾选
++ (NSMutableArray *)choseFliter:(NSArray *)filters data:(NSMutableArray *)dataSource {
+
+    NSMutableArray *returnArray = [NSMutableArray arrayWithArray:dataSource];
+    //已勾选
+    if ([filters containsObject:@"100"] && ![filters containsObject:@"200"]) {
+        
+        for (int i = 0; i < dataSource.count; i ++) {
+            
+            WisdomModel *wisdomModel = dataSource[i];
+            for (NSInteger j = wisdomModel.li.count-1; j >= 0; j --) {
+                LiModel *liModel = wisdomModel.li[j];
+                if ([liModel.isSelect isEqualToString:@"0"]) {
+                    //删除勾选的
+                    [((WisdomModel *)returnArray[i]).li removeObject:liModel];
+                }
+            }
+        }
+        returnArray = [self conditionFilter:filters data:returnArray];
+    }
+    //未勾选
+    else if (![filters containsObject:@"100"] && [filters containsObject:@"200"]) {
+    
+        for (int i = 0; i < dataSource.count; i ++) {
+
+            WisdomModel *wisdomModel = dataSource[i];
+            for (NSInteger j = wisdomModel.li.count-1; j >= 0; j --) {
+                LiModel *liModel = wisdomModel.li[j];
+                if ([liModel.isSelect isEqualToString:@"1"]) {
+                    //删除勾选的
+                    [((WisdomModel *)returnArray[i]).li removeObject:liModel];
+                }
+            }
+        }
+        returnArray = [self conditionFilter:filters data:returnArray];
+    }
+    //都没有
+    else {
+        returnArray = [self conditionFilter:filters data:returnArray];
+    }
+    return returnArray;
+}
+
+//不满采购条件
++ (NSMutableArray *)conditionFilter:(NSArray *)filters data:(NSMutableArray *)dataSource {
+
+    NSMutableArray *returnArray = [NSMutableArray arrayWithArray:dataSource];
+    
+    if ([filters containsObject:@"300"]) {
+        for (int i = 0; i<dataSource.count; i++) {
+            WisdomModel *wisdomModel = dataSource[i];
+
+            for (int j = 0; j <wisdomModel.li.count; j++) {
+                LiModel *liModel = wisdomModel.li[j];
+                
+                //超出库存
+                if ([liModel.buyCount doubleValue] > [liModel.stock doubleValue] && liModel.stock.doubleValue > 0) {
+                    
+                    NSLog(@"2超出库存");
+                    //不满最低采购
+                }else if ([liModel.buyCount doubleValue] < [liModel.minBuy doubleValue]) {
+                    
+                    NSLog(@"2不满最低采购");
+                    
+                    //输入的不是中包装的倍数
+                }else if ([liModel.sellType doubleValue] == 2 && ![STCommon isRemainderD1:liModel.buyCount.doubleValue withD2:liModel.Product_Pcs_Small.doubleValue Block:^(BOOL isRemainder, int multiple) {}]) {
+                    NSLog(@"2输入的不是中包装的倍数");
+                    
+                    //输入的不是件装的倍数
+                }else if ([liModel.sellType doubleValue] == 3 && ![STCommon isRemainderD1:liModel.buyCount.doubleValue withD2:liModel.Product_Pcs.doubleValue Block:^(BOOL isRemainder, int multiple) {}]) {
+                    NSLog(@"2输入的不是件装的倍数");
+                }else {
+                    
+                    NSLog(@"2正常数据");
+                    //删除已勾选的
+                    [((WisdomModel *)returnArray[i]).li removeObject:liModel];
+                }
+            }
+        }
+       returnArray = [self handAddFilter:filters data:returnArray];
+    }else {
+       returnArray = [self handAddFilter:filters data:returnArray];
+    }
+    return returnArray;
+}
+
+//手动添加
++ (NSMutableArray *)handAddFilter:(NSArray *)filters data:(NSMutableArray *)dataSource {
+    
+    NSMutableArray *returnArray = [NSMutableArray arrayWithArray:dataSource];
+    
+    if ([filters containsObject:@"400"]) {
+        
+        for (int i = 0; i<dataSource.count; i++) {
+            WisdomModel *wisdomModel = dataSource[i];
+            
+            if (wisdomModel.li.count == 1) {
+                LiModel *liModel = wisdomModel.li[0];
+                if ([liModel.source integerValue] == 0) {
+                    [returnArray removeObject:wisdomModel];
+                }
+            }else {
+                for (int j = 0; j <wisdomModel.li.count; j++) {
+                    LiModel *liModel = wisdomModel.li[j];
+                    
+                    if ([liModel.source integerValue] == 0) {
+                        //删除不是手动添加恩商品
+                        [((WisdomModel *)returnArray[i]).li removeObject:liModel];
+                    }
+                }
+            }
+        }
+    }
+    return returnArray;
+}
+
+
+@end

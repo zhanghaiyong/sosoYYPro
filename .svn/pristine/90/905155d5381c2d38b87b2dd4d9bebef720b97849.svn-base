@@ -1,0 +1,1 @@
+link ../../../ZXingObjC/ZXingObjC/oned/rss/ZXRSS14Reader.h

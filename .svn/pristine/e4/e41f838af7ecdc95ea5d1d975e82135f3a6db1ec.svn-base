@@ -1,0 +1,48 @@
+//
+//  WisdomTool.h
+//  sosoYY
+//
+//  Created by zhy on 17/4/5.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "WisdomModel.h"
+#import "LiModel.h"
+@interface WisdomTool : NSObject
+
+#pragma mark 通过row判断section是否应该选中
++ (BOOL)sectionSelectAll:(NSInteger)section data:(NSArray *)storeModel;
+
+#pragma mark 判断是否全部选中
++ (BOOL)judgeAllSelectWithData:(NSArray *)storeModel;
+
+#pragma mark 满足发货条件的店铺数
++ (int)OKStoreCountWithData:(NSArray *)storeModel;
+
+#pragma mark 满足条件的商品数
++ (int)statOKGoodCountWithData:(NSArray *)storeModel;
+
+#pragma mark 不满足条件的商品数
++(int)statNOGoodCountWithData:(NSArray *)storeModel;
+
+#pragma mark 是否满足发货
++ (BOOL)judgeAllGoodOK:(NSInteger)section Data:(NSArray *)storeModel;
+
+#pragma mark 计算section中商品的总价
++ (double)computeSectionPrice:(NSInteger)section Data:(NSArray *)storeModel;
+
+#pragma mark 邮费统计
++ (double)totalPostageWithData:(NSArray *)storeModel;
+
+#pragma mark 总金额
++ (double)computeTotalPriceWithData:(NSArray *)storeModel;
+
+//在section中是否有选中商品
++ (BOOL)isSelectInScetion:(NSInteger)section data:(NSArray *)storeModel;
+
+//筛选不满发货和不满包邮的
++ (NSMutableArray *)classifyData:(NSArray *)storeModel type:(NSInteger)tag;
+
++(void)setChangeSelect:(NSDictionary *)params finshed:(void(^)(BOOL isYes))finshed;
+@end

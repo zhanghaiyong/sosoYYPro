@@ -1,0 +1,667 @@
+//
+//  STWisdomSearchViewController.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/3/27.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STWisdomSearchViewController.h"
+#import "STWisdomSearchBtnView.h"
+#import "STWisdomAddListFilterView.h"
+#import "STWisdomToSearchNavView.h"
+#import "STStorewideBgTableViewCell.h"
+#import "STProductSearchCell.h"
+#import "STShopListTableViewCell.h"
+#import "STWisdomAddListLucencyView.h"
+#import "STWisdomToSearchCountView.h"
+#import "STWisdomAddSwapBuyView.h"
+#import "STWisdomAddListTabBarView.h"
+#import "STProductDetailsViewController.h"
+#import "STWisdomSearchTableViewCell.h"
+#import "STSwitchStoreView.h"
+
+@interface STWisdomSearchViewController ()<STWisdomSearchBtnViewDelegate,UITableViewDelegate,UITableViewDataSource,UITextFieldDelegate,STWisdomSearchTableViewCellDelegate>{
+    float lastContentOffset;
+    __block  NSInteger pageCount;
+    __block   NSInteger pageIndex;
+    NSString *sortStr;
+    __block BOOL isSelect;
+    BOOL isSynthesize;
+    UIView *bgView;
+    UILabel *_lab;
+    __block BOOL isOK;
+}
+@property(strong,nonatomic)STWisdomSearchBtnView *wisdomSearchBtnView;
+@property(strong,nonatomic)STWisdomAddListFilterView *filterView;
+@property(strong,nonatomic)UIView *wisdomAddListBgView;
+@property(strong,nonatomic)STWisdomToSearchNavView *searchNavView;
+@property(strong,nonatomic)UITableView *tableView;
+@property(strong,nonatomic)UIView *headerView;
+@property(strong,nonatomic)UITableView *searchTableView;
+@property(strong,nonatomic)NSMutableArray *searchstorewideResult;
+@property(strong,nonatomic)UIButton *topBtn;
+@property(strong,nonatomic)NSMutableDictionary *searchDict;
+@property(strong,nonatomic)STWisdomAddListLucencyView *wisdomAddListLucencyView;
+@property(strong,nonatomic)STWisdomToSearchCountView *wisdomAddBCountuyView;
+@property(strong,nonatomic)STSwitchStoreView *switchStoreView;
+@end
+
+
+
+@implementation STWisdomSearchViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    isOK = NO;
+    pageIndex = 1;
+    isSelect = YES;
+    isSynthesize = YES;
+    
+    _paramsDict = [NSMutableDictionary new];
+    _searchstorewideResult = [NSMutableArray new];
+    _searchDict = [NSMutableDictionary new];
+    
+    
+    [self addSubView];
+    
+    __weak STWisdomSearchViewController *weakSelf = self;
+    
+    
+    _switchStoreView = [[[NSBundle mainBundle]loadNibNamed:@"STSwitchStoreView" owner:self options:nil]lastObject];
+    _switchStoreView.frame = CGRectMake(0, 0, kScreenWidth, kScreenHeight);
+    _switchStoreView.hidden = YES;
+    [_switchStoreView setSwitchStoreViewTitle:@"选择店铺"];
+    _switchStoreView.SwitchStoreViewBlock = ^(int type, NSDictionary *dict, NSIndexPath *indexPath) {
+        weakSelf.switchStoreView.hidden = YES;
+   
+        [weakSelf.switchStoreView setSwitchStoreColseView];
+        switch (type) {
+            case 0:{
+                
+                return ;
+                break;
+            }
+            case 1:{
+                
+                [weakSelf  addPurchaseProduct:@{@"num":dict[@"buyCount"],@"pid":dict[@"Pid"]} finshed:^(STStorewideEntity *entity,NSString *mesg,NSString *code,NSError *error) {
+                    
+                    if (!error) {
+                        if ([code intValue] == 1) {
+                            
+                            [ZHProgressHUD showInfoWithText:@"操作成功"];
+                            
+                            STProductListEntity *mode = weakSelf.dataResult[indexPath.row];
+                            
+                            mode.mAddr_control = @"1";
+                            
+                            [weakSelf.dataResult replaceObjectAtIndex:indexPath.row withObject:mode];
+                            
+                            [weakSelf.tableView reloadData];
+                            
+                        }else{
+                            [ZHProgressHUD showInfoWithText:mesg];
+                        }
+                    }else{
+                        [ZHProgressHUD showInfoWithText:@"请求失败"];
+                    }
+                }];
+                
+                break;
+            }
+            default:
+                break;
+        }
+    };
+    [self.view addSubview:_switchStoreView];
+    
+    //    _wisdomAddListLucencyView = [[STWisdomAddListLucencyView alloc]initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
+    //    _wisdomAddListLucencyView.hidden = YES;
+    //    [self.view addSubview:_wisdomAddListLucencyView];
+    //
+    //
+    //    __weak STWisdomSearchViewController *weakSelf = self;
+    //
+    //    _wisdomAddBCountuyView = [[[NSBundle mainBundle]loadNibNamed:@"STWisdomToSearchCountView" owner:self options:nil]lastObject];
+    //    _wisdomAddBCountuyView.frame = CGRectMake(20, kScreenHeight/2 - 105, kScreenWidth - 40, 140);
+    //    [_wisdomAddBCountuyView setWisdomToSearchCountBuy:nil];
+    //    _wisdomAddBCountuyView.hidden = YES;
+    //    _wisdomAddBCountuyView.WisdomSearchCountBlock = ^(int type, NSDictionary *dict){
+    //        switch (type) {
+    //            case 0:{
+    //                weakSelf.wisdomAddListLucencyView.hidden = YES;
+    //                weakSelf.wisdomAddBCountuyView.hidden = YES;
+    //                break;
+    //            }
+    //            case 1:{
+    //                weakSelf.wisdomAddListLucencyView.hidden = YES;
+    //                weakSelf.wisdomAddBCountuyView.hidden = YES;
+    //
+    //                [weakSelf  addPurchaseSearchProduct:dict finshed:^(NSString *mesg,NSString *code,NSError *error) {
+    //                    if (!error) {
+    //                        if ([code intValue] == 200) {
+    //                            [ZHProgressHUD showInfoWithText:@"已加入采购清单"];
+    //
+    //                            STProductListEntity *mode = weakSelf.dataResult[weakSelf.mIndexPath.row];
+    //                            mode.mAddr_control = @"1";
+    //
+    //                            [weakSelf.dataResult replaceObjectAtIndex:weakSelf.mIndexPath.row withObject:mode];
+    //
+    //                            [weakSelf.tableView reloadData];
+    //
+    //                        }else{
+    //                            [ZHProgressHUD showInfoWithText:mesg];
+    //                        }
+    //                    }else{
+    //                        [ZHProgressHUD showInfoWithText:@"请求失败"];
+    //                    }
+    //                }];
+    //                break;
+    //            }
+    //            default:
+    //                break;
+    //        }
+    //    };
+    //    [self.view addSubview:_wisdomAddBCountuyView];
+}
+-(void)addSubView{
+    __weak STWisdomSearchViewController *weakSelf = self;
+    
+    _filterView = [[STWisdomAddListFilterView alloc]initWithFrame:CGRectMake(100, 0, kScreenWidth - 100, kScreenHeight)];
+    [self.view addSubview:_filterView];
+    
+    _wisdomAddListBgView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
+    [self.view addSubview:_wisdomAddListBgView];
+    
+    
+    _headerView = [UIView new];
+    _headerView.frame = CGRectMake(0, 0, kScreenWidth, 30);
+    
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, kNavBarHeight, kScreenWidth, kScreenHeight - kNavBarHeight)style:UITableViewStylePlain];
+    _tableView.userInteractionEnabled = YES;
+    _tableView.delegate = self;
+    _tableView.dataSource = self;
+    _tableView.estimatedRowHeight = 300;
+    _tableView.rowHeight = UITableViewAutomaticDimension;
+    [_tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+    _tableView.tableHeaderView = _headerView;
+    [_wisdomAddListBgView addSubview:_tableView];
+    
+    
+    _wisdomSearchBtnView = [[STWisdomSearchBtnView alloc]initWithFrame:CGRectMake(0, 64, kScreenWidth, 30)];
+    _wisdomSearchBtnView.delegate = self;
+    [_wisdomAddListBgView addSubview:_wisdomSearchBtnView];
+    
+    _searchNavView = [[[NSBundle mainBundle]loadNibNamed:@"STWisdomToSearchNavView" owner:self options:nil]lastObject];
+    _searchNavView.frame = CGRectMake(0, 0, kScreenWidth, 64);
+    [_searchNavView setSearchTextField];
+    _searchNavView.BackBlock = ^{
+        if (weakSelf.backTopBlock) {
+            [weakSelf.navigationController popViewControllerAnimated:NO];
+            weakSelf.backTopBlock();
+            
+        }else{
+            if (weakSelf.backBlock) {
+                weakSelf.backBlock();
+                [weakSelf.navigationController popViewControllerAnimated:YES];
+            }else{
+                [weakSelf.navigationController popViewControllerAnimated:YES];
+            }
+        }
+    };
+    
+    
+    _searchNavView.ScanBlock = ^{
+        NSDictionary *dict = @{@"scanSelected":@"2",@"storeid":@""};
+        [[NSUserDefaults standardUserDefaults] setObject:dict forKey:@"scanSelected"];
+        [[STCommon sharedSTSTCommon]toScanViewWith:weakSelf];
+    };
+    
+    _searchNavView.WisdomAddSearchTextBlock = ^(NSString *text){
+        
+        [UIView animateWithDuration:.2 animations:^{
+            weakSelf.searchTableView.frame = CGRectMake(50, 60, kScreenWidth - 100, 0);
+        }];
+        pageIndex = 1;
+        [weakSelf.paramsDict setObject:@"1" forKey:@"pageIndex"];
+        [weakSelf.paramsDict setObject: @"" forKey:@"barnum"];
+        [weakSelf.paramsDict setObject:[[STCommon sharedSTSTCommon] setchengStr:text oldStr:text] forKey:@"keywords"];
+        [weakSelf.tableView.mj_header beginRefreshing];
+        
+    };
+    
+    _searchNavView.WisdomAddSearchAssociateTextBlock = ^(NSString *text){
+        [weakSelf.paramsDict setObject:[[STCommon sharedSTSTCommon] setchengStr:text oldStr:text] forKey:@"keywords"];
+        [weakSelf.searchstorewideResult removeAllObjects];
+        if (![text isEqualToString:@""]) {
+            [weakSelf httpDownStorewideLoadAssociate:text];
+        }else{
+            [weakSelf.searchTableView reloadData];
+            [UIView animateWithDuration:.2 animations:^{
+                weakSelf.searchTableView.frame = CGRectMake(50, 60, kScreenWidth - 100, 0);
+            }];
+        }
+        
+    };
+    
+    [_wisdomAddListBgView addSubview:_searchNavView];
+    
+    
+    _searchTableView = [[UITableView alloc]initWithFrame:CGRectMake(50, 60, kScreenWidth - 100, 0)style:UITableViewStylePlain];
+    _searchTableView.delegate = self;
+    _searchTableView.dataSource = self;
+    _searchTableView.layer.masksToBounds = YES;
+    _searchTableView.layer.cornerRadius = 5.0f;
+    _searchTableView.rowHeight = 30;
+    [_searchTableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+    [_wisdomAddListBgView addSubview:_searchTableView];
+    
+    
+    _topBtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    _topBtn.frame = CGRectMake(kScreenWidth - 60, kScreenHeight - 120, 40, 40);
+    _topBtn.hidden = YES;
+    [_topBtn addTarget:self action:@selector(topSelect) forControlEvents:UIControlEventTouchUpInside];
+    [_topBtn setBackgroundImage:[UIImage imageNamed:@"topA"] forState:UIControlStateNormal];
+    [_wisdomAddListBgView addSubview:_topBtn];
+    
+    bgView = [UIView new];
+    bgView.userInteractionEnabled = YES;
+    bgView.frame = CGRectMake(0, 0, kScreenWidth, kScreenHeight);
+    bgView.backgroundColor = [UIColor clearColor];
+    bgView.hidden = YES;
+    [_wisdomAddListBgView addSubview:bgView];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self                                                                                    action:@selector(tapRightSwipe)];
+    [bgView addGestureRecognizer:tap];
+    
+    _searchNavView.searchTextField.delegate = self;
+    
+    self.tableView.mj_header.automaticallyChangeAlpha = YES;
+    self.tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        pageIndex = 1;
+        isOK = NO;
+        [weakSelf.paramsDict setObject:@"1" forKey:@"pageIndex"];
+        [weakSelf httpDownloadParams:weakSelf.paramsDict];
+        
+    }];
+    self.tableView.mj_footer.automaticallyChangeAlpha = YES;
+    self.tableView.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        if (pageIndex < pageCount) {
+            isOK = NO;
+            pageIndex ++;
+            [weakSelf.paramsDict setObject:[NSString stringWithFormat:@"%ld",(long)pageIndex] forKey:@"pageIndex"];
+            [weakSelf httpDownloadParams:weakSelf.paramsDict];
+        }else{
+            [ZHProgressHUD showInfoWithText:@"暂无更多数据"];
+            [weakSelf.tableView.mj_header endRefreshing];
+            [weakSelf.tableView.mj_footer endRefreshing];
+        }
+    }];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(wisdomAddListeProducttypeMothed:)
+                                                 name:@"wisdomAddListeProducttype"
+                                               object:nil];
+    
+    _lab = [UILabel new];
+    _lab.frame = CGRectMake(0, kScreenHeight/2, kScreenWidth, 30);
+    _lab.text = @"暂无数据";
+    _lab.textColor = [UIColor fromHexValue:0x777777 alpha:1];
+    _lab.textAlignment = NSTextAlignmentCenter;
+    _lab.hidden = YES;
+    [_wisdomAddListBgView addSubview:_lab];
+    
+    
+    [_paramsDict setObject:@"0" forKey:@"producttype"];
+    [_paramsDict setObject:@"0" forKey:@"cuxiao"];
+    [_paramsDict setObject:@"" forKey:@"GrossMarginRange"];
+    [_paramsDict setObject:@"" forKey:@"PriceRange"];
+    
+    
+    if ([_codeStr isEqualToString:@""]) {
+        
+        [_paramsDict setObject:@"" forKey:@"keywords"];
+        if (_keywords != nil) {
+          [_paramsDict setObject:_keywords forKey:@"keywords"];
+            _searchNavView.searchTextField.text = _keywords;
+        }
+        [_paramsDict setObject:@"1" forKey:@"pageIndex"];
+        [_paramsDict setObject:@"" forKey:@"barnum"];
+        [_paramsDict setObject:@"default" forKey:@"sort"];
+        
+        [self.tableView.mj_header beginRefreshing];
+    }else{
+        [_paramsDict setObject:@"" forKey:@"keywords"];
+        [_paramsDict setObject:@"1" forKey:@"pageIndex"];
+        [_paramsDict setObject: _codeStr forKey:@"barnum"];
+        [_paramsDict setObject:@"default" forKey:@"sort"];
+        
+        pageIndex = 1;
+        pageCount = _toEntity.pageCount;
+        [_tableView reloadData];
+    }
+}
+#pragma mark -  请求数据
+-(void)httpDownloadParams:(NSMutableDictionary *)params{
+    
+    __weak STWisdomSearchViewController *weakSelf = self;
+    
+    [[UIApplication sharedApplication].keyWindow showLoadingView:@"loading"];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [[STCommon sharedSTSTCommon] setGetProductListBarCode:_paramsDict finshed:^(id result, STProductListEntity *toEntity, NSError *toError) {
+            if (!toError) {
+                pageCount = toEntity.pageCount;
+                if (pageIndex == 1 || pageIndex ==  0) {
+                    weakSelf.dataResult = result;
+                    if (weakSelf.dataResult.count == 0) {
+                        [ZHProgressHUD showInfoWithText:@"暂无更多数据"];
+                        _lab.hidden = NO;
+                    }else{
+                        _lab.hidden = YES;
+                    }
+                }else{
+                    NSMutableArray *dataAry = [NSMutableArray new];
+                    dataAry = result;
+                    [weakSelf.dataResult addObjectsFromArray:dataAry];
+                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [weakSelf.tableView reloadData];
+                    
+                    [weakSelf.tableView.mj_header endRefreshing];
+                    [weakSelf.tableView.mj_footer endRefreshing];
+                    [[UIApplication sharedApplication].keyWindow hideToastActivity];
+                });
+                isOK = YES;
+            }else{
+                [weakSelf.dataResult removeAllObjects];
+                [weakSelf.tableView reloadData];
+                [weakSelf.tableView.mj_header endRefreshing];
+                [weakSelf.tableView.mj_footer endRefreshing];
+                [ZHProgressHUD showInfoWithText:@"网络请求失败"];
+            }
+        }];
+    });
+    [[STCommon sharedSTSTCommon] setHideToastActivity:^(BOOL isYes) {
+        if (isYes) {
+            if (isOK) {
+                return ;
+            }
+            [[UIApplication sharedApplication].keyWindow hideToastActivity];
+            [weakSelf.tableView.mj_header endRefreshing];
+            [weakSelf.tableView.mj_footer endRefreshing];
+        }
+    }];
+}
+-(void)httpDownStorewideLoadAssociate:(NSString *)text{
+    __weak STWisdomSearchViewController *weakSelf = self;
+    [_searchDict setObject:text forKey:@"q"];
+    
+    [KSMNetworkRequest getStoreClassAssociateUrl:requestInStoreSearchProductSearch params:_searchDict finshed:^(id dataResult, NSError *error) {
+        weakSelf.searchstorewideResult = dataResult;
+        if (isSelect) {
+            if (weakSelf.searchstorewideResult.count > 6) {
+                [UIView animateWithDuration:.2 animations:^{
+                    weakSelf.searchTableView.frame = CGRectMake(50, 60, kScreenWidth - 100, 180);
+                }];
+            }else{
+                weakSelf.searchTableView.frame = CGRectMake(50, 60, kScreenWidth - 100, weakSelf.searchstorewideResult.count * 30);
+            }
+            [weakSelf.searchTableView reloadData];
+        }
+    }];
+    isSelect = YES;
+}
+
+//扫码购添加
+-(void)addPurchaseSearchProduct:(NSDictionary *)params finshed:(void(^)(NSString *mesg,NSString *code,NSError *error))finshed{
+    [KSMNetworkRequest getAddPurchaseSearchProductUrl:requestAddPurchaseProductForGoods_Package_ID params:params finshed:^(NSString *mesg,NSString *code, NSError *error) {
+        finshed(mesg,code,error);
+    }];
+}
+
+#pragma mark -  智慧采购凑单加购物车接口
+-(void)addPurchaseProduct:(NSDictionary *)params finshed:(void(^)(STStorewideEntity *entity,NSString *mesg,NSString *code,NSError *error))finshed{
+    [KSMNetworkRequest getAddPurchaseProductUrl:requestAddPurchaseProduct params:params finshed:^(STStorewideEntity *entity,NSString *mesg,NSString *code, NSError *error) {
+        finshed(entity,mesg,code,error);
+    }];
+}
+
+#pragma mark UITableViewDataSource
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if (tableView == _searchTableView) {
+        return _searchstorewideResult.count;
+    }else if (tableView == _tableView){
+        return _dataResult.count;
+    }
+    return 0;
+}
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (tableView == _searchTableView) {
+        static NSString *SearchName = @"SearchName";
+        STProductSearchCell *cell = [tableView dequeueReusableCellWithIdentifier:SearchName];
+        if (!cell) {
+            cell = [[[NSBundle mainBundle]loadNibNamed:@"STProductSearchCell" owner:self options:nil]lastObject];
+        }
+        [cell setProductSearch:_searchstorewideResult indexPath:indexPath];
+        return cell;
+    }else if(tableView == _tableView){
+        static NSString *StorewideBgName = @"StorewideBgName";
+        STWisdomSearchTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:StorewideBgName];
+        if (!cell) {
+            cell = [[[NSBundle mainBundle]loadNibNamed:@"STWisdomSearchTableViewCell" owner:self options:nil]lastObject];
+            cell.delegate = self;
+        }
+        if (_dataResult.count != 0) {
+            [cell setWisdomSearchDataResult:_dataResult andIndexPath:indexPath];
+        }
+        return cell;
+    }
+    return nil;
+}
+#pragma mark UITableViewDelegate
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    //    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    if (tableView == _searchTableView) {
+        isSelect = NO;
+        STProductSearchCell *cell = (STProductSearchCell *)[_searchTableView cellForRowAtIndexPath:indexPath];
+        _searchNavView.searchTextField.text = cell.nameLab.text;
+        
+        pageIndex = 1;
+        [_paramsDict setObject:[[STCommon sharedSTSTCommon] setchengStr:cell.nameLab.text oldStr:cell.nameLab.text] forKey:@"keywords"];
+        [_paramsDict setObject:@"1" forKey:@"pageIndex"];
+        [_paramsDict setObject: @"" forKey:@"barnum"];
+        [self.tableView.mj_header beginRefreshing];
+        [UIView animateWithDuration:.2 animations:^{
+            _searchTableView.frame = CGRectMake(50, 60, kScreenWidth - 100, 0);
+        }];
+    }else if(tableView == _tableView){
+        //        STProductDetailsViewController *detailsVC = [STProductDetailsViewController new];
+        //        detailsVC.urlStr = [NSString stringWithFormat:@"%@pid=%@&fromcategories=2",requestProductProductBuy,[_dataResult[indexPath.row] Pid]];
+        //        [self.navigationController pushViewController:detailsVC animated:YES];
+    }
+}
+
+-(void)tapRightSwipe{
+    [self hiddenFilterView];
+    bgView.hidden = YES;
+}
+
+-(void)topSelect{
+    NSIndexPath* indexPat = [NSIndexPath indexPathForRow:0 inSection:0];
+    [self.tableView scrollToRowAtIndexPath:indexPat atScrollPosition:UITableViewScrollPositionTop animated:NO];
+    _wisdomAddListBgView.hidden = NO;
+}
+//筛选
+#pragma mark-  STStorewideBtnViewDelegate
+-(void)g_setWisdomSearchBtnTag:(NSInteger)tag andSelected:(BOOL)isSelected{
+    pageIndex = 1;
+    switch (tag) {
+        case 0:
+            sortStr = @"default";
+            break;
+        case 1:
+            if (isSelected) {
+                sortStr = @"3";
+            }else{
+                sortStr = @"4";
+            }
+            break;
+        case 2:
+            if (isSelected) {
+                sortStr = @"5";
+            }else{
+                sortStr = @"6";
+            }
+            break;
+        case 3:
+            [self showFilterView];
+            bgView.hidden = NO;
+            break;
+            
+        default:
+            break;
+    }
+    [UIView animateWithDuration:.2 animations:^{
+        _searchTableView.frame = CGRectMake(50, 60, kScreenWidth - 100, 0);
+    }];
+    
+    if (tag == 1 || tag == 2 || tag == 0) {
+        [_paramsDict setObject:@"1" forKey:@"pageIndex"];
+        [_paramsDict setObject:sortStr forKey:@"sort"];
+        [self.tableView.mj_header beginRefreshing];
+    }
+    [UIView animateWithDuration:.2 animations:^{
+        _searchTableView.frame = CGRectMake(50, 60, kScreenWidth - 100, 0);
+    }];
+}
+//搜索
+#pragma mark UITextFieldDelegate
+-(BOOL)textFieldShouldClear:(UITextField *)textField{
+    _searchNavView.searchTextField.text = @"";
+    [_searchstorewideResult removeAllObjects];
+    [_searchTableView reloadData];
+    [UIView animateWithDuration:.2 animations:^{
+        _searchTableView.frame = CGRectMake(50, 60, kScreenWidth - 100, 0);
+    }];
+    return YES;
+}
+-(BOOL)textFieldShouldReturn:(UITextField *)textField{
+    [_searchNavView.searchTextField resignFirstResponder];
+    pageIndex = 1;
+    [_paramsDict setObject:@"1" forKey:@"pageIndex"];
+    [_paramsDict setObject: @"" forKey:@"barnum"];
+    [_paramsDict setObject:[[STCommon sharedSTSTCommon] setchengStr:_searchNavView.searchTextField.text oldStr:_searchNavView.searchTextField.text] forKey:@"keywords"];
+    [self.tableView.mj_header beginRefreshing];
+    return YES;
+}
+
+#pragma mark -- STWisdomSearchTableViewCellDelegate
+-(void)g_setSearchSelectBuy:(STWisdomSearchTableViewCell *)cell{
+    
+    NSIndexPath *indexPath = [_tableView indexPathForCell:cell];
+    
+    if ([[_dataResult[indexPath.row] mAddr_control] intValue] == 1) {
+        
+        [ZHProgressHUD showInfoWithText:@"已在采购清单"];
+        
+    }else{
+        
+        [[UIApplication sharedApplication].keyWindow showLoadingView:@"loading"];
+        
+        NSDictionary *params = @{@"StoreId":@"0",@"Goods_Package_ID":[_dataResult[indexPath.row] goods_Package_ID]};
+        
+        [KSMNetworkRequest  getSwitchStoreUrl:requestGetOtherStorePorductList params:params finshed:^(id dataResult, NSError *error) {
+            _switchStoreView.hidden = NO;
+            [_switchStoreView setSwitchStoreViewResult:dataResult indexPath:indexPath];
+            [[UIApplication sharedApplication].keyWindow hideToastActivity];
+        }];
+    }
+}
+
+#pragma mark- STWisdomSearchBtnViewDelegate
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView{
+    lastContentOffset = scrollView.contentOffset.y;
+}
+- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView{
+    if (lastContentOffset < scrollView.contentOffset.y) {
+        [UIView animateWithDuration:.2 animations:^{
+            _wisdomSearchBtnView.frame = CGRectMake(0, 34, kScreenWidth, 30);
+        }];
+    }else{
+        [UIView animateWithDuration:.2 animations:^{
+            _wisdomSearchBtnView.frame = CGRectMake(0, 64,kScreenWidth, 30);
+        }];
+    }
+}
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+    [UIView animateWithDuration:.2 animations:^{
+        _wisdomSearchBtnView.frame = CGRectMake(0, 64, kScreenWidth, 30);
+    }];
+}
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    if (scrollView.contentOffset.y < 100) {
+        _topBtn.hidden = YES;
+    }else{
+        _topBtn.hidden = NO;
+    }
+    if (scrollView != _searchTableView) {
+        [UIView animateWithDuration:.2 animations:^{
+            _searchTableView.frame = CGRectMake(50, 60, kScreenWidth - 100, 0);
+        }];
+    }
+    [_searchNavView.searchTextField resignFirstResponder];
+}
+//筛选条件
+-(void)wisdomAddListeProducttypeMothed:(NSNotification *)sender{
+    bgView.hidden = YES;
+    pageIndex = 1;
+    [_paramsDict setObject:[sender.userInfo objectForKey:@"producttype"] forKey:@"producttype"];
+    [_paramsDict setObject:[sender.userInfo objectForKey:@"cuxiao"] forKey:@"cuxiao"];
+    [_paramsDict setObject:[sender.userInfo objectForKey:@"GrossMarginRange"] forKey:@"GrossMarginRange"];
+    [_paramsDict setObject:[sender.userInfo objectForKey:@"PriceRange"] forKey:@"PriceRange"];
+    [_paramsDict setObject:@"1" forKey:@"pageIndex"];
+    [self.tableView.mj_header beginRefreshing];
+    [self hiddenFilterView];
+}
+
+-(void)showFilterView{
+    [UIView animateWithDuration:0.3 animations:^{
+        _wisdomAddListBgView.frame  = CGRectMake(-(kScreenWidth - 100), 0, kScreenWidth, kScreenHeight);
+    }];
+    
+}
+-(void)hiddenFilterView{
+    [UIView animateWithDuration:0.3 animations:^{
+        _wisdomAddListBgView.frame  = CGRectMake(0, 0, kScreenWidth, kScreenHeight);
+    }];
+}
+
+-(void)dealloc{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"wisdomAddListeProducttype" object:nil];
+}
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+
+@end

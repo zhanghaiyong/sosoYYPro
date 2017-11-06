@@ -1,0 +1,1 @@
+link ../../../ZXingObjC/ZXingObjC/common/ZXBitArray.h

@@ -1,0 +1,13 @@
+//
+//  purchasetSpecialPricePromotionsModel.m
+//  sosoYY
+//
+//  Created by zhy on 17/3/7.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "purchasetSpecialPricePromotionsModel.h"
+
+@implementation purchasetSpecialPricePromotionsModel
+
+@end

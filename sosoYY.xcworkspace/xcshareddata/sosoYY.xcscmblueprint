@@ -1,0 +1,39 @@
+{
+
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+    "654ae902-4268-4e4a-ad8f-9cb439a29724++3052" : {
+
+    },
+
+    "654ae902-4268-4e4a-ad8f-9cb439a29724++2946" : {
+
+    },
+    "a0de5a5e-94a8-bf41-9d75-42586e4083d8++4318" : {
+
+    }
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+
+    "654ae902-4268-4e4a-ad8f-9cb439a29724++2946" : 9223372036854775807,
+    "a0de5a5e-94a8-bf41-9d75-42586e4083d8++4318" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "57F4DE55-B4AF-4933-9017-5C8E8763D21A",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "654ae902-4268-4e4a-ad8f-9cb439a29724++3052" : "master\/",
+    "a0de5a5e-94a8-bf41-9d75-42586e4083d8++4318" : "sosoYY\/"
+    "a0de5a5e-94a8-bf41-9d75-42586e4083d8++4318" : "release\/"
+    "654ae902-4268-4e4a-ad8f-9cb439a29724++2946" : "BrnMall_Dev\/",
+    "a0de5a5e-94a8-bf41-9d75-42586e4083d8++4318" : "release\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "sosoYY",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "sosoYY.xcworkspace",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/192.168.1.5\/svn\/code",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Subversion",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "a0de5a5e-94a8-bf41-9d75-42586e4083d8++4318"
+    }
+  ]
+}

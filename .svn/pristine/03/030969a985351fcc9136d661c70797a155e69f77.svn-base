@@ -1,0 +1,479 @@
+//
+//  STShopCartSeachTableViewCell.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/8/7.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STShopCartSeachTableViewCell.h"
+
+@implementation STShopCartSeachTableViewCell
+-(void)setShopCartSeach:(STShopCartSeachEntity *)entity indexPath:(NSIndexPath *)indexPath{
+    
+    __weak STShopCartSeachTableViewCell *weakSelf = self;
+    
+      self.nameLab.text = [NSString stringWithFormat:@"%@",entity.DrugsBase_DrugName];
+    
+        if ( entity.DrugsBase_Specification.length == 0) {
+    
+            self.specificationsLab.text = [NSString stringWithFormat:@"规格：--- | %@",entity.DrugsBase_Manufacturer];
+        }else {
+    
+            self.specificationsLab.text = [NSString stringWithFormat:@"%@/%@ | %@",entity.DrugsBase_Specification,entity.Goods_Unit,entity.DrugsBase_Manufacturer];;
+        }
+    
+    
+        //库存
+        NSString *stockStr = [NSString stringWithFormat:@"%@", [STCommon setHasSuffix:entity.stock]];
+    
+        NSString *stockLenth = [NSString stringWithFormat:@"%zi",stockStr.length];
+    
+        if (![entity.sxrq isEqualToString:@""]) {
+            
+            UIColor *timeColor = [Uitils setIntervalSinceNow:entity.sxrq] ? [UIColor fromHexValue:0x777777] : RGB(241, 77, 67);
+            
+            NSString *sxrqStr = [NSString stringWithFormat:@"%@",entity.sxrq];
+            
+            NSString *sxrqStrLenth = [NSString stringWithFormat:@"%zi",entity.sxrq.length];
+            
+            [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"3"},
+                                                                @{@"color":timeColor,@"font":@"12",@"num":sxrqStrLenth},
+                                                                @{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"6"},
+                                                                @{@"color":RGB(102, 102, 102),@"font":@"12",@"num":stockLenth},
+                                                                ]  andChengeString:[NSString stringWithFormat:@"效期:%@ | 库存:%@",sxrqStr,stockStr] type:1 andFinished:^(NSMutableAttributedString *string) {
+                                                                    weakSelf.effectiveLab.attributedText = string;
+                                                                }];
+        }else {
+    
+            if (entity.IsJxq.intValue == 1) {
+                
+                UIColor *timeColor = RGB(241, 77, 67);
+                
+                NSString *sxrqStr = @"近效期";
+                
+                NSString *sxrqStrLenth = [NSString stringWithFormat:@"%zi",entity.sxrq.length];
+                
+                [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"3"},
+                                                                    @{@"color":timeColor,@"font":@"12",@"num":sxrqStrLenth},
+                                                                    @{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"6"},
+                                                                    @{@"color":RGB(102, 102, 102),@"font":@"12",@"num":stockLenth},
+                                                                    ]  andChengeString:[NSString stringWithFormat:@"效期:%@ | 库存:%@",sxrqStr,stockStr] type:1 andFinished:^(NSMutableAttributedString *string) {
+                                                                        weakSelf.effectiveLab.attributedText = string;
+                                                                    }];
+                
+            }else{
+                UIColor *timeColor = [UIColor fromHexValue:0x777777];
+                
+                NSString *sxrqStr = @"---";
+                
+                NSString *sxrqStrLenth = [NSString stringWithFormat:@"%zi",entity.sxrq.length];
+                
+                [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"3"},
+                                                                    @{@"color":timeColor,@"font":@"12",@"num":sxrqStrLenth},
+                                                                    @{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"6"},
+                                                                    @{@"color":RGB(102, 102, 102),@"font":@"12",@"num":stockLenth},
+                                                                    ]  andChengeString:[NSString stringWithFormat:@"效期:%@ | 库存:%@",sxrqStr,stockStr] type:1 andFinished:^(NSMutableAttributedString *string) {
+                                                                        weakSelf.effectiveLab.attributedText = string;
+                                                                    }];
+
+            }
+        }
+    
+    if (entity.source.integerValue > 0) {//手动添加没有我的
+       }else{
+        //月销售
+        NSString *SalesVolumesStr = [NSString stringWithFormat:@"%@",[STCommon setHasSuffix:entity.SalesVolume]];
+           NSString *SalesVolumeLength = [NSString stringWithFormat:@"%zi",SalesVolumesStr.length];
+        //库存
+        NSString *myStockStr = [NSString stringWithFormat:@"%@", [STCommon setHasSuffix:entity.myStock]];
+        NSString *myStockStrLength = [NSString stringWithFormat:@"%zi",myStockStr.length];
+        //参考价
+        NSString *HistoryPricesStr = [NSString stringWithFormat:@"￥%@",[STCommon setHasSuffix:entity.HistoryPrice]];
+         NSString *HistoryPricesStrLength = [NSString stringWithFormat:@"%zi",HistoryPricesStr.length];
+        //最近采购时间
+        NSString *LastTimesStr = [NSString stringWithFormat:@"%@",entity.LastTimeString.length > 0 ? ([entity.source integerValue] > 0 ? @"-----" :entity.LastTimeString) : @"-----"];
+        NSString *LastTimesStrLength = [NSString stringWithFormat:@"%zi",LastTimesStr.length];
+          
+        _myContentLab.text = [NSString stringWithFormat:@"%@%@%@%@",SalesVolumesStr,myStockStr,HistoryPricesStr,LastTimesStr];
+    
+           
+           [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"3"},
+                                                               @{@"color":RGB(102, 102, 102),@"font":@"12",@"num":SalesVolumeLength},
+                                                               @{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"4"},
+                                                               @{@"color":RGB(102, 102, 102),@"font":@"12",@"num":myStockStrLength},
+                                                               @{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"5"},
+                                                               @{@"color":RGB(102, 102, 102),@"font":@"12",@"num":HistoryPricesStrLength},
+                                                               @{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"6"},
+                                                               @{@"color":RGB(102, 102, 102),@"font":@"12",@"num":LastTimesStrLength}]  andChengeString:[NSString stringWithFormat:@"月销:%@ 库存:%@ 参考价:%@ 最近采购:%@",SalesVolumesStr,myStockStr,HistoryPricesStr,LastTimesStr] type:1 andFinished:^(NSMutableAttributedString *string) {
+                                                                   weakSelf.myContentLab.attributedText = string;
+                                                               }];
+    }
+    
+    //是加价购，并且选择了加价购商品
+    if ([entity.PromotionTypes integerValue] == 1 && [entity.pmid integerValue] > 0) {
+        
+        for (NSDictionary *addDict in entity.purchasetAddPricePromotionsList) {
+            
+            //选择的加价购商品
+            if ([entity.pmid isEqual:addDict[@"pmid"]]) {
+                
+                self.goNameLab.text = [NSString stringWithFormat:@"%@",addDict[@"DrugsBase_DrugName"]];
+                
+                NSString *DrugsBase_Specification = [NSString stringWithFormat:@"%@",addDict[@"DrugsBase_Specification"]];
+                
+                if (DrugsBase_Specification.length == 0) {
+                    
+                    self.goSpecificationsLab.text = @"规格：---";
+                }else {
+                    
+                    self.goSpecificationsLab.text = [NSString stringWithFormat:@"%@",addDict[@"DrugsBase_Specification"]];
+                }
+                self.goComPly.text = [NSString stringWithFormat:@"%@",addDict[@"DrugsBase_Manufacturer"]];
+                
+                
+                //库存
+                NSString *stockStr = [NSString stringWithFormat:@"%@", [STCommon setHasSuffix:addDict[@"stock"]]];
+                
+                NSString *stockLenth = [NSString stringWithFormat:@"%zi",stockStr.length];
+                
+                
+                if (![addDict[@"sxrq"] isEqualToString:@""]) {
+                    
+                    UIColor *timeColor = [Uitils setIntervalSinceNow:addDict[@"sxrq"]] ? [UIColor fromHexValue:0x777777] : RGB(241, 77, 67);
+                    
+                    NSString *sxrqStr = [NSString stringWithFormat:@"%@",addDict[@"sxrq"]];
+                    
+                    NSString *sxrqStrLenth = [NSString stringWithFormat:@"%zi",sxrqStr.length];
+                    
+                    [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"3"},
+                                                                        @{@"color":timeColor,@"font":@"12",@"num":sxrqStrLenth},
+                                                                        @{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"6"},
+                                                                        @{@"color":RGB(102, 102, 102),@"font":@"12",@"num":stockLenth},
+                                                                        ]  andChengeString:[NSString stringWithFormat:@"效期:%@ | 库存:%@",sxrqStr,stockStr] type:1 andFinished:^(NSMutableAttributedString *string) {
+                                                                            weakSelf.goEffectiveLab.attributedText = string;
+                                                                        }];
+                }else {
+                    
+                    if ([addDict[@"IsJxq"] intValue] ==  1) {
+                        
+                        UIColor *timeColor = RGB(241, 77, 67);
+                        
+                        NSString *sxrqStr = @"近效期";
+                        
+                        NSString *sxrqStrLenth = [NSString stringWithFormat:@"%zi",entity.sxrq.length];
+                        
+                        [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"3"},
+                                                                            @{@"color":timeColor,@"font":@"12",@"num":sxrqStrLenth},
+                                                                            @{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"6"},
+                                                                            @{@"color":RGB(102, 102, 102),@"font":@"12",@"num":stockLenth},
+                                                                            ]  andChengeString:[NSString stringWithFormat:@"效期:%@ | 库存:%@",sxrqStr,stockStr] type:1 andFinished:^(NSMutableAttributedString *string) {
+                                                                                weakSelf.goEffectiveLab.attributedText = string;
+                                                                            }];
+
+                        
+                    }else{
+                        
+                        UIColor *timeColor = [UIColor fromHexValue:0x777777];
+                        
+                        NSString *sxrqStr = @"---";
+                        
+                        NSString *sxrqStrLenth = [NSString stringWithFormat:@"%zi",entity.sxrq.length];
+                        
+                        [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"3"},
+                                                                            @{@"color":timeColor,@"font":@"12",@"num":sxrqStrLenth},
+                                                                            @{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"6"},
+                                                                            @{@"color":RGB(102, 102, 102),@"font":@"12",@"num":stockLenth},
+                                                                            ]  andChengeString:[NSString stringWithFormat:@"效期:%@ | 库存:%@",sxrqStr,stockStr] type:1 andFinished:^(NSMutableAttributedString *string) {
+                                                                                weakSelf.goEffectiveLab.attributedText = string;
+                                                                            }];
+
+                    }
+                }
+                
+                if ([addDict[@"addPriceType"] integerValue] == 0) {
+                    
+                    self.goNumLab.text = [NSString stringWithFormat:@"X%@",addDict[@"secondProudctNum"]];
+                    
+                }else if ([addDict[@"addPriceType"] integerValue] == 1){
+                    
+                    self.goNumLab.text = [NSString stringWithFormat:@"X%d",[addDict[@"secondProudctNum"] intValue]*(int)([entity.buyCount intValue]/[addDict[@"firstProudctPerNum"] intValue])];
+                }
+            }
+            break;
+        }
+    }
+
+    __block BOOL isRemainder = false;
+    
+    __block BOOL isJZRemainder = false;
+    
+    [STCommon isRemainderD1:entity.buyCount.doubleValue withD2:entity.Product_Pcs_Small.doubleValue Block:^(BOOL isRemainder, int multiple) {
+        
+        isRemainder = isRemainder;
+    }];
+    
+    [STCommon isRemainderD1:entity.buyCount.doubleValue withD2:entity.Product_Pcs.doubleValue Block:^(BOOL isRemainder, int multiple) {
+        
+        isJZRemainder = isRemainder;
+    }];
+    
+    //购买数低于最低购买数 || 购买数超出库存
+    if ([entity.buyCount doubleValue] < [entity.minBuy doubleValue] || [entity.buyCount doubleValue] > [entity.stock doubleValue] || ([entity.sellType doubleValue] == 2 && [entity.Product_Pcs_Small doubleValue] > 0 && !isRemainder)) {
+        //超出库存
+        if ([entity.buyCount doubleValue] > [entity.stock doubleValue]) {
+            
+            self.ontentLab.text = [NSString stringWithFormat:@"采购数量超库存,最大可采购数量为%@%@",[STCommon setHasSuffix:entity.stock],entity.Goods_Unit];
+            //不满最低采购
+        }else if ([entity.buyCount doubleValue] < [entity.minBuy doubleValue]) {
+            
+            self.ontentLab.text = [NSString stringWithFormat:@"不满最低采购数量，最低采购数量为%@%@",[STCommon setHasSuffix:entity.minBuy],entity.Goods_Unit];
+            
+            //输入的不是中包装的倍数
+        }else if ([entity.sellType doubleValue] == 2 && !isRemainder) {
+            
+            self.ontentLab.text = [NSString stringWithFormat:@"不满中包装【%@】的整数倍",[STCommon setHasSuffix:entity.Product_Pcs_Small]];
+            //输入的不是件装的倍数
+        }else if ([entity.sellType doubleValue] == 3 && !isJZRemainder) {
+            
+            self.ontentLab.text = [NSString stringWithFormat:@"不满件装【%@】的整数倍",[STCommon setHasSuffix:entity.Product_Pcs_Small]];
+        }
+        
+    }
+    
+    //特价商品
+    if ([entity.PricePromotionsTypes integerValue] == 1) {
+        
+        switch ([entity.purchasetSpecialPricePromotions[@"limittype"] integerValue]) {
+            case 0: {//不限购
+                
+                //原价
+                NSString *shoppriceStr = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:entity.purchasetSpecialPricePromotions[@"shopprice"]]];
+                
+                NSString *shoppriceStrlenth = [NSString stringWithFormat:@"%zi",shoppriceStr.length];
+                //特价
+               NSString *spepriceStr = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:entity.purchasetSpecialPricePromotions[@"speprice"]]];
+                
+                 NSString *spepriceStrlenth = [NSString stringWithFormat:@"%zi",spepriceStr.length];
+    
+                
+                [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(234, 84, 19),@"font":@"12",@"num":spepriceStrlenth},
+                                                                    @{@"color":RGB(175, 175, 175),@"font":@"10",@"num":shoppriceStrlenth}]  andChengeString:[NSString stringWithFormat:@"%@  %@",spepriceStr,shoppriceStr] type:1 andFinished:^(NSMutableAttributedString *string) {
+                                                                        weakSelf.priceLab.attributedText = string;
+                                                                    }];
+                
+                  CGSize spepriceSize = [spepriceStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, 1) options:NSStringDrawingTruncatesLastVisibleLine|NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12]} context:nil].size;
+                
+                 CGSize shoppriceSize = [shoppriceStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, 1) options:NSStringDrawingTruncatesLastVisibleLine|NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12]} context:nil].size;
+                
+                //划线
+                UILabel *lineLab = [UILabel new];
+                lineLab.backgroundColor = RGB(175, 175, 175);
+                lineLab.frame = CGRectMake(54 + spepriceSize.width, 83, shoppriceSize.width, 1);
+                [self.contentView addSubview:lineLab];
+                break;
+            }
+            case 1:{ //每人限购
+                
+                //超过了限购的数量，按照原价出售 按照原价处理
+                if ([entity.purchasetSpecialPricePromotions[@"limitnumber"] integerValue] - [entity.purchasetSpecialPricePromotions[@"TotalNumber"] integerValue] < [entity.buyCount integerValue]) {
+                    
+                    self.specialContentLab.textColor = [UIColor fromHexValue:0xFF3333];
+                    self.specialContentLab.text = [NSString stringWithFormat:@"超出限购数量%@，将按原价结算",[STCommon setHasSuffix:entity.purchasetSpecialPricePromotions[@"limitnumber"]]];
+                    
+                    //原价计算
+                    self.priceLab.text = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:entity.Price]];
+                }else {
+                    
+                    //原价
+                    NSString *shoppriceStr = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:entity.purchasetSpecialPricePromotions[@"shopprice"]]];
+                    
+                    NSString *shoppriceStrlenth = [NSString stringWithFormat:@"%zi",shoppriceStr.length];
+                    //特价
+                    NSString *spepriceStr = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:entity.purchasetSpecialPricePromotions[@"speprice"]]];
+                    
+                    NSString *spepriceStrlenth = [NSString stringWithFormat:@"%zi",spepriceStr.length];
+                    
+                    [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(234, 84, 19),@"font":@"12",@"num":spepriceStrlenth},
+                                                                        @{@"color":RGB(175, 175, 175),@"font":@"10",@"num":shoppriceStrlenth}]  andChengeString:[NSString stringWithFormat:@"%@ %@",spepriceStr,shoppriceStr] type:1 andFinished:^(NSMutableAttributedString *string) {
+                                                                            weakSelf.priceLab.attributedText = string;
+                                                                        }];
+                    
+                    
+                    CGSize spepriceSize = [spepriceStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, 1) options:NSStringDrawingTruncatesLastVisibleLine|NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12]} context:nil].size;
+                    
+                    CGSize shoppriceSize = [shoppriceStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, 1) options:NSStringDrawingTruncatesLastVisibleLine|NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12]} context:nil].size;
+                    
+                    //划线
+                    UILabel *lineLab = [UILabel new];
+                    lineLab.backgroundColor = RGB(175, 175, 175);
+                    lineLab.frame = CGRectMake(54 + spepriceSize.width, 83, shoppriceSize.width, 1);
+                    [self.contentView addSubview:lineLab];
+                }
+                
+                break;
+            }
+            case 2:{ //每人每天限购
+                
+                //超过了限购的数量，按照原价出售
+                if ([entity.purchasetSpecialPricePromotions[@"limitnumber"] integerValue] - [entity.purchasetSpecialPricePromotions[@"TodayNumber"] integerValue] < [entity.buyCount integerValue]) {
+                    
+                    self.specialContentLab.textColor = [UIColor fromHexValue:0xFF3333];
+                    self.specialContentLab.text = [NSString stringWithFormat:@"超出限购数量%@，将按原价结算",[STCommon setHasSuffix:entity.purchasetSpecialPricePromotions[@"limitnumber"]]];
+                    
+                    //原价计算
+                    self.priceLab.text = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:entity.Price]];
+    
+                    
+                }else {
+                    
+                    self.specialContentLab.textColor = [UIColor fromHexValue:0x777777];
+                    self.specialContentLab.text = [NSString stringWithFormat:@"购买1-%@%@时享受优惠，超出数量以结算价为准",[STCommon setHasSuffix:entity.purchasetSpecialPricePromotions[@"limitnumber"]],entity.Goods_Unit];
+                    
+                    //原价
+                    NSString *shoppriceStr = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:entity.purchasetSpecialPricePromotions[@"shopprice"]]];
+                    
+                    NSString *shoppriceStrlenth = [NSString stringWithFormat:@"%zi",shoppriceStr.length];
+                    //特价
+                    NSString *spepriceStr = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:entity.purchasetSpecialPricePromotions[@"speprice"]]];
+                    
+                    NSString *spepriceStrlenth = [NSString stringWithFormat:@"%zi",spepriceStr.length];
+                    
+                    [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(234, 84, 19),@"font":@"12",@"num":spepriceStrlenth},
+                                                                        @{@"color":RGB(175, 175, 175),@"font":@"10",@"num":shoppriceStrlenth}]  andChengeString:[NSString stringWithFormat:@"%@ %@",spepriceStr,shoppriceStr] type:1 andFinished:^(NSMutableAttributedString *string) {
+                                                                            weakSelf.priceLab.attributedText = string;
+                                                                        }];
+                    
+                    CGSize spepriceSize = [spepriceStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, 1) options:NSStringDrawingTruncatesLastVisibleLine|NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12]} context:nil].size;
+                    
+                    CGSize shoppriceSize = [shoppriceStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, 1) options:NSStringDrawingTruncatesLastVisibleLine|NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12]} context:nil].size;
+                    
+                    //划线
+                    UILabel *lineLab = [UILabel new];
+                    lineLab.backgroundColor = RGB(175, 175, 175);
+                    lineLab.frame = CGRectMake(54 + spepriceSize.width, 83, shoppriceSize.width, 1);
+                    [self.contentView addSubview:lineLab];
+
+                }
+                
+                break;
+            }
+                
+            default:
+                break;
+        }
+    }else {
+        //原价计算
+        self.priceLab.text = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:entity.Price]];
+    }
+    
+    //加价购商品
+    if ([entity.PromotionTypes integerValue] == 1) {
+        
+        self.addContentLab.textColor = [UIColor fromHexValue:0x777777];
+        NSDictionary *addDict = entity.purchasetAddPricePromotionsList[0];
+        
+        switch ([addDict[@"addPriceType"] integerValue]) {
+            case 0:{ //满多少，不叠加
+                
+                if (entity.isSelect.integerValue ==  1) {
+                    
+                    //当前数量大于加价购的标准
+                    if ([entity.buyCount doubleValue] >= [addDict[@"firstProudctStartNum"] intValue]) {
+                        
+                        //加价购和商品一样
+                        if ([entity.pid isEqual:addDict[@"pid"]]) {
+                            self.addContentLab.text = [NSString stringWithFormat:@"已购满%@%@,加价%@元可换购本品%@%@",addDict[@"firstProudctStartNum"],entity.Goods_Unit,addDict[@"addPrice"],addDict[@"secondProudctNum"],addDict[@"Goods_Unit"]];
+                            
+                        }else { //赠品是其他商品
+                            self.addContentLab.text = [NSString stringWithFormat:@"已购满%@%@,加价%@元可换购指定商品%@%@",addDict[@"firstProudctStartNum"],entity.Goods_Unit,addDict[@"addPrice"],addDict[@"secondProudctNum"],addDict[@"Goods_Unit"]];
+                        }
+                        //当前数量小于加价购的标准
+                    }else {
+                        //加价购和商品一样
+                        if ([entity.pid isEqual:addDict[@"pid"]]) {
+                            self.addContentLab.text = [NSString stringWithFormat:@"购满%@%@,加价%@元可换购本品%@%@",addDict[@"firstProudctStartNum"],entity.Goods_Unit,addDict[@"addPrice"],addDict[@"secondProudctNum"],addDict[@"Goods_Unit"]];
+                        }else {//赠品是其他商品
+                            self.addContentLab.text = [NSString stringWithFormat:@"购满%@%@,加价%@元可换购指定商品%@%@",addDict[@"firstProudctStartNum"],entity.Goods_Unit,addDict[@"addPrice"],addDict[@"secondProudctNum"],addDict[@"Goods_Unit"]];
+                        }
+                    }
+                }else {
+                    //加价购和商品一样
+                    if ([entity.pid isEqual:addDict[@"pid"]]) {
+                        self.addContentLab.text = [NSString stringWithFormat:@"购满%@%@,加价%@元可换购本品%@%@",addDict[@"firstProudctStartNum"],entity.Goods_Unit,addDict[@"addPrice"],addDict[@"secondProudctNum"],addDict[@"Goods_Unit"]];
+                        
+                    }else {//赠品是其他商品
+                        
+                        self.addContentLab.text = [NSString stringWithFormat:@"购满%@%@,加价%@元可换购指定商品%@%@",addDict[@"firstProudctStartNum"],entity.Goods_Unit,addDict[@"addPrice"],addDict[@"secondProudctNum"],addDict[@"Goods_Unit"]];
+                    }
+                }
+                
+                break;
+            }
+            case 1:{
+                
+                if ([entity.pid isEqual:addDict[@"pid"]]) {
+                    self.addContentLab.text = [NSString stringWithFormat:@"每购满%@%@,加价%@元可换购本品%@%@",addDict[@"firstProudctPerNum"],entity.Goods_Unit,addDict[@"addPrice"],addDict[@"secondProudctNum"],addDict[@"Goods_Unit"]];
+                }else {
+                    
+                    self.addContentLab.text = [NSString stringWithFormat:@"每购满%@%@,加价%@元可换购指定商品%@%@",addDict[@"firstProudctPerNum"],entity.Goods_Unit,addDict[@"addPrice"],addDict[@"secondProudctNum"],addDict[@"Goods_Unit"]];
+                }
+                
+                break;
+            }
+                
+            default:
+                break;
+        }
+    }
+
+    [self.numBtn setTitle:[NSString stringWithFormat:@"%@",entity.buyCount] forState:UIControlStateNormal];
+    
+    
+    if (entity.isSelect.intValue == 1) {
+        [_selectBtn setImage:[UIImage imageNamed:@"选中"] forState:UIControlStateNormal];
+    }else{
+      [_selectBtn setImage:[UIImage imageNamed:@"未选中"] forState:UIControlStateNormal];
+    }
+}
+- (IBAction)selectMothed:(UIButton *)sender {
+    
+    STShopCartSeachTableViewCell *cell = (STShopCartSeachTableViewCell *)[[sender superview]superview];
+    if (_delegate && [_delegate respondsToSelector:@selector(g_SelectMothed:)]) {
+        [_delegate g_SelectMothed:cell];
+    }
+}
+- (IBAction)changeNumMothed:(UIButton *)sender {
+    
+    STShopCartSeachTableViewCell *cell = (STShopCartSeachTableViewCell *)[[sender superview]superview];
+    if (_delegate && [_delegate respondsToSelector:@selector(g_ChangeNumMothed:)]) {
+        [_delegate g_ChangeNumMothed:cell];
+    }
+}
+- (IBAction)listMothed:(UIButton *)sender {
+    
+    STShopCartSeachTableViewCell *cell = (STShopCartSeachTableViewCell *)[[sender superview]superview];
+    if (_delegate && [_delegate respondsToSelector:@selector(g_ListMothed:)]) {
+        [_delegate g_ListMothed:cell];
+    }
+}
+- (IBAction)goMothed:(UIButton *)sender {
+    
+    STShopCartSeachTableViewCell *cell = (STShopCartSeachTableViewCell *)[[sender superview]superview];
+    if (_delegate && [_delegate respondsToSelector:@selector(g_GoMothed:)]) {
+        [_delegate g_GoMothed:cell];
+    }
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

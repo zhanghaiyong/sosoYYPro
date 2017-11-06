@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CouponViewController">
+            <connections>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+                <outlet property="webView" destination="o8D-eT-TRj" id="TrI-W1-qFm"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TfP-fe-IBS">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="20"/>
+                    <color key="backgroundColor" red="0.91284507513046265" green="0.3246082067489624" blue="0.07944943755865097" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="20" id="Zlt-ci-nQ4"/>
+                    </constraints>
+                </view>
+                <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o8D-eT-TRj" customClass="CustomWebView">
+                    <rect key="frame" x="0.0" y="20" width="375" height="647"/>
+                    <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                </webView>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="TfP-fe-IBS" secondAttribute="trailing" id="5bK-1I-mL5"/>
+                <constraint firstItem="TfP-fe-IBS" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="9dn-Eb-98P"/>
+                <constraint firstItem="TfP-fe-IBS" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="Atr-Za-cVm"/>
+                <constraint firstAttribute="bottom" secondItem="o8D-eT-TRj" secondAttribute="bottom" id="Zqt-Df-3fF"/>
+                <constraint firstItem="o8D-eT-TRj" firstAttribute="top" secondItem="TfP-fe-IBS" secondAttribute="bottom" id="cIm-co-vMx"/>
+                <constraint firstAttribute="trailing" secondItem="o8D-eT-TRj" secondAttribute="trailing" id="tVl-Eh-wfx"/>
+                <constraint firstItem="o8D-eT-TRj" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="xrh-ZI-eYz"/>
+            </constraints>
+            <point key="canvasLocation" x="-79" y="55"/>
+        </view>
+    </objects>
+</document>

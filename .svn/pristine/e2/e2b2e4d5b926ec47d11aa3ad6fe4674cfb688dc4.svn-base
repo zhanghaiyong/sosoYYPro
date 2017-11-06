@@ -1,0 +1,65 @@
+//
+//  STMessageInvoiceListTableViewCell.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/7/28.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STMessageInvoiceListTableViewCell.h"
+
+@implementation STMessageInvoiceListTableViewCell
+-(void)setMessageInvoiceList:(NSMutableArray *)arr indexPath:(NSIndexPath *)indexPath{
+    
+    __weak STMessageInvoiceListTableViewCell *weakSelf = self;
+    
+    _lookBtn.layer.borderColor = [UIColor fromHexValue:0xea5413].CGColor;
+    _lookBtn.layer.borderWidth = 0.5f;
+    
+    [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(119, 119, 119),@"font":@"14",@"num":@"5"},@{@"color":RGB(85, 85, 85),@"font":@"14"}]  andChengeString:@"开票日期:2017-12-56" type:1 andFinished:^(NSMutableAttributedString *string) {
+        weakSelf.dateLab.attributedText = string;
+    }];
+    
+    [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(119, 119, 119),@"font":@"14",@"num":@"5"},@{@"color":RGB(85, 85, 85),@"font":@"14"}]  andChengeString:@"开票店铺:四川龙一医药旗舰店" type:1 andFinished:^(NSMutableAttributedString *string) {
+        weakSelf.storeNameLab.attributedText = string;
+    }];
+    
+    [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(119, 119, 119),@"font":@"14",@"num":@"4"},@{@"color":RGB(85, 85, 85),@"font":@"14"}]  andChengeString:@"发票号:123564568798745" type:1 andFinished:^(NSMutableAttributedString *string) {
+        weakSelf.numberLab.attributedText = string;
+    }];
+    
+    [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(119, 119, 119),@"font":@"14",@"num":@"5"},@{@"color":RGB(0, 117, 224),@"font":@"14"}]  andChengeString:@"发票类型:蓝票" type:1 andFinished:^(NSMutableAttributedString *string) {
+        weakSelf.typeLab.attributedText = string;
+    }];
+    
+    [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(119, 119, 119),@"font":@"14",@"num":@"5"},@{@"color":RGB(243, 83, 32),@"font":@"14"}]  andChengeString:@"发票金额:¥500033.33" type:1 andFinished:^(NSMutableAttributedString *string) {
+        weakSelf.priceLab.attributedText = string;
+    }];
+    
+    [_serialNumberBtn setTitle:@"1235468795455642254" forState:UIControlStateNormal];
+}
+- (IBAction)lookSelect:(UIButton *)sender {
+    STMessageInvoiceListTableViewCell *cell = (STMessageInvoiceListTableViewCell *)[[sender superview]superview];
+    if (_delegate && [_delegate respondsToSelector:@selector(g_setMessageInvoiceListLook:)]) {
+        [_delegate g_setMessageInvoiceListLook:cell];
+    }
+}
+- (IBAction)serialNumberSelect:(UIButton *)sender {
+    STMessageInvoiceListTableViewCell *cell = (STMessageInvoiceListTableViewCell *)[[sender superview]superview];
+    if (_delegate && [_delegate respondsToSelector:@selector(g_setMessageInvoiceSerialNumber:)]) {
+        [_delegate g_setMessageInvoiceSerialNumber:cell];
+    }
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

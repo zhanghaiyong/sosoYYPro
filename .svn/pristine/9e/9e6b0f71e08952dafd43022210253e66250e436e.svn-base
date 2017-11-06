@@ -1,0 +1,13 @@
+//
+//  STMessageBoxEntity.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/7/31.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STMessageBoxEntity.h"
+
+@implementation STMessageBoxEntity
+
+@end

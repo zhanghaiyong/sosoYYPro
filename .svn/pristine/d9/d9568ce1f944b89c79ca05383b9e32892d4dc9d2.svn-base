@@ -1,0 +1,37 @@
+//
+//  purchasetSpecialPricePromotionsModel.h
+//  sosoYY
+//
+//  Created by zhy on 17/3/7.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface purchasetSpecialPricePromotionsModel : NSObject<NSCopying,NSMutableCopying>
+
+
+
+//特价规则说明
+@property (nonatomic,strong)NSString *name;
+
+// 品种特价
+@property (nonatomic,strong)NSString *speprice;
+
+// 品种原价
+@property (nonatomic,strong)NSString *shopprice;
+
+// 特价限制类型：0-不限，1-每人限购，2-每人每天限购
+@property (nonatomic,strong)NSString *limittype;
+
+// 限购数量
+@property (nonatomic,strong)NSString *limitnumber;
+
+// 当天能买了多少
+@property (nonatomic,strong)NSString *TodayNumber;
+
+// 共计买了多少
+@property (nonatomic,strong)NSString *TotalNumber;
+
+
+@end

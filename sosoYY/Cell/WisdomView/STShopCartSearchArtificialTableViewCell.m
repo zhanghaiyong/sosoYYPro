@@ -1,0 +1,74 @@
+//
+//  STShopCartSearchArtificialTableViewCell.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/8/7.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STShopCartSearchArtificialTableViewCell.h"
+
+@implementation STShopCartSearchArtificialTableViewCell
+-(void)setShopCartSearchArtificial:(STShopCartSeachEntity *)entity indexPath:(NSIndexPath *)indexPath{
+   
+    __weak STShopCartSearchArtificialTableViewCell *weakSelf = self;
+    
+    _nameLab.text = [NSString stringWithFormat:@"%@",entity.DrugsBase_DrugName];
+    _specificationsLab.text = [NSString stringWithFormat:@"%@ | %@",entity.DrugsBase_Specification,entity.DrugsBase_Manufacturer];
+    
+    //月销量
+    NSString *SalesVolume = [NSString stringWithFormat:@"%@",entity.SalesVolume];
+    
+    NSString *SalesVolumeLength = [NSString stringWithFormat:@"%zi",SalesVolume.length];
+    
+    //库存
+    NSString *stock = [NSString stringWithFormat:@"%@",entity.myStock];
+    
+    NSString *stockLength = [NSString stringWithFormat:@"%zi",stock.length];
+    
+    //历史价格
+    NSString *HistoryPrice = [NSString stringWithFormat:@"¥%@",[STCommon setHasSuffix:[NSString stringWithFormat:@"%.2f",entity.HistoryPrice.floatValue]]];
+    
+    NSString *HistoryPriceLength = [NSString stringWithFormat:@"%zi",HistoryPrice.length];
+    
+  //最近采购
+    NSString *LastTimeStr = [NSString stringWithFormat:@"%@",entity.LastTimeString];
+    if (LastTimeStr.length == 0) {
+        LastTimeStr = @"------";
+    }
+    
+  NSString *LastTimeStrLength = [NSString stringWithFormat:@"%zi",LastTimeStr.length];
+    
+    
+ 
+    [[STCommon sharedSTSTCommon] setChengeStringColor:@[@{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"3"},
+                                                        @{@"color":RGB(102, 102, 102),@"font":@"12",@"num":SalesVolumeLength},
+                                                        @{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"4"},
+                                                        @{@"color":RGB(102, 102, 102),@"font":@"12",@"num":stockLength},
+                                                        @{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"5"},
+                                                        @{@"color":RGB(102, 102, 102),@"font":@"12",@"num":HistoryPriceLength},
+                                                        @{@"color":RGB(175, 175, 175),@"font":@"12",@"num":@"6"},
+                                                        @{@"color":RGB(102, 102, 102),@"font":@"12",@"num":LastTimeStrLength}]  andChengeString:[NSString stringWithFormat:@"月销:%@ 库存:%@ 参考价:%@ 最近采购:%@",SalesVolume,stock,HistoryPrice,LastTimeStr] type:1 andFinished:^(NSMutableAttributedString *string) {
+        weakSelf.effectiveLab.attributedText = string;
+    }];
+    
+}
+- (IBAction)addMothed:(UIButton *)sender {
+    
+    STShopCartSearchArtificialTableViewCell *cell = (STShopCartSearchArtificialTableViewCell *)[[sender superview]superview];
+    if (_delegate && [_delegate respondsToSelector:@selector(g_AddMothed:)]) {
+        [_delegate g_AddMothed:cell];
+    }
+}
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

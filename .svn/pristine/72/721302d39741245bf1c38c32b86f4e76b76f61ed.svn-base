@@ -1,0 +1,35 @@
+//
+//  IOUDetailViewController.m
+//  sosoYY
+//
+//  Created by zhy on 2017/8/23.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "IOUDetailViewController.h"
+
+@interface IOUDetailViewController ()
+
+@end
+
+@implementation IOUDetailViewController
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+-(void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    self.navigationController.navigationBar.hidden = NO;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+}
+
+
+
+@end

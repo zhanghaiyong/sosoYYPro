@@ -1,0 +1,36 @@
+//
+//  STMessageInvoiceListTableViewCell.h
+//  sosoYY
+//
+//  Created by soso-mac on 2017/7/28.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@class STMessageInvoiceListTableViewCell;
+
+@protocol STMessageInvoiceListTableViewCellDelegate <NSObject>
+
+@optional
+-(void)g_setMessageInvoiceListLook:(STMessageInvoiceListTableViewCell *)cell;
+-(void)g_setMessageInvoiceSerialNumber:(STMessageInvoiceListTableViewCell *)cell;
+
+@required
+@end
+
+
+@interface STMessageInvoiceListTableViewCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet UILabel *dateLab;
+@property (weak, nonatomic) IBOutlet UILabel *storeNameLab;
+@property (weak, nonatomic) IBOutlet UILabel *numberLab;
+@property (weak, nonatomic) IBOutlet UIButton *lookBtn;
+@property (weak, nonatomic) IBOutlet UILabel *typeLab;
+@property (weak, nonatomic) IBOutlet UILabel *priceLab;
+@property (weak, nonatomic) IBOutlet UILabel *serialNumberLab;
+@property (weak, nonatomic) IBOutlet UIButton *serialNumberBtn;
+
+@property (assign, nonatomic) id<STMessageInvoiceListTableViewCellDelegate>delegate;
+
+-(void)setMessageInvoiceList:(NSMutableArray *)arr indexPath:(NSIndexPath *)indexPath;
+@end

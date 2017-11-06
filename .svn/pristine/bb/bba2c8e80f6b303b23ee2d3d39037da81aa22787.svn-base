@@ -1,0 +1,246 @@
+//
+//  STSelectProjectViewController.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/1/19.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STSelectProjectViewController.h"
+#import "STSelectProjectTableViewCell.h"
+#import "STSelectProjectFooterView.h"
+#import "STSelectProjectHeaderView.h"
+#import "WisdomShopViewController.h"
+#import "STWisdomPrecepSettingViewController.h"
+
+@interface STSelectProjectViewController ()<UITableViewDelegate,UITableViewDataSource,STSelectProjectTableViewCellDelegate>{
+    UILabel *_lab;
+    __block BOOL isOK;
+}
+@property(strong,nonatomic)UITableView *tableView;
+@property (weak, nonatomic) IBOutlet UILabel *dateLabel;
+@property(strong,nonatomic)NSMutableArray *dataResult;
+@property(strong,nonatomic)NSString *selectStr;
+@property(strong,nonatomic)UIButton *gouBtn;
+
+@end
+
+@implementation STSelectProjectViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+   self.view.backgroundColor = [UIColor fromHexValue:0xe5e5e5 alpha:1];
+    _dataResult = [NSMutableArray new];
+    _dateLabel.text = [NSString stringWithFormat:@"更新日期:%@",[[STCommon sharedSTSTCommon] setDate]];
+    _selectStr = @"";
+    isOK = NO;
+    [self addSubView];
+    self.tableView.mj_header.automaticallyChangeAlpha = YES;
+    self.tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        [self httpDownloadPurchaseScheme];
+    }];
+    [self.tableView.mj_header beginRefreshing];
+}
+-(void)httpDownloadPurchaseScheme{
+    __weak STSelectProjectViewController *weakSelf = self;
+    [[UIApplication sharedApplication].keyWindow showLoadingView:@"loading"];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [KSMNetworkRequest getPurchaseSchemeUrl:requestPurchaseScheme
+                                         params:nil finshed:^(id dataResult,NSError *error) {
+                                             weakSelf.dataResult = dataResult;
+                                             if (weakSelf.dataResult.count != 0) {
+                                                 _lab.hidden = YES;
+                                                 _gouBtn.backgroundColor = [UIColor fromHexValue:0xea5413 alpha:1];
+                                             }else{
+                                                 _lab.hidden = NO;
+                                                 [ZHProgressHUD showInfoWithText:@"暂无数据"];
+                                             }
+                                             dispatch_async(dispatch_get_main_queue(), ^{
+                                                 if ([_selectStr isEqualToString:@""]) {
+                                                     if (weakSelf.dataResult.count > 1) {
+                                                         for (int i = 0; i < weakSelf.dataResult.count; i++ ) {
+                                                             if ([[weakSelf.dataResult[i] SchemeName] isEqualToString:@"推荐最优方案"]) {
+                                                                 weakSelf.selectStr = [_dataResult[i] SchemeName];
+                                                             }
+                                                         }
+                                                     }else if(weakSelf.dataResult.count == 1){
+                                                         weakSelf.selectStr = [_dataResult[0] SchemeName];
+                                                     }
+
+                                                 }
+                                                 [weakSelf.tableView reloadData];
+                                                 
+                                                 [weakSelf.tableView.mj_header endRefreshing];
+                                                 [[UIApplication sharedApplication].keyWindow hideToastActivity];
+                                             });
+                                             isOK = YES;
+                                         }];
+    });
+    [[STCommon sharedSTSTCommon] setHideToastActivity:^(BOOL isYes) {
+        if (isYes) {
+            if (isOK) {
+                return ;
+            }
+            [[UIApplication sharedApplication].keyWindow hideToastActivity];
+             [weakSelf.tableView.mj_header endRefreshing];
+        }
+    }];
+}
+-(void)addSubView{
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenHeight - kNavBarHeight - kTabBarHeight)style:UITableViewStyleGrouped];
+    _tableView.delegate = self;
+    _tableView.dataSource = self;
+    _tableView.backgroundColor = [UIColor fromHexValue:0xe5e5e5 alpha:1];
+    [_tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+    [self.view addSubview:_tableView];
+    
+    _lab = [UILabel new];
+    _lab.frame = CGRectMake(0, kScreenHeight/2, kScreenWidth, 30);
+    _lab.text = @"暂无数据";
+    _lab.textColor = [UIColor fromHexValue:0x777777 alpha:1];
+    _lab.textAlignment = NSTextAlignmentCenter;
+    _lab.hidden = YES;
+    [self.view addSubview:_lab];
+
+    _gouBtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    _gouBtn.backgroundColor = RGB(119, 119, 119);
+    _gouBtn.frame = CGRectMake(0, kScreenHeight - kTabBarHeight, kScreenWidth, kTabBarHeight);
+    [_gouBtn setTintColor:[UIColor whiteColor]];
+    [_gouBtn addTarget:self action:@selector(gouSelected) forControlEvents:UIControlEventTouchUpInside];
+    [_gouBtn setTitle:@"生成采购计划" forState:UIControlStateNormal];
+    [self.view addSubview:_gouBtn];
+}
+#pragma mark -- UITableViewDataSource
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return _dataResult.count;
+}
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 1;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    static NSString *cellName = @"cellName";
+    STSelectProjectTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellName];
+    if (!cell) {
+        cell = [[[NSBundle mainBundle]loadNibNamed:@"STSelectProjectTableViewCell" owner:self options:nil]lastObject];
+        cell.delegate = self;
+    }
+    if (_dataResult.count != 0) {
+        [cell setSelectProject:_dataResult indexPath:indexPath selectStr:_selectStr];
+    }
+    return cell;
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return 250;
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 10;
+}
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    UIView *headView = [UIView new];
+    headView.backgroundColor = [UIColor fromHexValue:0xe5e5e5 alpha:1];
+    return headView;
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 1;
+}
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    UIView *headView = [UIView new];
+    headView.backgroundColor = [UIColor fromHexValue:0xe5e5e5 alpha:1];
+    return headView;
+}
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    STSelectProjectTableViewCell *cell = [_tableView cellForRowAtIndexPath:indexPath];
+    _selectStr = cell.nameLab.text;
+    [_tableView reloadData];
+}
+#pragma mark - STSelectProjectTableViewCellDelegate
+-(void)g_setSelectBtn:(STSelectProjectTableViewCell *)cell{
+    __weak STSelectProjectViewController *weakSelf = self;
+    
+    if (_dataResult.count != 0) {
+        WisdomShopViewController *wisdomShopVC = [[WisdomShopViewController alloc]initWithNibName:@"WisdomShopViewController" bundle:nil];
+        wisdomShopVC.WisdomBackBlock = ^(void){
+            [weakSelf.dataResult removeAllObjects];
+            [weakSelf.tableView reloadData];
+            [weakSelf.tableView.mj_header beginRefreshing];
+        };
+        [self.navigationController pushViewController:wisdomShopVC animated:YES];
+    }else{
+        [ZHProgressHUD showInfoWithText:@"暂无数据"];
+    }
+}
+-(void)gouSelected{
+     __weak STSelectProjectViewController *weakSelf = self;
+    if (_dataResult.count != 0) {
+        WisdomShopViewController *wisdomShopVC = [[WisdomShopViewController alloc]initWithNibName:@"WisdomShopViewController" bundle:nil];
+        wisdomShopVC.WisdomBackBlock = ^(void){
+            [weakSelf.dataResult removeAllObjects];
+            [weakSelf.tableView reloadData];
+            [weakSelf.tableView.mj_header beginRefreshing];
+        };
+        [self.navigationController pushViewController:wisdomShopVC animated:YES];
+    }else{
+        [ZHProgressHUD showInfoWithText:@"暂无数据"];
+    }
+}
+//-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+//    STSelectProjectHeaderView *projectHeaderView = [[[NSBundle mainBundle]loadNibNamed:@"STSelectProjectHeaderView" owner:self options:nil]lastObject];
+//    [projectHeaderView  setSelectProject:_dataResult index:section];
+//    return projectHeaderView;
+//}
+//
+//-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+//    __weak STSelectProjectViewController *weakSelf = self;
+//     STSelectProjectFooterView *projectFooterView = [[[NSBundle mainBundle]loadNibNamed:@"STSelectProjectFooterView" owner:self options:nil]lastObject];
+//    [projectFooterView setSelectProjectFooter];
+//    projectFooterView.STSelectProjectFooterBlock =^(NSInteger tag){
+//        if (_dataResult.count != 0) {
+//            WisdomShopViewController *wisdomShopVC = [[WisdomShopViewController alloc]initWithNibName:@"WisdomShopViewController" bundle:nil];
+//            wisdomShopVC.WisdomBackBlock = ^(void){
+//                [weakSelf httpDownloadPurchaseScheme];
+//            };
+//            wisdomShopVC.fa = [_dataResult[section] SchemeName];
+//            [wisdomShopVC setHidesBottomBarWhenPushed:YES];
+//            [self.navigationController pushViewController:wisdomShopVC animated:YES];
+//        }else{
+//            [ZHProgressHUD showInfoWithText:@"暂无数据"];
+//        }
+//    };
+//    return projectFooterView;
+//}
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+    _gouBtn.backgroundColor = RGB(119, 119, 119);
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+- (IBAction)back:(id)sender {
+    if (_SelectWisdomBackBlock) {
+        _SelectWisdomBackBlock();
+    }
+    [self.navigationController popViewControllerAnimated:YES];
+}
+- (IBAction)settingBtn:(id)sender {
+     __weak STSelectProjectViewController *weakSelf = self;
+    
+    STWisdomPrecepSettingViewController *settingVC = [STWisdomPrecepSettingViewController new];
+    settingVC.WisdomBackBlock = ^(void){
+        [weakSelf.dataResult removeAllObjects];
+        [weakSelf.tableView reloadData];
+        [weakSelf.tableView.mj_header beginRefreshing];
+    };
+    [self.navigationController pushViewController:settingVC animated:YES];
+}
+
+@end

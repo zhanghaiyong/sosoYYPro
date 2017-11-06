@@ -1,0 +1,130 @@
+//
+//  STWisdomPrecepSettingViewController.m
+//  sosoYY
+//
+//  Created by soso-mac on 2017/3/27.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import "STWisdomPrecepSettingViewController.h"
+#import "STWisdomSettingCollectionViewCell.h"
+#import "FixedStoreController.h"
+
+@interface STWisdomPrecepSettingViewController ()<UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout>{
+    NSArray *titleAry;
+}
+@property(strong,nonatomic)UICollectionViewFlowLayout *flowL;
+@property (strong, nonatomic)UICollectionView *collectionView;
+@property (weak, nonatomic) IBOutlet UISwitch *SwitchControl;
+@end
+
+@implementation STWisdomPrecepSettingViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+     titleAry = @[@"只选当地公司",@"包邮",@"货票同行",@"电子发票"];
+    
+    
+    _flowL = [UICollectionViewFlowLayout new];
+    [_flowL setScrollDirection:UICollectionViewScrollDirectionVertical];
+    
+    _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 105, kScreenWidth, 60)collectionViewLayout:_flowL];
+    _collectionView.backgroundColor = [UIColor whiteColor];
+    _collectionView.delegate = self;
+    _collectionView.dataSource = self;
+    [_collectionView registerNib:[UINib nibWithNibName:[STWisdomSettingCollectionViewCell.class description] bundle:nil] forCellWithReuseIdentifier:@"STWisdomSettingCollectionViewCell"];
+    [self.view addSubview:_collectionView];
+}
+
+#pragma mark --UICollectionViewdataSource
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView{
+    return 1;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return titleAry.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+   STWisdomSettingCollectionViewCell *MyCell = [collectionView dequeueReusableCellWithReuseIdentifier:@"STWisdomSettingCollectionViewCell" forIndexPath:indexPath];
+    MyCell.nameLab.text = titleAry[indexPath.row];
+    MyCell.backgroundColor = [UIColor redColor];
+    return MyCell;
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath{
+    return CGSizeMake((kScreenWidth - 25)/4, 40);
+}
+
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section
+{
+    return 5.f;
+}
+
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section
+{
+    return 5.f;
+}
+
+
+-(UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section{
+    return UIEdgeInsetsMake(20, 5, 10, 5);
+}
+
+#pragma mark --UICollectionViewDelegate
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+}
+
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    self.navigationController.navigationBar.hidden = YES;
+}
+
+- (IBAction)back:(id)sender {
+    if (_WisdomBackBlock) {
+        _WisdomBackBlock();
+    }
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+
+- (IBAction)showTableViewAction:(id)sender {
+ 
+    UISwitch *sw = (UISwitch *)sender;
+    
+    if (sw.state == 0) {
+        
+        [sw setOn:YES animated:YES];
+        
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"固定采购店铺" message:@"选择之后将只从所选店铺中生成采购方案，可能影响方案生成结果" preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            
+            [self.SwitchControl setOn:NO animated:YES];
+            
+        }]];
+        [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            
+            FixedStoreController *fixedStore = [FixedStoreController new];
+            [self.navigationController pushViewController:fixedStore animated:YES];
+            [self.SwitchControl setOn:NO animated:YES];
+            
+        }]];
+        [self presentViewController:alert animated:YES completion:nil];
+        
+    }else {
+    
+        [sw setOn:NO animated:YES];
+    }
+    
+}
+
+
+@end

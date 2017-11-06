@@ -1,0 +1,33 @@
+//
+//  WisdomModel.h
+//  sosoYY
+//
+//  Created by zhy on 17/1/18.
+//  Copyright © 2017年 felix. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "LiModel.h"
+@interface WisdomModel : NSObject<MJKeyValue,NSMutableCopying,NSCopying>
+/// 店铺编号
+@property (nonatomic,strong)NSString *store_Id;
+/// 店铺名称
+@property (nonatomic,strong)NSString *store_Name;
+/// 满多少金额发货
+@property (nonatomic,strong)NSString *MoneySend;
+/// 满多少金额包邮
+@property (nonatomic,strong)NSString *MoneyFreePostage;
+/// 邮费
+@property (nonatomic,strong)NSString *Postage;
+/// 合计金额
+@property (nonatomic,strong)NSString *Surplusmoney;
+// 商品列表
+@property (nonatomic,strong)NSMutableArray *li;
+//是否展开
+@property (nonatomic,strong)NSString *Expand;
+
+//@property (nonatomic,assign)BOOL isCheckedStore;
+
+
+
+@end
